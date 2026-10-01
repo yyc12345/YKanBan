@@ -1,0 +1,160 @@
+using Microsoft.Data.Sqlite;
+using YKanBan.Storage;
+using YKanBan.Storage.Workspace;
+using YKanBan.Tests.TestUtilities;
+
+namespace YKanBan.Tests.Storage.Workspace;
+
+/// <summary>Verifies that the DDL constraints reject invalid data at the door.</summary>
+[TestClass]
+public class WorkspaceSchemaTests
+{
+    /// <summary>Owns a temp directory plus a fresh workspace-schema database for one test.</summary>
+    private sealed class FreshDatabase : IDisposable
+    {
+        public TempDirectory Directory { get; } = new();
+
+        public SqliteConnection Connection { get; }
+
+        public FreshDatabase()
+        {
+            Connection = SqliteDatabase.Open(
+                Path.Combine(Directory.FullPath, "ws.db"), WorkspaceSchema.Migrations);
+        }
+
+        public void Dispose()
+        {
+            Connection.Dispose();
+            Directory.Dispose();
+        }
+    }
+
+    [TestMethod]
+    public void EmptyColumnTitleIsRejected()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('', 1, 1);"));
+    }
+
+    [TestMethod]
+    public void DuplicateColumnTitleIsRejected()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);"));
+    }
+
+    [TestMethod]
+    public void ColumnTitlesCompareCaseSensitively()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        // BINARY collation: 'Foo' and 'foo' are distinct titles.
+        SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
+        SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('foo', 1, 1);");
+        Assert.AreEqual(2L, SqliteTestHelper.ScalarLong(connection, "SELECT COUNT(*) FROM columns;"));
+    }
+
+    [TestMethod]
+    public void EmptyTagNameIsRejected()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('', '#112233');"));
+    }
+
+    [TestMethod]
+    public void TagNamesAcceptSpacesEmojiAndReservedWords()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        // Tag names are fully open: no charset or length rules, no trimming.
+        foreach (string name in new[] { " ", "a b", "🏷️", "AND", "tag:with:colons" })
+        {
+            SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ($n, '#112233');", ("$n", name));
+        }
+        Assert.AreEqual(5L, SqliteTestHelper.ScalarLong(connection, "SELECT COUNT(*) FROM tags;"));
+    }
+
+    [TestMethod]
+    public void DuplicateTagNameIsRejected()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('bug', '#445566');"));
+    }
+
+    [TestMethod]
+    [DataRow("#000000")]
+    [DataRow("#FFFFFF")]
+    [DataRow("#a1B2c3")]
+    public void ValidTagColorsAreAccepted(string color)
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        int affected = SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('x', $c);", ("$c", color));
+        Assert.AreEqual(1, affected);
+    }
+
+    [TestMethod]
+    [DataRow("112233")]
+    [DataRow("#11223")]
+    [DataRow("#1122334")]
+    [DataRow("#G1B2C3")]
+    [DataRow("#a1b2g3")]
+    [DataRow(" #112233")]
+    [DataRow("#112233 ")]
+    [DataRow("")]
+    public void InvalidTagColorsAreRejected(string color)
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('x', $c);", ("$c", color)));
+    }
+
+    [TestMethod]
+    public void CardRequiresExistingColumn()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        // foreign_keys=ON makes the FK enforceable; this is the DDL contract behind the cascades.
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (999, 1, 1);"));
+    }
+
+    [TestMethod]
+    public void CardDefaultsToEmptyTitleAndContent()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('c', 1, 1);");
+        SqliteTestHelper.Exec(connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (1, 1, 1);");
+
+        // No title is represented by the empty string.
+        Assert.AreEqual(string.Empty, SqliteTestHelper.ScalarString(connection, "SELECT title FROM cards WHERE id = 1;"));
+        Assert.AreEqual(string.Empty, SqliteTestHelper.ScalarString(connection, "SELECT content FROM cards WHERE id = 1;"));
+    }
+
+    [TestMethod]
+    public void CardTagDuplicateAssignmentIsRejected()
+    {
+        using var db = new FreshDatabase();
+        using var connection = db.Connection;
+        SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('c', 1, 1);");
+        SqliteTestHelper.Exec(connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (1, 1, 1);");
+        SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");
+        SqliteTestHelper.Exec(connection, "INSERT INTO card_tags (card_id, tag_id) VALUES (1, 1);");
+
+        // Composite primary key: the same (card, tag) pair cannot be inserted twice.
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(connection, "INSERT INTO card_tags (card_id, tag_id) VALUES (1, 1);"));
+    }
+}
