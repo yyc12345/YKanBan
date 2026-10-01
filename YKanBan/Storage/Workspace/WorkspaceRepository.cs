@@ -145,7 +145,7 @@ public sealed class WorkspaceRepository : IDisposable
             }
             if (!reader.IsDBNull(6))
             {
-                tags.Add(new TagModel(reader.GetInt64(6), reader.GetString(7), reader.GetString(8), reader.GetString(9)));
+                tags.Add(new TagModel(reader.GetInt64(6), reader.GetString(7), RgbColor.Parse(reader.GetString(8)), reader.GetString(9)));
             }
         }
         return cards;
@@ -183,7 +183,7 @@ public sealed class WorkspaceRepository : IDisposable
             }
             if (!reader.IsDBNull(6))
             {
-                tags.Add(new TagModel(reader.GetInt64(6), reader.GetString(7), reader.GetString(8), reader.GetString(9)));
+                tags.Add(new TagModel(reader.GetInt64(6), reader.GetString(7), RgbColor.Parse(reader.GetString(8)), reader.GetString(9)));
             }
         }
         return card;
@@ -313,13 +313,13 @@ public sealed class WorkspaceRepository : IDisposable
     }
 
     /// <summary>Creates a tag.</summary>
-    /// <exception cref="SqliteException">The name is empty/not unique, or the color is not #RRGGBB.</exception>
-    public TagModel AddTag(string name, string color, string description)
+    /// <exception cref="SqliteException">The name is empty/not unique.</exception>
+    public TagModel AddTag(string name, RgbColor color, string description)
     {
         using var transaction = _connection.BeginTransaction();
         long id = ExecuteInsert(transaction,
             "INSERT INTO tags (name, color, description) VALUES ($name, $color, $description);",
-            ("$name", name), ("$color", color), ("$description", description));
+            ("$name", name), ("$color", color.ToString()), ("$description", description));
         transaction.Commit();
 
         TouchEdited();
@@ -328,8 +328,8 @@ public sealed class WorkspaceRepository : IDisposable
 
     /// <summary>Rewrites name, color and description; a no-change call writes nothing.</summary>
     /// <exception cref="InvalidOperationException">The tag does not exist.</exception>
-    /// <exception cref="SqliteException">The new name is empty/not unique, or the color is not #RRGGBB.</exception>
-    public TagModel UpdateTag(long tagId, string name, string color, string description)
+    /// <exception cref="SqliteException">The new name is empty/not unique.</exception>
+    public TagModel UpdateTag(long tagId, string name, RgbColor color, string description)
     {
         TagModel existing = GetTag(tagId)
             ?? throw new InvalidOperationException($"Tag {tagId} does not exist.");
@@ -343,7 +343,7 @@ public sealed class WorkspaceRepository : IDisposable
         using var command = CreateCommand(
             "UPDATE tags SET name = $name, color = $color, description = $description WHERE id = $id;");
         command.Parameters.AddWithValue("$name", name);
-        command.Parameters.AddWithValue("$color", color);
+        command.Parameters.AddWithValue("$color", color.ToString());
         command.Parameters.AddWithValue("$description", description);
         command.Parameters.AddWithValue("$id", tagId);
         command.ExecuteNonQuery();
@@ -394,9 +394,9 @@ public sealed class WorkspaceRepository : IDisposable
     private static ColumnModel ReadColumn(SqliteDataReader reader) =>
         new(reader.GetInt64(0), reader.GetString(1), reader.GetString(2), reader.GetInt64(3), reader.GetInt64(4));
 
-    /// <summary>Reads a tags row from the reader cursor.</summary>
+    /// <summary>Reads a tags row from the reader cursor; color text converts to components.</summary>
     private static TagModel ReadTag(SqliteDataReader reader) =>
-        new(reader.GetInt64(0), reader.GetString(1), reader.GetString(2), reader.GetString(3));
+        new(reader.GetInt64(0), reader.GetString(1), RgbColor.Parse(reader.GetString(2)), reader.GetString(3));
 
     /// <summary>Creates a command bound to this connection.</summary>
     private SqliteCommand CreateCommand(string sql, SqliteTransaction? transaction = null)

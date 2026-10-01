@@ -235,7 +235,7 @@ public class WorkspaceRepositoryTests
         using var fixture = new RepositoryFixture();
         fixture.Clock = 2000;
 
-        TagModel result = fixture.Repository.UpdateTag(fixture.BugTagId, "bug", "#ff0000", "");
+        TagModel result = fixture.Repository.UpdateTag(fixture.BugTagId, "bug", RgbColor.Parse("#ff0000"), "");
 
         Assert.AreEqual("bug", result.Name);
         Assert.AreEqual(0, fixture.AppDb.GetWorkspaces().Count);
@@ -247,10 +247,10 @@ public class WorkspaceRepositoryTests
         using var fixture = new RepositoryFixture();
         fixture.Clock = 3000;
 
-        TagModel updated = fixture.Repository.UpdateTag(fixture.BugTagId, "defect", "#ee0a0a", "desc");
+        TagModel updated = fixture.Repository.UpdateTag(fixture.BugTagId, "defect", RgbColor.Parse("#ee0a0a"), "desc");
 
         Assert.AreEqual("defect", updated.Name);
-        Assert.AreEqual("#ee0a0a", updated.Color);
+        Assert.AreEqual(new RgbColor(0xEE, 0x0A, 0x0A), updated.Color);
         Assert.AreEqual("desc", updated.Description);
         Assert.AreEqual(3000L, fixture.LastEditedAt);
     }
