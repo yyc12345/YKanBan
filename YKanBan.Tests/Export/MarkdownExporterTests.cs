@@ -1,0 +1,206 @@
+using System.Globalization;
+using System.Text;
+using YKanBan.Export;
+using YKanBan.Models;
+
+namespace YKanBan.Tests.Export;
+
+/// <summary>
+/// Tests for the Markdown exporter. Mutates the global
+/// <see cref="Resources.Culture"/>, therefore marked do-not-parallelize.
+/// Expected documents are assembled from the same ResX template keys as the
+/// exporter (plus fixed fixture values), so no localized text is hard-coded
+/// here.
+/// </summary>
+[TestClass]
+[DoNotParallelize]
+public class MarkdownExporterTests
+{
+    private static readonly DateTimeOffset ExportedAt = new(2026, 9, 30, 14, 25, 37, TimeSpan.Zero);
+
+    /// <summary>
+    /// Builds a local wall-clock moment, matching the exporter's conversion path.
+    /// </summary>
+    /// <param name="year">The year.</param>
+    /// <param name="month">The month.</param>
+    /// <param name="day">The day.</param>
+    /// <param name="hour">The hour.</param>
+    /// <param name="minute">The minute.</param>
+    /// <returns>The local time.</returns>
+    private static DateTimeOffset Local(int year, int month, int day, int hour, int minute) =>
+        new DateTimeOffset(new DateTime(year, month, day, hour, minute, 0)).ToLocalTime();
+
+    /// <summary>
+    /// Converts a local wall-clock time to Unix seconds.
+    /// </summary>
+    /// <param name="year">The year.</param>
+    /// <param name="month">The month.</param>
+    /// <param name="day">The day.</param>
+    /// <param name="hour">The hour.</param>
+    /// <param name="minute">The minute.</param>
+    /// <returns>The Unix timestamp.</returns>
+    private static long UnixTimeOf(int year, int month, int day, int hour, int minute) =>
+        Local(year, month, day, hour, minute).ToUnixTimeSeconds();
+
+    /// <summary>
+    /// Builds the board fixture: one working column with two cards, one empty column and two tags.
+    /// </summary>
+    /// <returns>The columns, cards and tag/usage tuples.</returns>
+    private static (IReadOnlyList<ColumnModel> Columns, IReadOnlyList<CardModel> Cards, IReadOnlyList<(TagModel, long)> Tags) CreateBoard()
+    {
+        long created = UnixTimeOf(2026, 9, 1, 10, 0);
+        long updated = UnixTimeOf(2026, 9, 28, 18, 30);
+
+        var columns = new List<ColumnModel>
+        {
+            new(1, "In Progress", "The work column", 100, 100),
+            new(2, "Empty", string.Empty, 100, 100),
+        };
+        var bug = new TagModel(1, "bug", RgbColor.Parse("#ff0000"), string.Empty);
+        var ui = new TagModel(2, "ui", RgbColor.Parse("#00ff00"), "Interface work");
+        var cards = new List<CardModel>
+        {
+            new(61, 1, "Fix login", "Body text", created, updated, [bug, ui]),
+            new(62, 1, string.Empty, string.Empty, created, updated, []),
+        };
+        var tags = new List<(TagModel, long)> { (bug, 1), (ui, 1) };
+        return (columns, cards, tags);
+    }
+
+    /// <summary>
+    /// Renders the fixture board with the exporter under the current culture.
+    /// </summary>
+    /// <returns>The produced Markdown document.</returns>
+    private static string ExportBoard()
+    {
+        (IReadOnlyList<ColumnModel> columns, IReadOnlyList<CardModel> cards, IReadOnlyList<(TagModel, long)> tags) = CreateBoard();
+        return MarkdownExporter.Export("MyRepo", columns, cards, tags, ExportedAt);
+    }
+
+    /// <summary>
+    /// Assembles the expected document from the ResX template keys under the current culture.
+    /// </summary>
+    /// <param name="culture">The UI culture.</param>
+    /// <returns>The expected Markdown document.</returns>
+    private static string BuildExpected(CultureInfo culture)
+    {
+        string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_CardTimePattern, culture);
+        string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_CardTimePattern, culture);
+
+        var builder = new StringBuilder();
+
+        // Header: workspace name and the export timestamp.
+        builder.AppendLine(string.Format(culture, Resources.Export_WorkspaceHeading, "MyRepo"));
+        builder.AppendLine(string.Format(
+            culture, Resources.Export_ExportedAtLine, ExportedAt.ToString(Resources.Export_TimePattern, culture)));
+        builder.AppendLine();
+
+        // First column with its two cards.
+        builder.AppendLine(string.Format(culture, Resources.Export_ColumnHeading, "In Progress", 2));
+        builder.AppendLine("The work column");
+        builder.AppendLine();
+        builder.AppendLine("### #61 Fix login");
+        builder.AppendLine("Body text");
+        builder.AppendLine(string.Format(culture, Resources.Export_TagsLine, "`bug` `ui`"));
+        builder.AppendLine(string.Format(culture, Resources.Export_CreatedModifiedLine, created, updated));
+        builder.AppendLine();
+        builder.AppendLine("### #62");
+        builder.AppendLine(string.Format(culture, Resources.Export_CreatedModifiedLine, created, updated));
+        builder.AppendLine();
+
+        // Empty column is kept.
+        builder.AppendLine(string.Format(culture, Resources.Export_ColumnHeading, "Empty", 0));
+        builder.AppendLine();
+
+        // Tag summary table.
+        builder.AppendLine(Resources.Export_TagsSummaryHeading);
+        builder.AppendLine(Resources.Export_TagsTableHeader);
+        builder.AppendLine("|---|---|---|---|");
+        builder.AppendLine("| bug | #ff0000 |  | 1 |");
+        builder.AppendLine("| ui | #00ff00 | Interface work | 1 |");
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    /// Normalizes CRLF line endings so expected and actual compare consistently.
+    /// </summary>
+    /// <param name="text">The text to normalize.</param>
+    /// <returns>The text with normalized line endings.</returns>
+    private static string Normalize(string text) => text.Replace("\r\n", "\n");
+
+    /// <summary>
+    /// Asserts that the exporter output matches the resource-built expected document.
+    /// </summary>
+    /// <param name="culture">The UI culture to test.</param>
+    private static void AssertOutputMatches(CultureInfo culture)
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = culture;
+            Assert.AreEqual(Normalize(BuildExpected(culture)), Normalize(ExportBoard()));
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void EnglishOutputMatchesTemplate()
+    {
+        AssertOutputMatches(new CultureInfo("en"));
+    }
+
+    [TestMethod]
+    public void ChineseOutputMatchesTemplate()
+    {
+        AssertOutputMatches(new CultureInfo("zh-Hans"));
+    }
+
+    [TestMethod]
+    public void FileNameFollowsLanguage()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            Assert.AreEqual(
+                string.Format(Resources.Culture, Resources.Export_FileNamePattern, "MyRepo", ExportedAt),
+                MarkdownExporter.BuildFileName("MyRepo", ExportedAt));
+
+            Resources.Culture = new CultureInfo("zh-Hans");
+            Assert.AreEqual(
+                string.Format(Resources.Culture, Resources.Export_FileNamePattern, "MyRepo", ExportedAt),
+                MarkdownExporter.BuildFileName("MyRepo", ExportedAt));
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void TagTableCellsEscapePipesAndLineBreaks()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            var tag = new TagModel(1, "a|b", RgbColor.Parse("#112233"), "first\nsecond");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [],
+                [(tag, 0L)],
+                ExportedAt);
+
+            StringAssert.Contains(markdown, "| a\\|b | #112233 | first second | 0 |");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+}

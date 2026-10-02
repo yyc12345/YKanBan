@@ -25,4 +25,34 @@
   <data name="PresetColumn_Done" xml:space="preserve">
     <value>Done</value>
   </data>
+  <data name="Export_FileNamePattern" xml:space="preserve">
+    <value>{0}-export-{1:yyyyMMdd-HHmmss}.md</value>
+  </data>
+  <data name="Export_TimePattern" xml:space="preserve">
+    <value>yyyy-MM-dd HH:mm:ss</value>
+  </data>
+  <data name="Export_CardTimePattern" xml:space="preserve">
+    <value>yyyy-MM-dd HH:mm</value>
+  </data>
+  <data name="Export_WorkspaceHeading" xml:space="preserve">
+    <value># {0}</value>
+  </data>
+  <data name="Export_ExportedAtLine" xml:space="preserve">
+    <value>&gt; Exported at: {0}</value>
+  </data>
+  <data name="Export_ColumnHeading" xml:space="preserve">
+    <value>## Column: {0} ({1})</value>
+  </data>
+  <data name="Export_TagsLine" xml:space="preserve">
+    <value>- Tags: {0}</value>
+  </data>
+  <data name="Export_CreatedModifiedLine" xml:space="preserve">
+    <value>- Created: {0}  Modified: {1}</value>
+  </data>
+  <data name="Export_TagsSummaryHeading" xml:space="preserve">
+    <value>## Tags</value>
+  </data>
+  <data name="Export_TagsTableHeader" xml:space="preserve">
+    <value>| Name | Color | Description | Usage |</value>
+  </data>
 </root>

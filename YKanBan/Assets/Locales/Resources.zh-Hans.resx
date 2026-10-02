@@ -25,4 +25,34 @@
   <data name="PresetColumn_Done" xml:space="preserve">
     <value>已完成</value>
   </data>
+  <data name="Export_FileNamePattern" xml:space="preserve">
+    <value>{0}-导出-{1:yyyyMMdd-HHmmss}.md</value>
+  </data>
+  <data name="Export_TimePattern" xml:space="preserve">
+    <value>yyyy年M月d日 HH:mm</value>
+  </data>
+  <data name="Export_CardTimePattern" xml:space="preserve">
+    <value>yyyy年M月d日 HH:mm</value>
+  </data>
+  <data name="Export_WorkspaceHeading" xml:space="preserve">
+    <value># {0}</value>
+  </data>
+  <data name="Export_ExportedAtLine" xml:space="preserve">
+    <value>&gt; 导出时间：{0}</value>
+  </data>
+  <data name="Export_ColumnHeading" xml:space="preserve">
+    <value>## 列：{0}（{1}）</value>
+  </data>
+  <data name="Export_TagsLine" xml:space="preserve">
+    <value>- 标签：{0}</value>
+  </data>
+  <data name="Export_CreatedModifiedLine" xml:space="preserve">
+    <value>- 创建：{0}　修改：{1}</value>
+  </data>
+  <data name="Export_TagsSummaryHeading" xml:space="preserve">
+    <value>## 标签总表</value>
+  </data>
+  <data name="Export_TagsTableHeader" xml:space="preserve">
+    <value>| 名称 | 颜色 | 描述 | 使用数 |</value>
+  </data>
 </root>
