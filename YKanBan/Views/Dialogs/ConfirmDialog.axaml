@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+        x:Class="YKanBan.Views.Dialogs.ConfirmDialog"
+        x:DataType="vm:ConfirmDialogViewModel"
+        Title="{Binding Title}"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height" Width="440" CanResize="False"
+        ShowInTaskbar="False">
+
+    <StackPanel Margin="20" Spacing="16">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Content="{Binding CancelText}" MinWidth="90" IsCancel="True" Click="OnCancelClick"/>
+            <Button Content="{Binding ConfirmText}" MinWidth="90" IsDefault="True" Classes="Primary" Click="OnConfirmClick"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

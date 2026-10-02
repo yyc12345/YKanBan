@@ -130,13 +130,16 @@ public sealed class AppConfig
     /// <summary>Current configuration format version.</summary>
     public const int CurrentFormatVersion = 1;
 
+    /// <summary>The default UI language code.</summary>
+    public const string DefaultLanguage = "en";
+
     /// <summary>Configuration format version of this file.</summary>
     [JsonProperty("version")]
     public int Version { get; set; } = CurrentFormatVersion;
 
     /// <summary>UI language code: "en" (default) or "zh-Hans".</summary>
     [JsonProperty("language")]
-    public string Language { get; set; } = "en";
+    public string Language { get; set; } = DefaultLanguage;
 
     /// <summary>UI theme selection (default: follow the system).</summary>
     [JsonProperty("theme")]

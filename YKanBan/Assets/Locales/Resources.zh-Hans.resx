@@ -51,4 +51,139 @@
   <data name="Export_TagsTableHeader" xml:space="preserve">
     <value>| 名称 | 颜色 | 描述 | 使用数 |</value>
   </data>
+  <data name="App_Name" xml:space="preserve">
+    <value>YKanBan</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Sidebar_Welcome" xml:space="preserve">
+    <value>欢迎页</value>
+  </data>
+  <data name="Sidebar_OpenProject" xml:space="preserve">
+    <value>打开项目…</value>
+  </data>
+  <data name="Sidebar_SortLabel" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="Sidebar_Sort_NameAsc" xml:space="preserve">
+    <value>名称 A 到 Z</value>
+  </data>
+  <data name="Sidebar_Sort_NameDesc" xml:space="preserve">
+    <value>名称 Z 到 A</value>
+  </data>
+  <data name="Sidebar_Sort_RecentlyUpdated" xml:space="preserve">
+    <value>最近更新</value>
+  </data>
+  <data name="Sidebar_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Sidebar_About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Sidebar_RemoveFromList" xml:space="preserve">
+    <value>从列表移除</value>
+  </data>
+  <data name="Welcome_Hint" xml:space="preserve">
+    <value>从左侧打开或新建工作区。</value>
+  </data>
+  <data name="Dialog_InitializeTitle" xml:space="preserve">
+    <value>初始化工作区？</value>
+  </data>
+  <data name="Dialog_InitializeMessage" xml:space="preserve">
+    <value>“{0}”中不存在 .ykanban 数据。在此初始化？</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_Language_RestartNotice" xml:space="preserve">
+    <value>重启后生效</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Settings_ThemeFollowSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Settings_Confirmations" xml:space="preserve">
+    <value>操作确认</value>
+  </data>
+  <data name="Settings_ConfirmDeleteCard" xml:space="preserve">
+    <value>删除卡片前确认</value>
+  </data>
+  <data name="Settings_ConfirmDeleteColumn" xml:space="preserve">
+    <value>删除列前确认</value>
+  </data>
+  <data name="Settings_ConfirmDeleteTag" xml:space="preserve">
+    <value>删除标签前确认</value>
+  </data>
+  <data name="Settings_ConfirmDiscardEdit" xml:space="preserve">
+    <value>放弃卡片编辑前确认</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_Repository" xml:space="preserve">
+    <value>仓库</value>
+  </data>
+  <data name="About_RepositoryUrl" xml:space="preserve">
+    <value>（待填写）</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>许可证</value>
+  </data>
+  <data name="About_LicenseValue" xml:space="preserve">
+    <value>（待填写）</value>
+  </data>
+  <data name="State_LockConflict_Title" xml:space="preserve">
+    <value>工作区已被占用</value>
+  </data>
+  <data name="State_LockConflict_Detail" xml:space="preserve">
+    <value>该工作区正被另一实例锁定。</value>
+  </data>
+  <data name="State_NotInitialized_Title" xml:space="preserve">
+    <value>此处没有工作区</value>
+  </data>
+  <data name="State_NotInitialized_Detail" xml:space="preserve">
+    <value>该文件夹没有 .ykanban 数据。</value>
+  </data>
+  <data name="State_DirectoryMissing_Title" xml:space="preserve">
+    <value>文件夹不存在</value>
+  </data>
+  <data name="State_DirectoryMissing_Detail" xml:space="preserve">
+    <value>该文件夹在磁盘上不存在。</value>
+  </data>
+  <data name="State_SchemaVersion_Title" xml:space="preserve">
+    <value>数据库版本不兼容</value>
+  </data>
+  <data name="State_SchemaVersion_Detail" xml:space="preserve">
+    <value>该工作区由更新版本的程序创建。</value>
+  </data>
+  <data name="State_Unknown_Title" xml:space="preserve">
+    <value>打开失败</value>
+  </data>
 </root>

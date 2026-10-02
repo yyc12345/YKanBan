@@ -24,6 +24,10 @@ sealed class Program
 
         SingleInstance = singleInstance;
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+        // Lifetime ended: persist the configuration once, then release the services.
+        App.Services.SaveConfiguration();
+        App.Services.Dispose();
     }
 
     public static AppBuilder BuildAvaloniaApp()

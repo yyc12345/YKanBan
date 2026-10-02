@@ -1,9 +1,27 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="YKanBan.App"
+             xmlns:semi="https://irihi.tech/semi"
              RequestedThemeVariant="Default">
 
     <Application.Styles>
-        <FluentTheme />
+        <semi:SemiTheme />
     </Application.Styles>
+
+    <!--Custom colors MUST be declared as Light/Dark pairs inside ThemeDictionaries
+        and consumed via DynamicResource so theme switches restyle everything.-->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#F6F7F9"/>
+                    <SolidColorBrush x:Key="SidebarBorderBrush" Color="#E2E4EA"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#1C1E24"/>
+                    <SolidColorBrush x:Key="SidebarBorderBrush" Color="#2C2F37"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

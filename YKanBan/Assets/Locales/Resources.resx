@@ -51,4 +51,139 @@
   <data name="Export_TagsTableHeader" xml:space="preserve">
     <value>| Name | Color | Description | Usage |</value>
   </data>
+  <data name="App_Name" xml:space="preserve">
+    <value>YKanBan</value>
+  </data>
+  <data name="Common_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Common_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Sidebar_Welcome" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+  <data name="Sidebar_OpenProject" xml:space="preserve">
+    <value>Open project…</value>
+  </data>
+  <data name="Sidebar_SortLabel" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="Sidebar_Sort_NameAsc" xml:space="preserve">
+    <value>Name A to Z</value>
+  </data>
+  <data name="Sidebar_Sort_NameDesc" xml:space="preserve">
+    <value>Name Z to A</value>
+  </data>
+  <data name="Sidebar_Sort_RecentlyUpdated" xml:space="preserve">
+    <value>Recently updated</value>
+  </data>
+  <data name="Sidebar_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Sidebar_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Sidebar_RemoveFromList" xml:space="preserve">
+    <value>Remove from list</value>
+  </data>
+  <data name="Welcome_Hint" xml:space="preserve">
+    <value>Open or create a workspace from the left.</value>
+  </data>
+  <data name="Dialog_InitializeTitle" xml:space="preserve">
+    <value>Initialize workspace?</value>
+  </data>
+  <data name="Dialog_InitializeMessage" xml:space="preserve">
+    <value>There is no .ykanban structure in "{0}". Initialize it here?</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_Language_RestartNotice" xml:space="preserve">
+    <value>Takes effect after restart</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_ThemeFollowSystem" xml:space="preserve">
+    <value>Follow system</value>
+  </data>
+  <data name="Settings_Confirmations" xml:space="preserve">
+    <value>Confirmations</value>
+  </data>
+  <data name="Settings_ConfirmDeleteCard" xml:space="preserve">
+    <value>Ask before deleting a card</value>
+  </data>
+  <data name="Settings_ConfirmDeleteColumn" xml:space="preserve">
+    <value>Ask before deleting a column</value>
+  </data>
+  <data name="Settings_ConfirmDeleteTag" xml:space="preserve">
+    <value>Ask before deleting a tag</value>
+  </data>
+  <data name="Settings_ConfirmDiscardEdit" xml:space="preserve">
+    <value>Ask before discarding card edits</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_Repository" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="About_RepositoryUrl" xml:space="preserve">
+    <value>(to be filled)</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="About_LicenseValue" xml:space="preserve">
+    <value>(to be filled)</value>
+  </data>
+  <data name="State_LockConflict_Title" xml:space="preserve">
+    <value>Workspace locked</value>
+  </data>
+  <data name="State_LockConflict_Detail" xml:space="preserve">
+    <value>The workspace is locked by another instance.</value>
+  </data>
+  <data name="State_NotInitialized_Title" xml:space="preserve">
+    <value>No workspace here</value>
+  </data>
+  <data name="State_NotInitialized_Detail" xml:space="preserve">
+    <value>The folder has no .ykanban structure.</value>
+  </data>
+  <data name="State_DirectoryMissing_Title" xml:space="preserve">
+    <value>Folder missing</value>
+  </data>
+  <data name="State_DirectoryMissing_Detail" xml:space="preserve">
+    <value>The folder does not exist on disk.</value>
+  </data>
+  <data name="State_SchemaVersion_Title" xml:space="preserve">
+    <value>Incompatible database</value>
+  </data>
+  <data name="State_SchemaVersion_Detail" xml:space="preserve">
+    <value>The workspace was written by a newer version.</value>
+  </data>
+  <data name="State_Unknown_Title" xml:space="preserve">
+    <value>Open failed</value>
+  </data>
 </root>

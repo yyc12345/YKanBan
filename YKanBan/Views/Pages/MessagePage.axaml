@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Pages"
+             x:Class="YKanBan.Views.Pages.MessagePage"
+             x:DataType="vm:MessagePageViewModel">
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+        <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding Detail}" Opacity="0.7" HorizontalAlignment="Center" TextWrapping="Wrap"/>
+    </StackPanel>
+</UserControl>
