@@ -36,8 +36,11 @@ public abstract record SearchToken
 ///
 /// The lexer is strict: inside a phrase only <c>\"</c> and <c>\\</c> are valid
 /// escapes, a bare backslash or an unknown escape is rejected, a backslash in a
-/// bare word is rejected, and an unterminated phrase is rejected. Any input not covered by the token rules
-/// is rejected rather than silently ignored.
+/// bare word is rejected, and an unterminated phrase is rejected. A phrase
+/// must not be empty and must be separated from neighbouring words and
+/// phrases by whitespace or a parenthesis, except as a qualifier value glued to
+/// its key (<c>tag:"a b"</c>). Any input not covered by the token rules is
+/// rejected rather than silently ignored.
 /// </summary>
 public static class SearchLexer
 {
@@ -70,37 +73,101 @@ public static class SearchLexer
             .AtLeastOnce()
             .Select(chars => (SearchToken)new SearchToken.Word(new string(chars.ToArray())));
 
-    private static readonly Parser<char, SearchToken> TokenParser =
+    // Each token with its source span, so adjacency can be checked afterwards.
+    private static readonly Parser<char, PositionedToken> TokenParser =
         Parser.SkipWhitespaces.Then(
-            PhraseParser
+            from start in Parser<char>.CurrentOffset
+            from token in PhraseParser
                 .Or(OpenParenParser)
                 .Or(CloseParenParser)
-                .Or(WordParser));
+                .Or(WordParser)
+            from end in Parser<char>.CurrentOffset
+            select new PositionedToken(token, start, end));
 
     // Try(...) keeps a failed token non-consuming so Many stops gracefully; End
     // then rejects any leftover input, which turns dangling quotes or invalid
     // escapes into hard failures instead of silently dropped text.
-    private static readonly Parser<char, IReadOnlyList<SearchToken>> Lexer =
+    private static readonly Parser<char, IReadOnlyList<PositionedToken>> Lexer =
         Parser.Try(TokenParser).Many()
             .Before(Parser.SkipWhitespaces)
             .Before(Parser<char>.End)
-            .Select(tokens => (IReadOnlyList<SearchToken>)tokens.ToList());
+            .Select(tokens => (IReadOnlyList<PositionedToken>)tokens.ToList());
 
     /// <summary>
     /// Tokenizes the search text.
     /// </summary>
     /// <param name="input">The raw search text.</param>
     /// <returns>The token stream.</returns>
-    /// <exception cref="SearchSyntaxException">The text contains an invalid escape or an unterminated phrase.</exception>
+    /// <exception cref="SearchSyntaxException">
+    /// The text contains an invalid escape, an unterminated or empty phrase, a
+    /// phrase glued to other text, or whitespace between a qualifier and its phrase value.
+    /// </exception>
     public static IReadOnlyList<SearchToken> Tokenize(string input)
     {
+        IReadOnlyList<PositionedToken> tokens;
         try
         {
-            return Lexer.ParseOrThrow(input);
+            tokens = Lexer.ParseOrThrow(input);
         }
         catch (ParseException exception)
         {
             throw new SearchSyntaxException(exception.Message, exception);
         }
+
+        EnsurePhrasesAreDelimited(tokens);
+        return tokens.Select(positioned => positioned.Token).ToList();
     }
+
+    /// <summary>
+    /// Rejects the phrase placements the grammar does not allow but the token
+    /// rules alone would accept: an empty phrase, a phrase touching a word or
+    /// another phrase (<c>a"b"</c>, <c>"a"b</c>, <c>"a""b"</c>), and whitespace
+    /// between <c>key:</c> and its phrase value (<c>tag: "x"</c>). The only
+    /// legal contact is <c>key:"value"</c>.
+    /// </summary>
+    /// <param name="tokens">The positioned token stream.</param>
+    /// <exception cref="SearchSyntaxException">A phrase is misplaced.</exception>
+    private static void EnsurePhrasesAreDelimited(IReadOnlyList<PositionedToken> tokens)
+    {
+        for (int index = 0; index < tokens.Count; index++)
+        {
+            if (tokens[index].Token is SearchToken.Phrase { Text.Length: 0 })
+            {
+                throw new SearchSyntaxException("Empty phrase \"\" is not allowed.");
+            }
+
+            if (index == 0)
+            {
+                continue;
+            }
+
+            PositionedToken previous = tokens[index - 1];
+            PositionedToken current = tokens[index];
+            bool qualifierValue = previous.Token is SearchToken.Word word && word.Text.EndsWith(':')
+                && current.Token is SearchToken.Phrase;
+            bool touching = previous.End == current.Start;
+
+            if (qualifierValue && !touching)
+            {
+                throw new SearchSyntaxException(
+                    $"Qualifier '{((SearchToken.Word)previous.Token).Text}' must be followed directly by its value, without whitespace.");
+            }
+
+            bool phraseInvolved = previous.Token is SearchToken.Phrase || current.Token is SearchToken.Phrase;
+            bool parenInvolved = previous.Token is SearchToken.OpenParen or SearchToken.CloseParen
+                || current.Token is SearchToken.OpenParen or SearchToken.CloseParen;
+            if (touching && phraseInvolved && !parenInvolved && !qualifierValue)
+            {
+                throw new SearchSyntaxException("A phrase must be separated from adjacent text by whitespace.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// A token with its source span.
+    /// </summary>
+    /// <param name="Token">The token.</param>
+    /// <param name="Start">Offset of the first character.</param>
+    /// <param name="End">Offset just past the last character.</param>
+    private sealed record PositionedToken(SearchToken Token, int Start, int End);
 }

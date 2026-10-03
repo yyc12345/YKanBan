@@ -159,7 +159,7 @@ value     := word | phrase                    -- tag / title / content / column
            | '#'? digit+                       -- id: a positive decimal integer
 word      := one or more characters, except whitespace and ( ) " : \ ;
              not equal to AND or OR
-phrase    := '"' any text '"'                 -- escapes: \" and \\
+phrase    := '"' one or more characters '"'   -- escapes: \" and \\
 ```
 
 ### Operators
@@ -198,6 +198,10 @@ phrase    := '"' any text '"'                 -- escapes: \" and \\
   `\\` for a backslash; any other backslash is an error.
 - Outside quotes, `\` is not allowed at all, and `:` always starts a
   qualifier. Quote any text containing them: `"C:\\temp"`, `"a:b"`.
+- A phrase cannot be empty, and must be separated from neighbouring words
+  and phrases by a space or a parenthesis: write `a "b"`, not `a"b"`.
+- A qualifier's phrase value follows the `:` directly: `tag:"needs review"`,
+  not `tag: "needs review"`.
 
 ### Case
 
@@ -227,6 +231,9 @@ These are invalid:
 | A qualifier without a value | `tag:` |
 | `AND` / `OR` as an unquoted qualifier value | `tag:AND` (write `tag:"AND"`) |
 | An unterminated phrase | `"dark mode` |
+| An empty phrase | `""`, `tag:""` |
+| A phrase touching other text | `a"b"`, `"a"b`, `"a""b"` |
+| A space between a qualifier and its phrase value | `tag: "needs review"` |
 | An invalid escape in a phrase | `tag:"a\x"` |
 | A backslash outside a phrase | `C:\temp` |
 | An unknown qualifier key | `label:bug`, `Tag:bug`, `http://x` |

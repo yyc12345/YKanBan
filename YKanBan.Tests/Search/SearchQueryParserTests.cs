@@ -297,6 +297,42 @@ public class SearchQueryParserTests
     }
 
     [TestMethod]
+    [DataRow("tag: \"x\"")]
+    [DataRow("title:  \"a b\"")]
+    public void SpacedQualifierPhraseValueIsAnError(string text)
+    {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    [DataRow("a\"b\"")]
+    [DataRow("\"a\"b")]
+    [DataRow("\"a\"\"b\"")]
+    [DataRow("tag:\"x\"y")]
+    [DataRow("tag:\"x\"\"y\"")]
+    public void PhraseGluedToOtherTextIsAnError(string text)
+    {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    [DataRow("\"\"")]
+    [DataRow("a \"\"")]
+    [DataRow("tag:\"\"")]
+    public void EmptyPhraseIsAnError(string text)
+    {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    public void PhraseMayTouchParentheses()
+    {
+        AssertParsesTo(
+            new SearchNode.And([new SearchNode.FreeText("a b"), new SearchNode.FreeText("c")]),
+            "(\"a b\")(c)");
+    }
+
+    [TestMethod]
     [DataRow("id:12x")]
     [DataRow("id:abc")]
     [DataRow("id:0")]
