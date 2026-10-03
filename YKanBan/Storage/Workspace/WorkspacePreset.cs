@@ -12,15 +12,14 @@ public static class WorkspacePreset
 {
     /// <summary>
     /// Inserts the three preset columns (the current language's equivalents of
-    /// To Do / In Progress / Done) in a single transaction.
+    /// To Do / In Progress / Done) inside the caller's transaction, so the
+    /// presets land together with the schema or not at all.
     /// </summary>
-    /// <param name="folderPath">The initialized workspace folder.</param>
-    /// <exception cref="SqliteException">The workspace database does not exist or a title collides with an existing column.</exception>
-    public static void AddPresetColumns(string folderPath)
+    /// <param name="connection">The connection to the freshly created database.</param>
+    /// <param name="transaction">The transaction that also builds the schema.</param>
+    /// <exception cref="SqliteException">A title collides with an existing column.</exception>
+    public static void AddPresetColumns(SqliteConnection connection, SqliteTransaction transaction)
     {
-        using SqliteConnection connection = SqliteDatabase.Open(
-            WorkspacePaths.Database(folderPath), WorkspaceSchema.Migrations);
-
         long now = UnixTime.Now;
 
         // Preset titles are data at creation time: whatever the current language says gets stored.
@@ -31,8 +30,6 @@ public static class WorkspacePreset
             Resources.PresetColumn_Done,
         ];
 
-        // Insert all three atomically so a partially populated workspace can never exist.
-        using var transaction = connection.BeginTransaction();
         foreach (string title in titles)
         {
             using var command = connection.CreateCommand();
@@ -45,6 +42,5 @@ public static class WorkspacePreset
             command.Parameters.AddWithValue("$now", now);
             command.ExecuteNonQuery();
         }
-        transaction.Commit();
     }
 }

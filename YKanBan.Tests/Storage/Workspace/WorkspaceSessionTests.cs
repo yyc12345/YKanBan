@@ -57,4 +57,36 @@ public class WorkspaceSessionTests
         Assert.AreEqual("bug", session.Repository.GetTags().Single().Name);
         Assert.AreEqual(tag.Id, session.Repository.GetTags().Single().Id);
     }
+
+    [TestMethod]
+    public void InitializeAddsPresetColumnsAndHoldsTheLock()
+    {
+        using var directory = new TempDirectory();
+
+        using WorkspaceSession session = WorkspaceSession.Initialize(directory.FullPath);
+        Assert.AreEqual(3, session.Repository.GetColumns().Count);
+        Assert.ThrowsExactly<WorkspaceLockException>(() => WorkspaceSession.Open(directory.FullPath));
+    }
+
+    [TestMethod]
+    public void InitializeWhileAnotherInstanceHoldsTheLockThrowsLockConflict()
+    {
+        using var directory = new TempDirectory();
+        Directory.CreateDirectory(WorkspacePaths.Root(directory.FullPath));
+        using WorkspaceLock held = WorkspaceLock.Acquire(directory.FullPath);
+
+        Assert.ThrowsExactly<WorkspaceLockException>(() => WorkspaceSession.Initialize(directory.FullPath));
+        Assert.IsFalse(File.Exists(WorkspacePaths.Database(directory.FullPath)));
+    }
+
+    [TestMethod]
+    public void FailedInitializeReleasesTheLock()
+    {
+        using var directory = new TempDirectory();
+        WorkspaceInitializer.Initialize(directory.FullPath);
+
+        // The database already exists, so initialization fails after taking the lock.
+        Assert.ThrowsExactly<InvalidOperationException>(() => WorkspaceSession.Initialize(directory.FullPath));
+        using WorkspaceSession reopened = WorkspaceSession.Open(directory.FullPath);
+    }
 }

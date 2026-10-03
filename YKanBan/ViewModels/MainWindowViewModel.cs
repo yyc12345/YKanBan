@@ -105,15 +105,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// Opens the workspace and switches the content to the normal view.
     /// </summary>
     /// <param name="folderPath">The workspace folder to open.</param>
-    private void OpenWorkspace(string folderPath)
+    private void OpenWorkspace(string folderPath) => ShowWorkspace(folderPath, _services.OpenWorkspace(folderPath));
+
+    /// <summary>
+    /// Switches the content to the normal view of an opened workspace.
+    /// </summary>
+    /// <param name="folderPath">The workspace folder.</param>
+    /// <param name="session">The opened workspace session.</param>
+    private void ShowWorkspace(string folderPath, WorkspaceSession session)
     {
-        WorkspaceSession session = _services.OpenWorkspace(folderPath);
         Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout, _services.Config, _dialogs);
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
 
     /// <summary>
-    /// Initializes the folder shown by the not-initialized page, adds the preset
+    /// Initializes the folder shown by the not-initialized page with its preset
     /// columns and opens the resulting workspace.
     /// </summary>
     /// <returns>A completed task once initialization has been attempted.</returns>
@@ -126,9 +132,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         try
         {
-            WorkspaceInitializer.Initialize(page.FolderPath);
-            WorkspacePreset.AddPresetColumns(page.FolderPath);
-            OpenWorkspace(page.FolderPath);
+            ShowWorkspace(page.FolderPath, _services.InitializeWorkspace(page.FolderPath));
+        }
+        catch (WorkspaceLockException)
+        {
+            // Another instance got there first and holds the workspace: same page as at startup.
+            Content = new LockConflictPageViewModel(page.FolderPath);
         }
         catch (Exception exception)
         {

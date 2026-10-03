@@ -41,9 +41,29 @@ public sealed class WorkspaceSession : IDisposable
     /// <returns>The opened session; dispose it to release the lock and connection.</returns>
     /// <exception cref="WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
     /// <exception cref="WorkspaceLockException">Another instance already holds the lock.</exception>
-    public static WorkspaceSession Open(string folderPath)
+    public static WorkspaceSession Open(string folderPath) => OpenLocked(folderPath, WorkspaceLock.Acquire(folderPath));
+
+    /// <summary>
+    /// Initializes a workspace with its preset columns and opens it. The lock
+    /// is taken right after .ykanban is created and is never released in
+    /// between, so no other instance can interleave with the initialization.
+    /// </summary>
+    /// <param name="folderPath">The existing folder to initialize.</param>
+    /// <returns>The opened session; dispose it to release the lock and connection.</returns>
+    /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="WorkspaceLockException">Another instance holds the workspace lock.</exception>
+    /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
+    public static WorkspaceSession Initialize(string folderPath) =>
+        OpenLocked(folderPath, WorkspaceInitializer.InitializeLocked(folderPath, addPresetColumns: true));
+
+    /// <summary>
+    /// Opens the repository under an already held lock; the lock is released if that fails.
+    /// </summary>
+    /// <param name="folderPath">The workspace folder.</param>
+    /// <param name="workspaceLock">The held workspace lock.</param>
+    /// <returns>The opened session.</returns>
+    private static WorkspaceSession OpenLocked(string folderPath, WorkspaceLock workspaceLock)
     {
-        WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
         try
         {
             var repository = new WorkspaceRepository(folderPath);

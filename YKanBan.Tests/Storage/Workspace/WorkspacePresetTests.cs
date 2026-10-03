@@ -29,8 +29,7 @@ public class WorkspacePresetTests
             ];
 
             using var directory = new TempDirectory();
-            WorkspaceInitializer.Initialize(directory.FullPath);
-            WorkspacePreset.AddPresetColumns(directory.FullPath);
+            WorkspaceSession.Initialize(directory.FullPath).Dispose();
 
             using SqliteConnection connection = SqliteTestHelper.OpenWorkspace(directory.FullPath);
             CollectionAssert.AreEqual(expected, SqliteTestHelper.GetColumnTitles(connection));
@@ -56,8 +55,7 @@ public class WorkspacePresetTests
             ];
 
             using var directory = new TempDirectory();
-            WorkspaceInitializer.Initialize(directory.FullPath);
-            WorkspacePreset.AddPresetColumns(directory.FullPath);
+            WorkspaceSession.Initialize(directory.FullPath).Dispose();
 
             using SqliteConnection connection = SqliteTestHelper.OpenWorkspace(directory.FullPath);
             CollectionAssert.AreEqual(expected, SqliteTestHelper.GetColumnTitles(connection));
@@ -83,8 +81,7 @@ public class WorkspacePresetTests
             ];
 
             using var directory = new TempDirectory();
-            WorkspaceInitializer.Initialize(directory.FullPath);
-            WorkspacePreset.AddPresetColumns(directory.FullPath);
+            WorkspaceSession.Initialize(directory.FullPath).Dispose();
 
             // Switching the language after adding the presets must not rewrite stored data.
             Resources.Culture = new CultureInfo("zh-Hans");

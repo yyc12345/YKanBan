@@ -33,16 +33,7 @@ public static class SqliteDatabase
     /// <returns>An open connection with all PRAGMAs applied and the schema migrated.</returns>
     public static SqliteConnection Open(string databasePath, IReadOnlyList<SchemaMigration> migrations)
     {
-        var connection = new SqliteConnection(new SqliteConnectionStringBuilder
-        {
-            DataSource = databasePath,
-            Mode = SqliteOpenMode.ReadWriteCreate,
-
-            // Each process holds its own single connection; a pool would only add noise.
-            Pooling = false,
-        }.ToString());
-
-        connection.Open();
+        SqliteConnection connection = OpenConnection(databasePath);
         try
         {
             ApplyPragmas(connection);
@@ -54,6 +45,74 @@ public static class SqliteDatabase
         {
             connection.Dispose();
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates a new database file with the mandatory PRAGMAs, then applies
+    /// every migration and the optional seed in one transaction, so the file
+    /// ends up either fully built and seeded or still at version 0.
+    /// </summary>
+    /// <param name="databasePath">Path of the SQLite database file; it must not exist yet.</param>
+    /// <param name="migrations">Contiguous migration list ordered by version, starting at 1.</param>
+    /// <param name="seed">Initial content written in the same transaction, when any.</param>
+    /// <returns>An open connection with all PRAGMAs applied and the schema migrated.</returns>
+    /// <exception cref="ArgumentException">The migration list is not contiguous from version 1.</exception>
+    /// <exception cref="InvalidOperationException">The database file already exists.</exception>
+    public static SqliteConnection Create(
+        string databasePath,
+        IReadOnlyList<SchemaMigration> migrations,
+        Action<SqliteConnection, SqliteTransaction>? seed = null)
+    {
+        ValidateMigrations(migrations);
+        if (File.Exists(databasePath))
+        {
+            throw new InvalidOperationException($"The database already exists: {databasePath}");
+        }
+
+        SqliteConnection connection = OpenConnection(databasePath);
+        try
+        {
+            ApplyPragmas(connection);
+            RegisterFunctions(connection);
+
+            using var transaction = connection.BeginTransaction();
+            foreach (SchemaMigration migration in migrations)
+            {
+                Execute(connection, migration.Sql, transaction);
+                Execute(connection, $"PRAGMA user_version={migration.Version};", transaction);
+            }
+            seed?.Invoke(connection, transaction);
+            transaction.Commit();
+            return connection;
+        }
+        catch
+        {
+            connection.Dispose();
+
+            // Leave no empty version-0 file behind that a later open would migrate into an empty board.
+            DeleteDatabaseFilesBestEffort(databasePath);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deletes a database file together with its WAL and shared-memory files,
+    /// ignoring failures.
+    /// </summary>
+    /// <param name="databasePath">Path of the SQLite database file.</param>
+    private static void DeleteDatabaseFilesBestEffort(string databasePath)
+    {
+        foreach (string path in new[] { databasePath, databasePath + "-wal", databasePath + "-shm", databasePath + "-journal" })
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                // Best effort: the original failure is what gets reported.
+            }
         }
     }
 
@@ -105,14 +164,7 @@ public static class SqliteDatabase
     /// <exception cref="SchemaVersionException">The database was written by a newer build.</exception>
     internal static void ApplyMigrations(SqliteConnection connection, IReadOnlyList<SchemaMigration> migrations)
     {
-        // Contract check: the list must be ordered, contiguous and start at version 1.
-        for (int index = 0; index < migrations.Count; index++)
-        {
-            if (migrations[index].Version != index + 1)
-            {
-                throw new ArgumentException("Migrations must be contiguous and start at version 1.", nameof(migrations));
-            }
-        }
+        ValidateMigrations(migrations);
 
         long current = ReadUserVersion(connection);
         int latest = migrations.Count;
@@ -135,6 +187,42 @@ public static class SqliteDatabase
             Execute(connection, migration.Sql, transaction);
             Execute(connection, $"PRAGMA user_version={migration.Version};", transaction);
             transaction.Commit();
+        }
+    }
+
+    /// <summary>
+    /// Opens a connection to the file, creating it if needed, without any configuration.
+    /// </summary>
+    /// <param name="databasePath">Path of the SQLite database file.</param>
+    /// <returns>The open connection.</returns>
+    private static SqliteConnection OpenConnection(string databasePath)
+    {
+        var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = databasePath,
+            Mode = SqliteOpenMode.ReadWriteCreate,
+
+            // Each process holds its own single connection; a pool would only add noise.
+            Pooling = false,
+        }.ToString());
+
+        connection.Open();
+        return connection;
+    }
+
+    /// <summary>
+    /// Checks that the migration list is ordered, contiguous and starts at version 1.
+    /// </summary>
+    /// <param name="migrations">The migration list.</param>
+    /// <exception cref="ArgumentException">The list breaks the contract.</exception>
+    private static void ValidateMigrations(IReadOnlyList<SchemaMigration> migrations)
+    {
+        for (int index = 0; index < migrations.Count; index++)
+        {
+            if (migrations[index].Version != index + 1)
+            {
+                throw new ArgumentException("Migrations must be contiguous and start at version 1.", nameof(migrations));
+            }
         }
     }
 

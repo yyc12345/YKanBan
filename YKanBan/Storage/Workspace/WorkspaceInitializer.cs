@@ -3,10 +3,10 @@ using Microsoft.Data.Sqlite;
 namespace YKanBan.Storage.Workspace;
 
 /// <summary>
-/// Creates the .ykanban structure for a folder: the folder itself and an
-/// empty, fully migrated database. Adding preset content is deliberately a
-/// separate concern handled by <see cref="WorkspacePreset"/>, so the
-/// database can be created without any rows.
+/// Creates the .ykanban structure for a folder in the mandated order: the
+/// .ykanban folder, then the exclusive lock, then the database. The database
+/// schema and the optional preset content are written in one transaction, so a
+/// failure never leaves a half-built database behind.
 /// </summary>
 public static class WorkspaceInitializer
 {
@@ -19,27 +19,50 @@ public static class WorkspaceInitializer
     public static bool IsWorkspace(string folderPath) => Directory.Exists(WorkspacePaths.Root(folderPath));
 
     /// <summary>
-    /// Initializes a fresh workspace: creates .ykanban and an empty migrated
-    /// database, without adding any preset content.
+    /// Initializes a fresh workspace without any preset content and releases
+    /// the lock again.
     /// </summary>
     /// <param name="folderPath">The existing folder to initialize.</param>
     /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="WorkspaceLockException">Another instance holds the workspace lock.</exception>
     /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
     public static void Initialize(string folderPath)
+    {
+        using WorkspaceLock workspaceLock = InitializeLocked(folderPath, addPresetColumns: false);
+    }
+
+    /// <summary>
+    /// Initializes a fresh workspace and returns the lock still held, so the
+    /// caller can open the workspace without ever releasing it.
+    /// </summary>
+    /// <param name="folderPath">The existing folder to initialize.</param>
+    /// <param name="addPresetColumns">Whether to add the preset columns in the schema transaction.</param>
+    /// <returns>The held workspace lock.</returns>
+    /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="WorkspaceLockException">Another instance holds the workspace lock.</exception>
+    /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
+    internal static WorkspaceLock InitializeLocked(string folderPath, bool addPresetColumns)
     {
         if (!Directory.Exists(folderPath))
         {
             throw new WorkspaceDirectoryMissingException(folderPath);
         }
 
-        string databasePath = WorkspacePaths.Database(folderPath);
-        if (File.Exists(databasePath))
-        {
-            throw new InvalidOperationException($"The workspace database already exists: {databasePath}");
-        }
-
-        // Create the .ykanban folder, then the migrated but still empty database.
+        // .ykanban first: the lock file lives inside it.
         Directory.CreateDirectory(WorkspacePaths.Root(folderPath));
-        using SqliteConnection connection = SqliteDatabase.Open(databasePath, WorkspaceSchema.Migrations);
+        WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
+        try
+        {
+            using SqliteConnection connection = SqliteDatabase.Create(
+                WorkspacePaths.Database(folderPath),
+                WorkspaceSchema.Migrations,
+                addPresetColumns ? WorkspacePreset.AddPresetColumns : null);
+            return workspaceLock;
+        }
+        catch
+        {
+            workspaceLock.Dispose();
+            throw;
+        }
     }
 }

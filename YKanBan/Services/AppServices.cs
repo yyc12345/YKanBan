@@ -49,6 +49,20 @@ public sealed class AppServices : IDisposable
     }
 
     /// <summary>
+    /// Initializes a workspace with its preset columns and opens it, holding
+    /// the lock from the creation of .ykanban onwards.
+    /// </summary>
+    /// <param name="folderPath">The existing folder to initialize.</param>
+    /// <returns>The open session.</returns>
+    /// <exception cref="YKanBan.Storage.WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="YKanBan.Storage.WorkspaceLockException">Another instance already holds the lock.</exception>
+    public WorkspaceSession InitializeWorkspace(string folderPath)
+    {
+        Session = WorkspaceSession.Initialize(folderPath);
+        return Session;
+    }
+
+    /// <summary>
     /// Persists the configuration when this session changed a setting; called once at shutdown.
     /// </summary>
     public void SaveConfiguration() => ConfigStore.SaveIfChanged(Config);

@@ -80,4 +80,48 @@ public class SqliteDatabaseTests
 
         Assert.ThrowsExactly<ArgumentException>(() => SqliteDatabase.Open(databasePath, broken));
     }
+
+    [TestMethod]
+    public void CreateBuildsSchemaAndSeedTogether()
+    {
+        using var directory = new TempDirectory();
+        string databasePath = Path.Combine(directory.FullPath, "create.db");
+
+        using SqliteConnection connection = SqliteDatabase.Create(databasePath, WorkspaceSchema.Migrations,
+            (seedConnection, transaction) =>
+            {
+                using SqliteCommand command = seedConnection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = "INSERT INTO tags (name, color) VALUES ('seed', '#000000');";
+                command.ExecuteNonQuery();
+            });
+        Assert.AreEqual(WorkspaceSchema.CurrentVersion, SqliteDatabase.ReadUserVersion(connection));
+        Assert.AreEqual(1L, SqliteTestHelper.ScalarLong(connection, "SELECT COUNT(*) FROM tags;"));
+        Assert.AreEqual("wal", SqliteTestHelper.ScalarString(connection, "PRAGMA journal_mode;"));
+        Assert.AreEqual(1L, SqliteTestHelper.ScalarLong(connection, "PRAGMA foreign_keys;"));
+    }
+
+    [TestMethod]
+    public void CreateWithFailingSeedLeavesNoDatabaseBehind()
+    {
+        using var directory = new TempDirectory();
+        string databasePath = Path.Combine(directory.FullPath, "failed.db");
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => SqliteDatabase.Create(
+            databasePath, WorkspaceSchema.Migrations, (_, _) => throw new InvalidOperationException("seed failed")));
+        Assert.IsFalse(File.Exists(databasePath));
+        Assert.IsFalse(File.Exists(databasePath + "-wal"));
+        Assert.IsFalse(File.Exists(databasePath + "-shm"));
+    }
+
+    [TestMethod]
+    public void CreateRefusesAnExistingDatabaseAndKeepsIt()
+    {
+        using var directory = new TempDirectory();
+        string databasePath = Path.Combine(directory.FullPath, "existing.db");
+        SqliteDatabase.Create(databasePath, WorkspaceSchema.Migrations).Dispose();
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => SqliteDatabase.Create(databasePath, WorkspaceSchema.Migrations));
+        Assert.IsTrue(File.Exists(databasePath));
+    }
 }

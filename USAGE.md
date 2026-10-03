@@ -61,8 +61,8 @@ instead:
 | Invalid arguments | No argument, more than one argument, an empty or whitespace-only argument, an argument starting with `-` (including `--help`), or a path the operating system cannot represent (for example one containing a NUL character). Shows the usage line. |
 | Folder not found | `<path>` does not exist or is not a folder. |
 | No workspace here | `<path>` exists but has no `.ykanban`. The **Initialize workspace** button creates one, with the columns To Do / In Progress / Done (named in the current interface language). |
-| Workspace locked | Another YKanBan window already has this workspace open. Close that window first. |
-| Cannot open workspace | The database was created by a newer YKanBan, is damaged or cannot be opened, or a file-system or permission error occurred (also when initializing fails). The English error details can be selected and copied. |
+| Workspace locked | Another YKanBan window already has this workspace open. Close that window first. Also shown when another window takes the lock while you initialize. |
+| Cannot open workspace | The database was created by a newer YKanBan, is damaged or cannot be opened, or a file-system or permission error occurred (also when initializing fails for a reason other than the lock). The English error details can be selected and copied. |
 
 The window title is `<workspace name> - YKanBan` while a workspace is open and
 just `YKanBan` on these pages.
