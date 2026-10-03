@@ -6,7 +6,7 @@ namespace YKanBan.Services;
 /// <summary>
 /// Composition root for the whole process: owns the loaded configuration and
 /// the single open workspace session. The configuration is persisted once at
-/// shutdown; the session (lock plus connection) lives until disposal.
+/// shutdown, and only when this session changed it; the session (lock plus connection) lives until disposal.
 /// </summary>
 public sealed class AppServices : IDisposable
 {
@@ -49,9 +49,9 @@ public sealed class AppServices : IDisposable
     }
 
     /// <summary>
-    /// Persists the configuration; called once at shutdown.
+    /// Persists the configuration when this session changed a setting; called once at shutdown.
     /// </summary>
-    public void SaveConfiguration() => ConfigStore.Save(Config);
+    public void SaveConfiguration() => ConfigStore.SaveIfChanged(Config);
 
     /// <summary>
     /// Releases the workspace session, if any.

@@ -158,4 +158,148 @@ public class AppConfigStoreTests
         Assert.AreEqual(config.ColumnWidth.Preset, reloaded.ColumnWidth.Preset);
         Assert.AreEqual(config.Confirmations.DiscardEdit, reloaded.Confirmations.DiscardEdit);
     }
+
+    [TestMethod]
+    public void LoadNonObjectRootBacksUpAndReturnsDefaults()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, "[1, 2]");
+        var store = new AppConfigStore(path);
+
+        Assert.AreEqual(AppConfig.DefaultLanguage, store.Load().Language);
+        Assert.AreEqual("[1, 2]", File.ReadAllText(path + ".bak"));
+    }
+
+    [TestMethod]
+    [DataRow("\"theme\": \"sepia\"")]
+    [DataRow("\"theme\": 1")]
+    [DataRow("\"theme\": {}")]
+    [DataRow("\"language\": \"fr\"")]
+    [DataRow("\"language\": \"zh-hans\"")]
+    [DataRow("\"language\": 5")]
+    [DataRow("\"sort\": { \"card\": \"created-at\" }")]
+    [DataRow("\"sort\": 7")]
+    [DataRow("\"column-width\": { \"preset\": \"huge\", \"custom-pixels\": 159 }")]
+    [DataRow("\"column-width\": { \"custom-pixels\": 721 }")]
+    [DataRow("\"column-width\": { \"custom-pixels\": \"wide\" }")]
+    [DataRow("\"confirmations\": { \"delete-card\": \"nope\" }")]
+    [DataRow("\"version\": \"one\"")]
+    public void InvalidFieldFallsBackAloneWithoutBackup(string invalidMember)
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+
+        // The valid fields are non-defaults, so any whole-file fallback would show.
+        File.WriteAllText(path, $$"""
+            {
+              "theme": "dark",
+              "confirmations": { "discard-edit": false },
+              {{invalidMember}}
+            }
+            """);
+        var store = new AppConfigStore(path);
+
+        AppConfig config = store.Load();
+
+        Assert.IsFalse(File.Exists(path + ".bak"));
+        AppConfig defaults = new();
+        Assert.AreEqual(invalidMember.Contains("theme") ? defaults.Theme : ThemeOption.Dark, config.Theme);
+        if (!invalidMember.Contains("confirmations"))
+        {
+            Assert.IsFalse(config.Confirmations.DiscardEdit);
+        }
+        Assert.AreEqual(defaults.Language, config.Language);
+        Assert.AreEqual(defaults.Sort.Card, config.Sort.Card);
+        Assert.AreEqual(defaults.ColumnWidth.Preset, config.ColumnWidth.Preset);
+        Assert.AreEqual(defaults.ColumnWidth.CustomPixels, config.ColumnWidth.CustomPixels);
+        Assert.AreEqual(defaults.Confirmations.DeleteCard, config.Confirmations.DeleteCard);
+        Assert.AreEqual(defaults.Version, config.Version);
+    }
+
+    [TestMethod]
+    public void InvalidNestedFieldKeepsItsSiblings()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, """{ "column-width": { "preset": "bogus", "custom-pixels": 500 } }""");
+
+        AppConfig config = new AppConfigStore(path).Load();
+
+        Assert.AreEqual(ColumnWidthPreset.Standard, config.ColumnWidth.Preset);
+        Assert.AreEqual(500, config.ColumnWidth.CustomPixels);
+    }
+
+    [TestMethod]
+    public void ColumnWidthBoundsAreInclusive()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+
+        File.WriteAllText(path, """{ "column-width": { "custom-pixels": 160 } }""");
+        Assert.AreEqual(160, new AppConfigStore(path).Load().ColumnWidth.CustomPixels);
+
+        File.WriteAllText(path, """{ "column-width": { "custom-pixels": 720 } }""");
+        Assert.AreEqual(720, new AppConfigStore(path).Load().ColumnWidth.CustomPixels);
+    }
+
+    [TestMethod]
+    public void UnchangedConfigurationIsNotWritten()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        var store = new AppConfigStore(path);
+
+        AppConfig config = store.Load();
+
+        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsFalse(File.Exists(path));
+    }
+
+    [TestMethod]
+    public void FieldFallbackAloneDoesNotRewriteTheFile()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        const string original = """{ "theme": "sepia" }""";
+        File.WriteAllText(path, original);
+        var store = new AppConfigStore(path);
+
+        AppConfig config = store.Load();
+
+        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.AreEqual(original, File.ReadAllText(path));
+    }
+
+    [TestMethod]
+    public void ChangedConfigurationIsWrittenOnce()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        var store = new AppConfigStore(path);
+        AppConfig config = store.Load();
+
+        config.Sort.Card = CardSortOption.UpdatedAt;
+
+        Assert.IsTrue(store.SaveIfChanged(config));
+        Assert.AreEqual(CardSortOption.UpdatedAt, new AppConfigStore(path).Load().Sort.Card);
+
+        // Saved state is the new baseline.
+        Assert.IsFalse(store.SaveIfChanged(config));
+    }
+
+    [TestMethod]
+    public void ChangeRevertedWithinSessionIsNotWritten()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        var store = new AppConfigStore(path);
+        AppConfig config = store.Load();
+
+        config.Theme = ThemeOption.Dark;
+        config.Theme = ThemeOption.FollowSystem;
+
+        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsFalse(File.Exists(path));
+    }
 }

@@ -142,6 +142,26 @@ public sealed class AppConfig
     public const string DefaultLanguage = "en";
 
     /// <summary>
+    /// Simplified Chinese UI language code.
+    /// </summary>
+    public const string SimplifiedChineseLanguage = "zh-Hans";
+
+    /// <summary>
+    /// Gets the supported UI language codes; any other stored value falls back to <see cref="DefaultLanguage"/>.
+    /// </summary>
+    public static IReadOnlyList<string> SupportedLanguages { get; } = [DefaultLanguage, SimplifiedChineseLanguage];
+
+    /// <summary>
+    /// Smallest accepted custom column width in pixels.
+    /// </summary>
+    public const int MinColumnPixels = 160;
+
+    /// <summary>
+    /// Largest accepted custom column width in pixels.
+    /// </summary>
+    public const int MaxColumnPixels = 720;
+
+    /// <summary>
     /// Gets or sets the configuration format version of this file.
     /// </summary>
     [JsonProperty("version")]
