@@ -30,7 +30,7 @@ public sealed class AboutDialogViewModel : ViewModelBase
     /// <summary>
     /// Gets the repository URL.
     /// </summary>
-    public string RepositoryUrl => "https://github.com/yyc12345/YKanBan";
+    public string RepositoryUrl => "https://code.blumia.cn/yyc12345/YKanBan";
 
     /// <summary>
     /// Gets the license name.

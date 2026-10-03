@@ -1,0 +1,69 @@
+# Manual-only release build (PLAN §7.2): no push or pull_request trigger.
+# Each RID job runs build -> test -> publish/pack -> upload; a failing step
+# skips the rest of that job, so a RID whose tests fail produces no artifact.
+# No GitHub Release is created.
+name: Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  build:
+    name: ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Every RID stands on its own: one failure does not cancel the others.
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: osx-x64
+            os: macos-15-intel
+          - rid: osx-arm64
+            os: macos-15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build YKanBan.slnx -c Release
+
+      - name: Test
+        run: dotnet test YKanBan.slnx -c Release --no-build
+
+      - name: Publish
+        run: >
+          dotnet publish YKanBan/YKanBan.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained -o publish/${{ matrix.rid }}
+
+      - name: Pack
+        id: pack
+        run: |
+          version="$(dotnet msbuild YKanBan/YKanBan.csproj -getProperty:Version)"
+          bash packaging/package.sh ${{ matrix.rid }} publish/${{ matrix.rid }} dist "$version"
+          echo "name=YKanBan-$version-${{ matrix.rid }}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.pack.outputs.name }}
+          path: dist/*
+          if-no-files-found: error

@@ -1,0 +1,2 @@
+# Shell scripts run under bash on every CI runner, including Windows checkouts with autocrlf.
+*.sh text eol=lf
