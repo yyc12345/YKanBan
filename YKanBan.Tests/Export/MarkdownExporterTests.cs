@@ -84,8 +84,8 @@ public class MarkdownExporterTests
     /// <returns>The expected Markdown document.</returns>
     private static string BuildExpected(CultureInfo culture)
     {
-        string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_CardTimePattern, culture);
-        string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_CardTimePattern, culture);
+        string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_TimePattern, culture);
+        string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_TimePattern, culture);
 
         var builder = new StringBuilder();
 
@@ -196,7 +196,117 @@ public class MarkdownExporterTests
                 [(tag, 0L)],
                 ExportedAt);
 
-            StringAssert.Contains(markdown, "| a\\|b | #112233 | first second | 0 |");
+            StringAssert.Contains(markdown, "| a\\|b | #112233 | first<br>second | 0 |");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    [DataRow("plain", "`plain`")]
+    [DataRow("a`b", "``a`b``")]
+    [DataRow("a``b`c", "```a``b`c```")]
+    [DataRow("`x", "`` `x ``")]
+    [DataRow("x`", "`` x` ``")]
+    [DataRow("`", "`` ` ``")]
+    public void TagNamesUseLongEnoughBacktickFence(string name, string expected)
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            var tag = new TagModel(1, name, RgbColor.Parse("#112233"), string.Empty);
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [new CardModel(1, 1, "T", string.Empty, 1, 1, [tag])],
+                [(tag, 1L)],
+                ExportedAt);
+
+            StringAssert.Contains(markdown, string.Format(Resources.Culture, Resources.Export_TagsLine, expected) + Environment.NewLine);
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void CardBodyAndColumnDescriptionAreVerbatim()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            string markdown = Normalize(MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", "line one\n# not a heading | pipe", 1, 1)],
+                [new CardModel(1, 1, "T", "body\n\n## raw | `md`", 1, 1, [])],
+                [],
+                ExportedAt));
+
+            StringAssert.Contains(markdown, "\nline one\n# not a heading | pipe\n");
+            StringAssert.Contains(markdown, "\nbody\n\n## raw | `md`\n");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void ColumnsAndCardsAreExportedInIdOrder()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(2, "Second", string.Empty, 1, 1), new ColumnModel(1, "First", string.Empty, 1, 1)],
+                [
+                    new CardModel(9, 1, "Nine", string.Empty, 1, 1, []),
+                    new CardModel(3, 2, "Three", string.Empty, 1, 1, []),
+                    new CardModel(4, 1, "Four", string.Empty, 1, 1, []),
+                ],
+                [],
+                ExportedAt);
+
+            int first = markdown.IndexOf(string.Format(Resources.Culture, Resources.Export_ColumnHeading, "First", 2), StringComparison.Ordinal);
+            int second = markdown.IndexOf(string.Format(Resources.Culture, Resources.Export_ColumnHeading, "Second", 1), StringComparison.Ordinal);
+            int four = markdown.IndexOf("### #4 Four", StringComparison.Ordinal);
+            int nine = markdown.IndexOf("### #9 Nine", StringComparison.Ordinal);
+            int three = markdown.IndexOf("### #3 Three", StringComparison.Ordinal);
+            Assert.IsTrue(first >= 0 && first < four && four < nine && nine < second && second < three, markdown);
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    [DataRow("en", "2026-09-30 14:25:37", "2026-09-01 10:00:05")]
+    [DataRow("zh-Hans", "2026年9月30日 14:25", "2026年9月1日 10:00")]
+    public void TimestampsUseThePlannedPerLanguageFormat(string language, string exportedAt, string cardTime)
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo(language);
+            long cardSeconds = new DateTimeOffset(new DateTime(2026, 9, 1, 10, 0, 5)).ToUnixTimeSeconds();
+            var exportMoment = new DateTimeOffset(new DateTime(2026, 9, 30, 14, 25, 37));
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [new CardModel(1, 1, "T", string.Empty, cardSeconds, cardSeconds, [])],
+                [],
+                exportMoment);
+
+            StringAssert.Contains(markdown, string.Format(Resources.Culture, Resources.Export_ExportedAtLine, exportedAt));
+            StringAssert.Contains(markdown, string.Format(Resources.Culture, Resources.Export_CreatedModifiedLine, cardTime, cardTime));
         }
         finally
         {

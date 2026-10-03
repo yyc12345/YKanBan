@@ -142,9 +142,6 @@
   <data name="Export_TimePattern" xml:space="preserve">
     <value>yyyy-MM-dd HH:mm:ss</value>
   </data>
-  <data name="Export_CardTimePattern" xml:space="preserve">
-    <value>yyyy-MM-dd HH:mm</value>
-  </data>
   <data name="Export_WorkspaceHeading" xml:space="preserve">
     <value># {0}</value>
   </data>
