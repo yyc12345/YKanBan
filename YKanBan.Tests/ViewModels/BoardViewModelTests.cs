@@ -226,6 +226,48 @@ public class BoardViewModelTests
     }
 
     [TestMethod]
+    public void ConfirmingAnEmptyNewCardCreatesNothing()
+    {
+        using var fixture = new Fixture();
+        ColumnModel column = fixture.Repository.AddColumn("A", "");
+        var editor = CardEditorDialogViewModel.ForNewCard(fixture.Repository, fixture.Dialogs, column.Id, confirmDiscard: true);
+        bool? closedWith = null;
+        editor.CloseRequested += (_, result) => closedWith = result;
+        editor.CardTitle = "draft";
+        editor.CardTitle = "";
+
+        editor.ConfirmCommand.Execute(null);
+
+        Assert.IsTrue(closedWith);
+        Assert.IsNull(editor.SavedCard);
+        Assert.AreEqual(0, fixture.Repository.GetCards().Count);
+    }
+
+    [TestMethod]
+    public async Task NewCardWithOnlyATagIsCreated()
+    {
+        using var fixture = new Fixture();
+        ColumnModel column = fixture.Repository.AddColumn("A", "");
+        TagModel bug = fixture.Repository.AddTag("bug", new RgbColor(255, 0, 0), "");
+        var editor = CardEditorDialogViewModel.ForNewCard(fixture.Repository, fixture.Dialogs, column.Id, confirmDiscard: true);
+        fixture.Dialogs.Script = dialog =>
+        {
+            if (dialog is TagPickerDialogViewModel picker)
+            {
+                picker.PickCommand.Execute(picker.FilteredTags.Single());
+            }
+            return Task.CompletedTask;
+        };
+
+        await editor.AddTagCommand.ExecuteAsync(null);
+        editor.ConfirmCommand.Execute(null);
+
+        CardModel card = fixture.Repository.GetCards().Single();
+        Assert.AreEqual("", card.Title);
+        Assert.AreEqual(bug.Id, card.Tags.Single().Id);
+    }
+
+    [TestMethod]
     public async Task DirtyCancelAsksAndStaysOpenWhenDeclined()
     {
         using var fixture = new Fixture();

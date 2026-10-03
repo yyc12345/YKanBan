@@ -12,8 +12,8 @@ namespace YKanBan.ViewModels.Dialogs;
 /// The card editor — one unit of work. Title, content and the tag assignment
 /// are edited in memory and written together in a single transaction on
 /// confirmation; cancelling writes nothing about the card or its assignment.
-/// Confirming an existing card without effective changes writes nothing and
-/// keeps its timestamps. The only immediate write is the creation of a new tag
+/// Confirming without effective changes writes nothing: an existing card keeps
+/// its timestamps, and a new card left empty is not created. The only immediate write is the creation of a new tag
 /// in the nested tag picker (see <see cref="TagPickerDialogViewModel"/>).
 /// </summary>
 public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
@@ -113,7 +113,8 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
     public ObservableCollection<TagBadgeViewModel> Tags { get; }
 
     /// <summary>
-    /// Gets the card written on confirmation; <see langword="null"/> until then.
+    /// Gets the card written on confirmation; <see langword="null"/> until then,
+    /// and after confirming a new card that was left empty.
     /// </summary>
     public CardModel? SavedCard { get; private set; }
 
@@ -182,13 +183,13 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
     private void RemoveTag(TagBadgeViewModel tag) => Tags.Remove(tag);
 
     /// <summary>
-    /// Writes the card in one transaction and closes; an unchanged existing card
-    /// is not written at all.
+    /// Writes the card in one transaction and closes; an unchanged card is not
+    /// written at all, so a new card left empty is not created.
     /// </summary>
     [RelayCommand]
     private void Confirm()
     {
-        if (_existing is not null && !IsDirty)
+        if (!IsDirty)
         {
             SavedCard = _existing;
             Close(true);
