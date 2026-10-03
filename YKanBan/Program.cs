@@ -12,9 +12,16 @@ sealed class Program
     {
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
-        // The lifetime has ended: persist the configuration once, then release services.
-        App.Services?.SaveConfiguration();
-        App.Services?.Dispose();
+        // The lifetime has ended: persist the configuration once, then release
+        // services; the workspace lock and connection are released even if saving fails.
+        try
+        {
+            App.Services?.SaveConfiguration();
+        }
+        finally
+        {
+            App.Services?.Dispose();
+        }
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

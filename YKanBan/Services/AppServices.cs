@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using YKanBan.Storage.AppData;
 using YKanBan.Storage.Workspace;
 
@@ -63,9 +64,21 @@ public sealed class AppServices : IDisposable
     }
 
     /// <summary>
-    /// Persists the configuration when this session changed a setting; called once at shutdown.
+    /// Persists the configuration when this session changed a setting; called
+    /// once at shutdown. A write failure only loses this session's settings
+    /// changes, the same accepted loss as a crash, so it is logged and ignored.
     /// </summary>
-    public void SaveConfiguration() => ConfigStore.SaveIfChanged(Config);
+    public void SaveConfiguration()
+    {
+        try
+        {
+            ConfigStore.SaveIfChanged(Config);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            Debug.WriteLine(exception);
+        }
+    }
 
     /// <summary>
     /// Releases the workspace session, if any.

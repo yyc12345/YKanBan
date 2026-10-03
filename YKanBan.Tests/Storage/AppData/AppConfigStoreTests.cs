@@ -46,6 +46,43 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
+    public void LoadUnreadableFileReturnsDefaults()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, "{ \"language\": \"zh-Hans\" }");
+        var store = new AppConfigStore(path);
+
+        AppConfig config;
+        using (new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            config = store.Load();
+        }
+
+        Assert.AreEqual(AppConfig.DefaultLanguage, config.Language);
+        Assert.IsFalse(File.Exists(path + ".bak"));
+    }
+
+    [TestMethod]
+    public void LoadCorruptFileReturnsDefaultsWhenTheBackupCannotBeWritten()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, "{ this is not valid json");
+        File.WriteAllText(path + ".bak", "older backup");
+        var store = new AppConfigStore(path);
+
+        AppConfig config;
+        using (new FileStream(path + ".bak", FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            config = store.Load();
+        }
+
+        Assert.AreEqual(AppConfig.CurrentFormatVersion, config.Version);
+        Assert.AreEqual("older backup", File.ReadAllText(path + ".bak"));
+    }
+
+    [TestMethod]
     public void LoadJsonNullReturnsDefaults()
     {
         using var directory = new TempDirectory();

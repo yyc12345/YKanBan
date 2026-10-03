@@ -9,7 +9,8 @@ namespace YKanBan.Storage.AppData;
 /// defaults; a file that is not a JSON object is backed up to app.json.bak and
 /// then defaults are used; an individual invalid field (unknown enum value or
 /// language, out-of-range width, wrong type) falls back to its own default while
-/// the other fields are kept. Saving happens only when the configuration differs
+/// the other fields are kept; a file that exists but cannot be read (I/O or
+/// permission error) also yields defaults. Saving happens only when the configuration differs
 /// from what was loaded, and writes the file directly (no atomic replace) —
 /// losing the last session's settings to a crash is an accepted trade-off.
 /// </summary>
@@ -52,11 +53,12 @@ public sealed class AppConfigStore
     /// <summary>
     /// Loads the configuration and records it as the persisted baseline for
     /// <see cref="SaveIfChanged"/>. A missing file yields defaults; a file that
-    /// is not a JSON object is backed up to app.json.bak and then defaults are
-    /// used; invalid fields fall back to their defaults individually.
+    /// is not a JSON object is backed up to app.json.bak (best effort) and then
+    /// defaults are used; invalid fields fall back to their defaults
+    /// individually; a file that cannot be read yields defaults. Never throws for
+    /// file-system reasons, because a bad app.json must not stop the app.
     /// </summary>
     /// <returns>The loaded configuration, or defaults when none could be read.</returns>
-    /// <exception cref="IOException">The file exists but cannot be read.</exception>
     public AppConfig Load()
     {
         AppConfig config = Read();
@@ -108,7 +110,16 @@ public sealed class AppConfigStore
             return new AppConfig();
         }
 
-        string json = File.ReadAllText(FilePath);
+        string json;
+        try
+        {
+            json = File.ReadAllText(FilePath);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return new AppConfig();
+        }
+
         JToken root;
         try
         {
@@ -137,12 +148,20 @@ public sealed class AppConfigStore
     }
 
     /// <summary>
-    /// Keeps a copy of an unusable file for inspection, then continues with defaults.
+    /// Keeps a copy of an unusable file for inspection, then continues with
+    /// defaults; a backup that cannot be written is skipped.
     /// </summary>
     /// <returns>The default configuration.</returns>
     private AppConfig BackUpAndUseDefaults()
     {
-        File.Copy(FilePath, FilePath + ".bak", overwrite: true);
+        try
+        {
+            File.Copy(FilePath, FilePath + ".bak", overwrite: true);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            // The backup is only a diagnostic aid; starting with defaults matters more.
+        }
         return new AppConfig();
     }
 
