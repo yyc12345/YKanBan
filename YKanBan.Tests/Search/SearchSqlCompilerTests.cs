@@ -190,4 +190,20 @@ public class SearchSqlCompilerTests
         CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("tag:äpfel"));
         CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("column:érable"));
     }
+
+    [TestMethod]
+    public void LargestAcceptedQueriesRunWithinTheSqliteExpressionDepth()
+    {
+        using var fixture = new SearchFixture();
+        int count = SearchQueryParser.MaxAtomCount;
+        int depth = SearchQueryParser.MaxNestingDepth;
+        string nested = string.Concat(Enumerable.Repeat("(tag:x OR ", depth))
+            + string.Join(" ", Enumerable.Repeat("apple", count - depth))
+            + new string(')', depth);
+
+        CollectionAssert.AreEqual(new[] { 2L }, fixture.Search(string.Join(" ", Enumerable.Repeat("apple", count))));
+        CollectionAssert.AreEqual(new[] { 2L }, fixture.Search(string.Join(" OR ", Enumerable.Repeat("apple", count))));
+        CollectionAssert.AreEqual(new[] { 2L }, fixture.Search(string.Join(" ", Enumerable.Repeat("title:apple", count))));
+        CollectionAssert.AreEqual(new[] { 2L }, fixture.Search(nested));
+    }
 }

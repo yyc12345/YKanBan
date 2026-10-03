@@ -249,6 +249,28 @@ public class SearchQueryParserTests
     }
 
     [TestMethod]
+    public void AtomCountAtTheLimitParses()
+    {
+        Assert.IsNotNull(SearchQueryParser.Parse(string.Join(" ", Enumerable.Repeat("a", SearchQueryParser.MaxAtomCount))));
+    }
+
+    [TestMethod]
+    [DataRow(" ")]
+    [DataRow(" OR ")]
+    public void AtomCountBeyondTheLimitIsAnError(string separator)
+    {
+        AssertSyntaxError(string.Join(separator, Enumerable.Repeat("a", SearchQueryParser.MaxAtomCount + 1)));
+    }
+
+    [TestMethod]
+    public void QualifiersAndPhrasesCountTowardsTheAtomLimit()
+    {
+        int half = SearchQueryParser.MaxAtomCount / 2;
+        string text = string.Join(" ", Enumerable.Repeat("tag:\"a b\"", half).Concat(Enumerable.Repeat("\"c\"", half + 1)));
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
     public void VeryDeepNestingIsAnErrorRatherThanACrash()
     {
         AssertSyntaxError(new string('(', 100_000) + "a" + new string(')', 100_000));

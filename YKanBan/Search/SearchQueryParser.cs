@@ -9,8 +9,8 @@ namespace YKanBan.Search;
 /// phrases, invalid escapes, a backslash in a bare word, unknown qualifier
 /// keys, qualifiers without a value, unquoted values containing ':' or equal
 /// to AND/OR, id values that are not an unquoted positive integer with an
-/// optional '#', and parentheses nested deeper than <see cref="MaxNestingDepth"/>)
-/// raises <see cref="SearchSyntaxException"/>.
+/// optional '#', parentheses nested deeper than <see cref="MaxNestingDepth"/>,
+/// and more than <see cref="MaxAtomCount"/> atoms) raises <see cref="SearchSyntaxException"/>.
 ///
 /// Only uppercase AND/OR are operators (lowercase ones are plain words); AND —
 /// explicit or by adjacency — binds tighter than OR; parentheses group. Blank
@@ -24,6 +24,14 @@ public static class SearchQueryParser
     /// so an unbounded depth would overflow the stack and kill the process.
     /// </summary>
     public const int MaxNestingDepth = 64;
+
+    /// <summary>
+    /// Most atoms (words, phrases and qualifiers) accepted in one expression.
+    /// The compiled SQL chains every atom into one expression, and SQLite
+    /// rejects expressions nested deeper than 1000 levels; together with
+    /// <see cref="MaxNestingDepth"/> this keeps every valid query well below that.
+    /// </summary>
+    public const int MaxAtomCount = 256;
 
     /// <summary>The recognized qualifier keys; add new entries here to extend the grammar.</summary>
     private static readonly (string Key, QualifierKind Kind)[] QualifierTable =
@@ -122,7 +130,9 @@ public static class SearchQueryParser
         {
             List<SearchToken> tokens = SearchLexer.Tokenize(text).ToList();
             EnsureNestingWithinLimit(tokens);
-            return Query.ParseOrThrow(tokens);
+            SearchNode query = Query.ParseOrThrow(tokens);
+            EnsureAtomCountWithinLimit(query);
+            return query;
         }
         catch (ParseException exception)
         {
@@ -151,6 +161,31 @@ public static class SearchQueryParser
             }
         }
     }
+
+    /// <summary>
+    /// Rejects expressions with more than <see cref="MaxAtomCount"/> atoms.
+    /// </summary>
+    /// <param name="query">The parsed query.</param>
+    /// <exception cref="SearchSyntaxException">The expression has too many atoms.</exception>
+    private static void EnsureAtomCountWithinLimit(SearchNode query)
+    {
+        if (CountAtoms(query) > MaxAtomCount)
+        {
+            throw new SearchSyntaxException($"The expression has more than {MaxAtomCount} search terms.");
+        }
+    }
+
+    /// <summary>
+    /// Counts the atoms (leaves) of a parsed query.
+    /// </summary>
+    /// <param name="node">The node to count.</param>
+    /// <returns>The number of atoms under the node.</returns>
+    private static int CountAtoms(SearchNode node) => node switch
+    {
+        SearchNode.And and => and.Terms.Sum(CountAtoms),
+        SearchNode.Or or => or.Terms.Sum(CountAtoms),
+        _ => 1,
+    };
 
     #region Atom construction
 
