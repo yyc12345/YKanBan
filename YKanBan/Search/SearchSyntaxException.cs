@@ -12,6 +12,15 @@ public sealed class SearchSyntaxException : Exception
     /// Initializes the exception with a descriptive English message.
     /// </summary>
     /// <param name="message">The English diagnostic message.</param>
+    public SearchSyntaxException(string message)
+        : base(message)
+    {
+    }
+
+    /// <summary>
+    /// Initializes the exception with a descriptive English message.
+    /// </summary>
+    /// <param name="message">The English diagnostic message.</param>
     /// <param name="innerException">The underlying parse failure.</param>
     public SearchSyntaxException(string message, Exception innerException)
         : base(message, innerException)

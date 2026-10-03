@@ -228,6 +228,33 @@ public class SearchQueryParserTests
     }
 
     [TestMethod]
+    public void NestingAtTheDepthLimitParses()
+    {
+        int depth = SearchQueryParser.MaxNestingDepth;
+        AssertParsesTo(new SearchNode.FreeText("a"), new string('(', depth) + "a" + new string(')', depth));
+    }
+
+    [TestMethod]
+    public void NestingBeyondTheDepthLimitIsAnError()
+    {
+        int depth = SearchQueryParser.MaxNestingDepth + 1;
+        AssertSyntaxError(new string('(', depth) + "a" + new string(')', depth));
+    }
+
+    [TestMethod]
+    public void SequentialGroupsDoNotCountTowardsTheDepthLimit()
+    {
+        string groups = string.Join(" ", Enumerable.Repeat("(a)", SearchQueryParser.MaxNestingDepth + 1));
+        Assert.IsNotNull(SearchQueryParser.Parse(groups));
+    }
+
+    [TestMethod]
+    public void VeryDeepNestingIsAnErrorRatherThanACrash()
+    {
+        AssertSyntaxError(new string('(', 100_000) + "a" + new string(')', 100_000));
+    }
+
+    [TestMethod]
     public void EmptyParensAreAnError()
     {
         AssertSyntaxError("()");

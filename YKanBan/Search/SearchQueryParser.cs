@@ -8,8 +8,9 @@ namespace YKanBan.Search;
 /// (unbalanced parentheses, dangling or consecutive operators, unterminated
 /// phrases, invalid escapes, a backslash in a bare word, unknown qualifier
 /// keys, qualifiers without a value, unquoted values containing ':' or equal
-/// to AND/OR, and id values that are not an unquoted positive integer with an
-/// optional '#') raises <see cref="SearchSyntaxException"/>.
+/// to AND/OR, id values that are not an unquoted positive integer with an
+/// optional '#', and parentheses nested deeper than <see cref="MaxNestingDepth"/>)
+/// raises <see cref="SearchSyntaxException"/>.
 ///
 /// Only uppercase AND/OR are operators (lowercase ones are plain words); AND —
 /// explicit or by adjacency — binds tighter than OR; parentheses group. Blank
@@ -18,6 +19,12 @@ namespace YKanBan.Search;
 /// </summary>
 public static class SearchQueryParser
 {
+    /// <summary>
+    /// Deepest accepted parenthesis nesting. The parser recurses once per level,
+    /// so an unbounded depth would overflow the stack and kill the process.
+    /// </summary>
+    public const int MaxNestingDepth = 64;
+
     /// <summary>The recognized qualifier keys; add new entries here to extend the grammar.</summary>
     private static readonly (string Key, QualifierKind Kind)[] QualifierTable =
     [
@@ -114,11 +121,34 @@ public static class SearchQueryParser
         try
         {
             List<SearchToken> tokens = SearchLexer.Tokenize(text).ToList();
+            EnsureNestingWithinLimit(tokens);
             return Query.ParseOrThrow(tokens);
         }
         catch (ParseException exception)
         {
             throw new SearchSyntaxException(exception.Message, exception);
+        }
+    }
+
+    /// <summary>
+    /// Rejects parenthesis nesting deeper than <see cref="MaxNestingDepth"/>
+    /// before the recursive parser sees it. Balance itself is left to the parser.
+    /// </summary>
+    /// <param name="tokens">The token stream.</param>
+    /// <exception cref="SearchSyntaxException">The nesting is too deep.</exception>
+    private static void EnsureNestingWithinLimit(IEnumerable<SearchToken> tokens)
+    {
+        int depth = 0;
+        foreach (SearchToken token in tokens)
+        {
+            if (token is SearchToken.OpenParen && ++depth > MaxNestingDepth)
+            {
+                throw new SearchSyntaxException($"Parentheses are nested more than {MaxNestingDepth} levels deep.");
+            }
+            if (token is SearchToken.CloseParen && depth > 0)
+            {
+                depth--;
+            }
         }
     }
 

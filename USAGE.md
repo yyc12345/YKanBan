@@ -221,6 +221,7 @@ These are invalid:
 | Problem | Example |
 |---|---|
 | Unbalanced parentheses | `(tag:bug`, `tag:bug)` |
+| Parentheses nested more than 64 levels deep | `((((…a…))))` with 65 `(` |
 | An operator with a missing side | `bug AND`, `OR bug` |
 | Consecutive operators | `a AND OR b` |
 | A qualifier without a value | `tag:` |
