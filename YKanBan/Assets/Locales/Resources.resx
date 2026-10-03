@@ -16,6 +16,117 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="App_Name" xml:space="preserve">
+    <value>YKanBan</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Main_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Main_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Tab_Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="Tab_Board" xml:space="preserve">
+    <value>Board</value>
+  </data>
+  <data name="Error_Argument_Title" xml:space="preserve">
+    <value>Invalid arguments</value>
+  </data>
+  <data name="Error_Argument_Message" xml:space="preserve">
+    <value>YKanBan was started with invalid command-line arguments.</value>
+  </data>
+  <data name="Error_Argument_Usage" xml:space="preserve">
+    <value>Usage: ykanban &lt;path&gt;</value>
+  </data>
+  <data name="Error_DirectoryMissing_Title" xml:space="preserve">
+    <value>Folder not found</value>
+  </data>
+  <data name="Error_DirectoryMissing_Message" xml:space="preserve">
+    <value>The folder does not exist: {0}</value>
+  </data>
+  <data name="Error_NotInitialized_Title" xml:space="preserve">
+    <value>No workspace here</value>
+  </data>
+  <data name="Error_NotInitialized_Message" xml:space="preserve">
+    <value>The folder does not contain a .ykanban workspace: {0}</value>
+  </data>
+  <data name="Error_NotInitialized_Initialize" xml:space="preserve">
+    <value>Initialize workspace</value>
+  </data>
+  <data name="Error_LockConflict_Title" xml:space="preserve">
+    <value>Workspace locked</value>
+  </data>
+  <data name="Error_LockConflict_Message" xml:space="preserve">
+    <value>The workspace is already open in another instance: {0}</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_Language_RestartNotice" xml:space="preserve">
+    <value>Takes effect after restart</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_ThemeFollowSystem" xml:space="preserve">
+    <value>Follow system</value>
+  </data>
+  <data name="Settings_Confirmations" xml:space="preserve">
+    <value>Confirmations</value>
+  </data>
+  <data name="Settings_ConfirmDeleteCard" xml:space="preserve">
+    <value>Ask before deleting a card</value>
+  </data>
+  <data name="Settings_ConfirmDeleteColumn" xml:space="preserve">
+    <value>Ask before deleting a column</value>
+  </data>
+  <data name="Settings_ConfirmDeleteTag" xml:space="preserve">
+    <value>Ask before deleting a tag</value>
+  </data>
+  <data name="Settings_ConfirmDiscardEdit" xml:space="preserve">
+    <value>Ask before discarding card edits</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_Repository" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="About_LicenseValue" xml:space="preserve">
+    <value>MIT</value>
+  </data>
   <data name="PresetColumn_Todo" xml:space="preserve">
     <value>To Do</value>
   </data>

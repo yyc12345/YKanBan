@@ -1,0 +1,70 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+        xmlns:vmBase="using:YKanBan.ViewModels"
+        xmlns:lang="using:YKanBan"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="440" d:DesignHeight="460"
+        x:Class="YKanBan.Views.Dialogs.SettingsDialog"
+        x:DataType="vm:SettingsDialogViewModel"
+        Title="{x:Static lang:Resources.Settings_Title}"
+        Width="440" Height="460" MinWidth="440" MinHeight="460" CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+
+        <StackPanel Grid.Row="0" Spacing="14">
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="{x:Static lang:Resources.Settings_Language}"/>
+                <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vmBase:OptionItem">
+                            <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="{x:Static lang:Resources.Settings_Language_RestartNotice}"
+                           IsVisible="{Binding RestartNoticeVisible}"
+                           FontStyle="Italic" Opacity="0.7"/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="{x:Static lang:Resources.Settings_Theme}"/>
+                <ComboBox ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}"
+                          HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vmBase:OptionItem">
+                            <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="{x:Static lang:Resources.Settings_Confirmations}"/>
+                <CheckBox Content="{x:Static lang:Resources.Settings_ConfirmDeleteCard}"
+                          IsChecked="{Binding ConfirmDeleteCard}"/>
+                <CheckBox Content="{x:Static lang:Resources.Settings_ConfirmDeleteColumn}"
+                          IsChecked="{Binding ConfirmDeleteColumn}"/>
+                <CheckBox Content="{x:Static lang:Resources.Settings_ConfirmDeleteTag}"
+                          IsChecked="{Binding ConfirmDeleteTag}"/>
+                <CheckBox Content="{x:Static lang:Resources.Settings_ConfirmDiscardEdit}"
+                          IsChecked="{Binding ConfirmDiscardEdit}"/>
+            </StackPanel>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Spacing="8" Margin="0,16,0,0">
+            <Button Content="{x:Static lang:Resources.Common_Ok}" Click="OnOkClick" MinWidth="90"
+                    IsDefault="True"/>
+            <Button Content="{x:Static lang:Resources.Common_Cancel}" Click="OnCancelClick" MinWidth="90"
+                    IsCancel="True"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

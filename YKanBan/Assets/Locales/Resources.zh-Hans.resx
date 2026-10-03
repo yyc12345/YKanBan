@@ -16,6 +16,117 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="App_Name" xml:space="preserve">
+    <value>YKanBan</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Main_Export" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Main_About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Tab_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Tab_Board" xml:space="preserve">
+    <value>看板</value>
+  </data>
+  <data name="Error_Argument_Title" xml:space="preserve">
+    <value>参数错误</value>
+  </data>
+  <data name="Error_Argument_Message" xml:space="preserve">
+    <value>YKanBan 启动参数有误。</value>
+  </data>
+  <data name="Error_Argument_Usage" xml:space="preserve">
+    <value>用法：ykanban &lt;路径&gt;</value>
+  </data>
+  <data name="Error_DirectoryMissing_Title" xml:space="preserve">
+    <value>目录不存在</value>
+  </data>
+  <data name="Error_DirectoryMissing_Message" xml:space="preserve">
+    <value>目录不存在：{0}</value>
+  </data>
+  <data name="Error_NotInitialized_Title" xml:space="preserve">
+    <value>尚未初始化</value>
+  </data>
+  <data name="Error_NotInitialized_Message" xml:space="preserve">
+    <value>该目录下没有 .ykanban 工作区：{0}</value>
+  </data>
+  <data name="Error_NotInitialized_Initialize" xml:space="preserve">
+    <value>初始化工作区</value>
+  </data>
+  <data name="Error_LockConflict_Title" xml:space="preserve">
+    <value>工作区已被占用</value>
+  </data>
+  <data name="Error_LockConflict_Message" xml:space="preserve">
+    <value>该工作区已在另一个实例中打开：{0}</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_Language_RestartNotice" xml:space="preserve">
+    <value>重启后生效</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>亮色</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>暗色</value>
+  </data>
+  <data name="Settings_ThemeFollowSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Settings_Confirmations" xml:space="preserve">
+    <value>确认对话框</value>
+  </data>
+  <data name="Settings_ConfirmDeleteCard" xml:space="preserve">
+    <value>删除卡片前询问</value>
+  </data>
+  <data name="Settings_ConfirmDeleteColumn" xml:space="preserve">
+    <value>删除列前询问</value>
+  </data>
+  <data name="Settings_ConfirmDeleteTag" xml:space="preserve">
+    <value>删除标签前询问</value>
+  </data>
+  <data name="Settings_ConfirmDiscardEdit" xml:space="preserve">
+    <value>放弃卡片编辑前询问</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_Repository" xml:space="preserve">
+    <value>仓库</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>许可证</value>
+  </data>
+  <data name="About_LicenseValue" xml:space="preserve">
+    <value>MIT</value>
+  </data>
   <data name="PresetColumn_Todo" xml:space="preserve">
     <value>待办</value>
   </data>

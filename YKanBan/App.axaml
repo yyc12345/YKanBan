@@ -2,14 +2,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="YKanBan.App"
              xmlns:local="using:YKanBan"
+             xmlns:semi="https://irihi.tech/semi"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-  
+
     <Application.Styles>
-        <FluentTheme />
+        <!-- Semi.Avalonia provides the light and dark palettes; icons need their own theme. -->
+        <semi:SemiTheme/>
+        <StyleInclude Source="avares://IconPacks.Avalonia.Lucide/Lucide.axaml"/>
     </Application.Styles>
+
+    <!--
+        Custom colors are declared as Light/Dark pairs and consumed through
+        DynamicResource, so a theme switch restyles every surface. Tag colors are
+        user data and stay as their literal #RRGGBB value.
+    -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="TopBarBackgroundBrush" Color="#F6F7F9"/>
+                    <SolidColorBrush x:Key="TopBarBorderBrush" Color="#E2E4EA"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="TopBarBackgroundBrush" Color="#1C1E24"/>
+                    <SolidColorBrush x:Key="TopBarBorderBrush" Color="#2C2F37"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>
