@@ -5,7 +5,7 @@
 #
 # win-x64   -> YKanBan-<version>-win-x64.zip     (folder YKanBan-<version>-win-x64/)
 # linux-x64 -> YKanBan-<version>-linux-x64.tar.gz (folder YKanBan-<version>-linux-x64/)
-# osx-*     -> YKanBan-<version>-<rid>.tar.gz     (YKanBan.app bundle, ad-hoc signed when codesign exists)
+# osx-*     -> YKanBan-<version>-<rid>.tar.gz     (YKanBan.app bundle, ad-hoc signed when possible)
 #
 # tar.gz keeps the executable bit, which a plain zip artifact upload would lose.
 set -euo pipefail
@@ -28,9 +28,15 @@ trap 'rm -rf "$staging"' EXIT
 case "$rid" in
   win-*)
     cp -R "$publish_dir" "$staging/$name"
-    # Compress-Archive is available on every Windows host, unlike zip.
-    powershell -NoProfile -Command \
-      "Compress-Archive -Path '$(cygpath -w "$staging/$name" 2>/dev/null || echo "$staging/$name")' -DestinationPath '$(cygpath -w "$output_dir/$name.zip" 2>/dev/null || echo "$output_dir/$name.zip")' -Force"
+    rm -f "$output_dir/$name.zip"
+    # 7-Zip ships on the Windows runners and writes '/' entry separators;
+    # Windows PowerShell 5.1's Compress-Archive writes '\', which breaks
+    # extraction outside Windows.
+    if ! command -v 7z > /dev/null 2>&1; then
+      echo "7z not found" >&2
+      exit 1
+    fi
+    (cd "$staging" && 7z a -tzip -bso0 -bsp0 "$output_dir/$name.zip" "$name")
     ;;
   linux-*)
     cp -R "$publish_dir" "$staging/$name"
@@ -44,8 +50,12 @@ case "$rid" in
     chmod +x "$app/Contents/MacOS/YKanBan"
     sed "s/@VERSION@/${version}/g" "$script_dir/macos/Info.plist" > "$app/Contents/Info.plist"
     if command -v codesign > /dev/null 2>&1; then
-      # Ad-hoc signature: unsigned arm64 code does not run at all.
-      codesign --force --deep --sign - "$app"
+      # Ad-hoc signature for the bundle. Not fatal: the SDK already ad-hoc
+      # signs the apphost, which is all arm64 needs to run, and --deep may
+      # trip over the non-Mach-O files in Contents/MacOS.
+      if ! codesign --force --deep --sign - "$app"; then
+        echo "warning: ad-hoc signing of YKanBan.app failed; packing it unsigned" >&2
+      fi
     fi
     tar -C "$staging" -czf "$output_dir/$name.tar.gz" YKanBan.app
     ;;

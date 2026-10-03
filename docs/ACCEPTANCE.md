@@ -46,7 +46,7 @@
 
 ## B. 启动与错误页（M4 / M4R）
 
-- [ ] 无参数、两个参数、`--help`、`-x`、空字符串参数 → 参数错误页，显示 `Usage: ykanban <path>`
+- [ ] 无参数、两个参数、`--help`、`-x`、空字符串参数、纯空格参数 → 参数错误页，显示 `Usage: ykanban <path>`
 - [ ] 不存在的路径、指向文件的路径 → 目录不存在页
 - [ ] 相对路径（如 `ykanban .`）按当前目录解析
 - [ ] 无 `.ykanban` 的文件夹 → 未初始化页；点"初始化"后进入看板，预置三列
@@ -98,5 +98,5 @@
 - [ ] 产物：`YKanBan-<版本>-win-x64.zip`、`-linux-x64.tar.gz`、`-osx-x64.tar.gz`、`-osx-arm64.tar.gz`
 - [ ] Windows：解压后 `YKanBan.exe <path>` 可直接运行（自包含，无需安装 .NET）
 - [ ] Linux：解压后 `./YKanBan <path>` 可运行（可执行位保留）
-- [ ] macOS：解除隔离后 `open -a YKanBan --args <path>` 与直接运行包内可执行文件均可用；双击 `.app` 只显示参数错误页
+- [ ] macOS：解除隔离后 `open -n -a YKanBan --args <绝对路径>` 与直接运行包内可执行文件均可用；双击 `.app` 只显示参数错误页
 - [ ] 故意让某平台测试失败 → 该 RID 无产物，其余 RID 不受影响

@@ -45,7 +45,8 @@ ykanban <path>
 ```
 
 - Exactly one argument is accepted. A relative path is resolved against the
-  current working directory, so `ykanban .` opens the current folder.
+  current working directory, so `ykanban .` opens the current folder (but see
+  [macOS](#macos) when starting through `open`).
 - YKanBan looks for `.ykanban` **only in `<path>` itself**; it does not search
   parent folders the way Git does.
 - There are no command-line options. An argument starting with `-` is never
@@ -57,7 +58,7 @@ instead:
 
 | Page | When |
 |---|---|
-| Invalid arguments | No argument, more than one argument, an empty argument, or an argument starting with `-` (including `--help`). Shows the usage line. |
+| Invalid arguments | No argument, more than one argument, an empty or whitespace-only argument, an argument starting with `-` (including `--help`), or a path the operating system cannot represent (for example one containing a NUL character). Shows the usage line. |
 | Folder not found | `<path>` does not exist or is not a folder. |
 | No workspace here | `<path>` exists but has no `.ykanban`. The **Initialize workspace** button creates one, with the columns To Do / In Progress / Done (named in the current interface language). |
 | Workspace locked | Another YKanBan window already has this workspace open. Close that window first. |
@@ -80,12 +81,17 @@ Double-clicking `YKanBan.app` starts it without a path, so it only shows the
 Launch Services or by running the executable inside the bundle:
 
 ```sh
-open -a YKanBan --args /path/to/project
+open -n -a YKanBan --args /path/to/project
 /Applications/YKanBan.app/Contents/MacOS/YKanBan /path/to/project
 ```
 
-`open -a YKanBan` finds the app once it is in `/Applications` (or another
-folder Launch Services knows about).
+- Keep `-n`: without it, `open` only brings an already running YKanBan to
+  the front and drops the path, instead of starting another window.
+- Give `open` an **absolute** path. An app started by `open` runs in `/`, so
+  `open -n -a YKanBan --args .` opens `/`, not the current folder. Running the
+  executable inside the bundle resolves relative paths normally.
+- `open -a YKanBan` finds the app once it is in `/Applications` (or another
+  folder Launch Services knows about).
 
 ## Workspaces, Git and backups
 
