@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Board"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="120"
+             x:Class="YKanBan.Views.Board.CardView"
+             x:DataType="vm:CardViewModel">
+
+    <Border Background="{DynamicResource CardBackgroundBrush}"
+            BorderBrush="{DynamicResource CardBorderBrush}"
+            BorderThickness="1" CornerRadius="6" Padding="8"
+            Cursor="Hand" Tapped="OnCardTapped">
+
+        <Grid RowDefinitions="Auto,Auto,Auto">
+
+            <!-- Row 1: id, title and the corner menu. -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding IdText}" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding TitleText}" IsVisible="{Binding HasTitle}"
+                           VerticalAlignment="Center" Margin="4,0"
+                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                           ToolTip.Tip="{Binding TitleText}"/>
+                <Button Grid.Column="2" Padding="4,2" VerticalAlignment="Center"
+                        Tapped="OnMenuButtonTapped">
+                    <icons:PackIconLucide Kind="EllipsisVertical" Width="16" Height="16"/>
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Header="{x:Static lang:Resources.Card_Move}" Command="{Binding MoveCommand}"/>
+                            <MenuItem Header="{x:Static lang:Resources.Card_Delete}" Command="{Binding DeleteCommand}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+
+            <!-- Row 2: content preview. -->
+            <TextBlock Grid.Row="1" Text="{Binding PreviewContent}" IsVisible="{Binding HasContent}"
+                       TextWrapping="Wrap" FontSize="12" Opacity="0.85" Margin="0,4,0,0"/>
+
+            <!-- Row 3: tag badges. -->
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding TagBadges}" IsVisible="{Binding HasTags}"
+                          Margin="0,4,0,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TagBadgeViewModel">
+                        <Border Background="{Binding Background}" CornerRadius="8"
+                                Padding="6,2" Margin="0,0,4,4"
+                                ToolTip.Tip="{Binding ToolTipText}">
+                            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="11"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Grid>
+    </Border>
+</UserControl>

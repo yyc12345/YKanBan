@@ -56,8 +56,7 @@ public sealed class AppConfigStore
             }
 
             // Older or hand-edited files may miss whole sections; each falls back to its defaults.
-            config.Sort ??= new SortSettings();
-            config.ColumnWidth ??= new ColumnWidthSettings();
+            config.Display ??= new DisplaySettings();
             config.Confirmations ??= new ConfirmationSettings();
             return config;
         }

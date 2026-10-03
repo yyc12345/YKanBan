@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+        xmlns:lang="using:YKanBan"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="200"
+        x:Class="YKanBan.Views.Dialogs.DiscardEditConfirmDialog"
+        x:DataType="vm:DiscardEditConfirmViewModel"
+        Title="{x:Static lang:Resources.Confirm_Discard_Title}"
+        Width="420" Height="200" MinWidth="420" MinHeight="200" CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+        <TextBlock Grid.Row="0" Text="{Binding Message}" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{x:Static lang:Resources.Common_Ok}" Click="OnConfirmClick"
+                    MinWidth="90" IsDefault="True"/>
+            <Button Content="{x:Static lang:Resources.Common_Cancel}" Click="OnCancelClick"
+                    MinWidth="90" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,114 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Board"
+             xmlns:vmBase="using:YKanBan.ViewModels"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="YKanBan.Views.Board.BoardView"
+             x:DataType="vm:BoardViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Toolbar: search, add column and the combined display options. -->
+        <Grid Grid.Row="0" Margin="8" ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+            <TextBox Grid.Column="0" Text="{Binding SearchText}" VerticalAlignment="Center"
+                     Watermark="{x:Static lang:Resources.Board_SearchPlaceholder}"/>
+
+            <Button Grid.Column="1" Margin="4,0,0,0" Command="{Binding ClearSearchCommand}"
+                    ToolTip.Tip="{x:Static lang:Resources.Board_ClearSearch}">
+                <icons:PackIconLucide Kind="X" Width="16" Height="16"/>
+            </Button>
+
+            <Button Grid.Column="2" Margin="4,0,0,0" Command="{Binding SearchCommand}"
+                    ToolTip.Tip="{x:Static lang:Resources.Board_Search}">
+                <icons:PackIconLucide Kind="Search" Width="16" Height="16"/>
+            </Button>
+
+            <Button Grid.Column="3" Margin="12,0,0,0" Command="{Binding AddNewColumnCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Board_AddColumn}"/>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="4" Margin="4,0,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="SlidersHorizontal" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Board_Display}"/>
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout Placement="BottomEdgeAlignedRight">
+                        <StackPanel Width="280" Spacing="12" Margin="4">
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{x:Static lang:Resources.Board_ColumnWidth}"/>
+                                <ComboBox ItemsSource="{Binding Display.Presets}"
+                                          SelectedItem="{Binding Display.SelectedPreset}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vmBase:OptionItem">
+                                            <TextBlock Text="{Binding Label}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <StackPanel Orientation="Horizontal" Spacing="8"
+                                            IsVisible="{Binding Display.IsCustom}">
+                                    <TextBlock Text="{x:Static lang:Resources.WidthDialog_Pixels}"
+                                               VerticalAlignment="Center"/>
+                                    <NumericUpDown Value="{Binding Display.CustomPixels}"
+                                                   Minimum="160" Maximum="720" Width="120"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{x:Static lang:Resources.Board_SortCard}"/>
+                                <ComboBox ItemsSource="{Binding Display.SortOptions}"
+                                          SelectedItem="{Binding Display.SelectedCardSort}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vmBase:OptionItem">
+                                            <TextBlock Text="{Binding Label}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{x:Static lang:Resources.Board_SortColumn}"/>
+                                <ComboBox ItemsSource="{Binding Display.SortOptions}"
+                                          SelectedItem="{Binding Display.SelectedColumnSort}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vmBase:OptionItem">
+                                            <TextBlock Text="{Binding Label}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
+
+        <!-- Board surface: columns horizontally, each scrolling its cards vertically. -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Columns}" Margin="8">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="12"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="1" Text="{x:Static lang:Resources.Board_NoColumns}"
+                   IsVisible="{Binding HasNoColumns}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+        xmlns:lang="using:YKanBan"
+        xmlns:conv="using:Avalonia.Data.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="300"
+        x:Class="YKanBan.Views.Dialogs.ColumnEditorDialog"
+        x:DataType="vm:ColumnEditorViewModel"
+        Title="{Binding WindowTitle}"
+        Width="420" Height="300" MinWidth="420" MinHeight="300" CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+        <StackPanel Grid.Row="0" Spacing="6">
+            <TextBlock Text="{x:Static lang:Resources.ColumnDialog_Title}"/>
+            <TextBox Text="{Binding Title}"/>
+
+            <TextBlock Text="{x:Static lang:Resources.ColumnDialog_Description}" Margin="0,6,0,0"/>
+            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalContentAlignment="Top" Height="80"/>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding ErrorMessage, Converter={x:Static conv:ObjectConverters.IsNotNull}}"
+                       Foreground="{DynamicResource ErrorTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Spacing="8" Margin="0,16,0,0">
+            <Button Content="{x:Static lang:Resources.Common_Ok}" Click="OnOkClick" MinWidth="90" IsDefault="True"/>
+            <Button Content="{x:Static lang:Resources.Common_Cancel}" Click="OnCancelClick" MinWidth="90" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

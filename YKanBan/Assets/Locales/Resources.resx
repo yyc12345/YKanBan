@@ -25,6 +25,9 @@
   <data name="Common_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="Main_Export" xml:space="preserve">
     <value>Export</value>
   </data>
@@ -39,6 +42,171 @@
   </data>
   <data name="Tab_Board" xml:space="preserve">
     <value>Board</value>
+  </data>
+  <data name="Board_SearchPlaceholder" xml:space="preserve">
+    <value>Search…</value>
+  </data>
+  <data name="Board_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Board_ClearSearch" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Board_AddColumn" xml:space="preserve">
+    <value>Add Column</value>
+  </data>
+  <data name="Board_ColumnWidth" xml:space="preserve">
+    <value>Column Width</value>
+  </data>
+  <data name="Board_SortCard" xml:space="preserve">
+    <value>Card Sort</value>
+  </data>
+  <data name="Board_SortColumn" xml:space="preserve">
+    <value>Column Sort</value>
+  </data>
+  <data name="Board_Display" xml:space="preserve">
+    <value>Display</value>
+  </data>
+  <data name="Board_NoColumns" xml:space="preserve">
+    <value>No columns yet.</value>
+  </data>
+  <data name="Sort_IdAsc" xml:space="preserve">
+    <value>ID Ascending</value>
+  </data>
+  <data name="Sort_IdDesc" xml:space="preserve">
+    <value>ID Descending</value>
+  </data>
+  <data name="Sort_CreatedAsc" xml:space="preserve">
+    <value>Created Ascending</value>
+  </data>
+  <data name="Sort_CreatedDesc" xml:space="preserve">
+    <value>Created Descending</value>
+  </data>
+  <data name="Sort_UpdatedAsc" xml:space="preserve">
+    <value>Modified Ascending</value>
+  </data>
+  <data name="Sort_UpdatedDesc" xml:space="preserve">
+    <value>Modified Descending</value>
+  </data>
+  <data name="Sort_TitleAsc" xml:space="preserve">
+    <value>Title Ascending</value>
+  </data>
+  <data name="Sort_TitleDesc" xml:space="preserve">
+    <value>Title Descending</value>
+  </data>
+  <data name="Column_AddCard" xml:space="preserve">
+    <value>New Card</value>
+  </data>
+  <data name="Column_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Column_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Card_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Card_Move" xml:space="preserve">
+    <value>Move to Column…</value>
+  </data>
+  <data name="ColumnDialog_AddTitle" xml:space="preserve">
+    <value>New Column</value>
+  </data>
+  <data name="ColumnDialog_EditTitle" xml:space="preserve">
+    <value>Edit Column</value>
+  </data>
+  <data name="ColumnDialog_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ColumnDialog_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ColumnDialog_InvalidTitle" xml:space="preserve">
+    <value>The title is empty or already used.</value>
+  </data>
+  <data name="CardDialog_AddTitle" xml:space="preserve">
+    <value>New Card</value>
+  </data>
+  <data name="CardDialog_EditTitle" xml:space="preserve">
+    <value>Edit Card</value>
+  </data>
+  <data name="CardDialog_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="CardDialog_Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="CardDialog_Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="CardDialog_AddTag" xml:space="preserve">
+    <value>Add Tag</value>
+  </data>
+  <data name="CardDialog_Id" xml:space="preserve">
+    <value>ID: {0}</value>
+  </data>
+  <data name="CardDialog_Created" xml:space="preserve">
+    <value>Created: {0}</value>
+  </data>
+  <data name="CardDialog_Modified" xml:space="preserve">
+    <value>Modified: {0}</value>
+  </data>
+  <data name="CardDialog_TimePattern" xml:space="preserve">
+    <value>yyyy-MM-dd HH:mm</value>
+  </data>
+  <data name="CardDialog_Error" xml:space="preserve">
+    <value>Could not save the card.</value>
+  </data>
+  <data name="TagDialog_Title" xml:space="preserve">
+    <value>Add Tag</value>
+  </data>
+  <data name="TagDialog_Target" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="TagDialog_NoTargets" xml:space="preserve">
+    <value>There are no more tags to add.</value>
+  </data>
+  <data name="MoveDialog_Title" xml:space="preserve">
+    <value>Move Card</value>
+  </data>
+  <data name="MoveDialog_Target" xml:space="preserve">
+    <value>Target Column</value>
+  </data>
+  <data name="MoveDialog_NoTargets" xml:space="preserve">
+    <value>There is nowhere to move this card.</value>
+  </data>
+  <data name="WidthPreset_Narrow" xml:space="preserve">
+    <value>Narrow</value>
+  </data>
+  <data name="WidthPreset_Standard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="WidthPreset_Wide" xml:space="preserve">
+    <value>Wide</value>
+  </data>
+  <data name="WidthPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="WidthDialog_Pixels" xml:space="preserve">
+    <value>Pixels (160–720)</value>
+  </data>
+  <data name="Confirm_DeleteColumn_Title" xml:space="preserve">
+    <value>Delete Column</value>
+  </data>
+  <data name="Confirm_DeleteColumn_Message" xml:space="preserve">
+    <value>Delete column "{0}" and its {1} card(s)?</value>
+  </data>
+  <data name="Confirm_DeleteCard_Title" xml:space="preserve">
+    <value>Delete Card</value>
+  </data>
+  <data name="Confirm_DeleteCard_Message" xml:space="preserve">
+    <value>Delete card #{0}?</value>
+  </data>
+  <data name="Confirm_Discard_Title" xml:space="preserve">
+    <value>Discard Changes</value>
+  </data>
+  <data name="Confirm_Discard_Message" xml:space="preserve">
+    <value>Discard the unsaved changes?</value>
   </data>
   <data name="Error_Argument_Title" xml:space="preserve">
     <value>Invalid arguments</value>
@@ -62,7 +230,7 @@
     <value>The folder does not contain a .ykanban workspace: {0}</value>
   </data>
   <data name="Error_NotInitialized_Initialize" xml:space="preserve">
-    <value>Initialize workspace</value>
+    <value>Initialize Workspace</value>
   </data>
   <data name="Error_LockConflict_Title" xml:space="preserve">
     <value>Workspace locked</value>
@@ -95,7 +263,7 @@
     <value>Dark</value>
   </data>
   <data name="Settings_ThemeFollowSystem" xml:space="preserve">
-    <value>Follow system</value>
+    <value>Follow System</value>
   </data>
   <data name="Settings_Confirmations" xml:space="preserve">
     <value>Confirmations</value>
@@ -130,11 +298,68 @@
   <data name="PresetColumn_Todo" xml:space="preserve">
     <value>To Do</value>
   </data>
+  <data name="PresetColumn_Todo_Description" xml:space="preserve">
+    <value>Tasks that are planned but not started.</value>
+  </data>
   <data name="PresetColumn_InProgress" xml:space="preserve">
     <value>In Progress</value>
   </data>
+  <data name="PresetColumn_InProgress_Description" xml:space="preserve">
+    <value>Tasks that are currently being worked on.</value>
+  </data>
   <data name="PresetColumn_Done" xml:space="preserve">
     <value>Done</value>
+  </data>
+  <data name="PresetColumn_Done_Description" xml:space="preserve">
+    <value>Tasks that have been completed.</value>
+  </data>
+  <data name="PresetTag_Bug_Name" xml:space="preserve">
+    <value>bug</value>
+  </data>
+  <data name="PresetTag_Bug_Description" xml:space="preserve">
+    <value>Something isn't working</value>
+  </data>
+  <data name="PresetTag_Documentation_Name" xml:space="preserve">
+    <value>documentation</value>
+  </data>
+  <data name="PresetTag_Documentation_Description" xml:space="preserve">
+    <value>Improvements or additions to documentation</value>
+  </data>
+  <data name="PresetTag_Duplicate_Name" xml:space="preserve">
+    <value>duplicate</value>
+  </data>
+  <data name="PresetTag_Duplicate_Description" xml:space="preserve">
+    <value>This issue or pull request already exists</value>
+  </data>
+  <data name="PresetTag_Enhancement_Name" xml:space="preserve">
+    <value>enhancement</value>
+  </data>
+  <data name="PresetTag_Enhancement_Description" xml:space="preserve">
+    <value>New feature or request</value>
+  </data>
+  <data name="PresetTag_HelpWanted_Name" xml:space="preserve">
+    <value>help-wanted</value>
+  </data>
+  <data name="PresetTag_HelpWanted_Description" xml:space="preserve">
+    <value>Extra attention is needed</value>
+  </data>
+  <data name="PresetTag_Invalid_Name" xml:space="preserve">
+    <value>invalid</value>
+  </data>
+  <data name="PresetTag_Invalid_Description" xml:space="preserve">
+    <value>This doesn't seem right</value>
+  </data>
+  <data name="PresetTag_Question_Name" xml:space="preserve">
+    <value>question</value>
+  </data>
+  <data name="PresetTag_Question_Description" xml:space="preserve">
+    <value>Further information is requested</value>
+  </data>
+  <data name="PresetTag_Wontfix_Name" xml:space="preserve">
+    <value>wontfix</value>
+  </data>
+  <data name="PresetTag_Wontfix_Description" xml:space="preserve">
+    <value>This will not be worked on</value>
   </data>
   <data name="Export_FileNamePattern" xml:space="preserve">
     <value>{0}-export-{1:yyyyMMdd-HHmmss}.md</value>

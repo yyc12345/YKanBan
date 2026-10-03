@@ -1,12 +1,13 @@
 using CommunityToolkit.Mvvm.Input;
+using YKanBan.Services;
 using YKanBan.Storage.Workspace;
+using YKanBan.ViewModels.Board;
 
 namespace YKanBan.ViewModels;
 
 /// <summary>
 /// The normal workspace view: the top display area (name, path and the export,
-/// settings and about buttons) plus the tags/board tabs. The tab contents are
-/// filled in by the board and tag features.
+/// settings and about buttons) plus the board and tags tabs.
 /// </summary>
 public sealed partial class WorkspaceViewModel : ViewModelBase
 {
@@ -16,10 +17,12 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     /// <summary>
     /// Initializes the view for an open workspace.
     /// </summary>
+    /// <param name="services">The process composition root.</param>
     /// <param name="session">The open workspace session.</param>
     /// <param name="showSettings">The interaction that opens the settings dialog.</param>
     /// <param name="showAbout">The interaction that opens the about dialog.</param>
     public WorkspaceViewModel(
+        AppServices services,
         WorkspaceSession session,
         Interaction<Unit> showSettings,
         Interaction<Unit> showAbout)
@@ -29,6 +32,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         WorkspacePath = session.FolderPath;
         _showSettings = showSettings;
         _showAbout = showAbout;
+        Board = new BoardViewModel(services, session);
     }
 
     /// <summary>
@@ -45,6 +49,11 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     /// Gets the full workspace folder path.
     /// </summary>
     public string WorkspacePath { get; }
+
+    /// <summary>
+    /// Gets the board tab view model.
+    /// </summary>
+    public BoardViewModel Board { get; }
 
     /// <summary>
     /// Opens the settings dialog through the registered interaction.

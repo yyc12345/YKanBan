@@ -98,7 +98,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void OpenWorkspace(string folderPath)
     {
         WorkspaceSession session = _services.OpenWorkspace(folderPath);
-        Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout);
+        Content = new WorkspaceViewModel(_services, session, ShowSettings, ShowAbout);
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
 
@@ -118,6 +118,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             WorkspaceInitializer.Initialize(page.FolderPath);
             WorkspacePreset.AddPresetColumns(page.FolderPath);
+            WorkspacePreset.AddPresetTags(page.FolderPath);
             OpenWorkspace(page.FolderPath);
         }
         catch (Exception exception) when (exception is YKanBanException or IOException or UnauthorizedAccessException)

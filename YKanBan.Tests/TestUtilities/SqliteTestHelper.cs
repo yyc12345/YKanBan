@@ -88,6 +88,44 @@ public static class SqliteTestHelper
     }
 
     /// <summary>
+    /// Returns the descriptions of all columns, ordered by id ascending.
+    /// </summary>
+    /// <param name="connection">An open database connection.</param>
+    /// <returns>The column descriptions in id order.</returns>
+    public static List<string> GetColumnDescriptions(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT description FROM columns ORDER BY id ASC;";
+        using var reader = command.ExecuteReader();
+
+        var descriptions = new List<string>();
+        while (reader.Read())
+        {
+            descriptions.Add(reader.GetString(0));
+        }
+        return descriptions;
+    }
+
+    /// <summary>
+    /// Returns all tags as name/color/description tuples, ordered by id ascending.
+    /// </summary>
+    /// <param name="connection">An open database connection.</param>
+    /// <returns>The tags in id order.</returns>
+    public static List<(string Name, string Color, string Description)> GetTags(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT name, color, description FROM tags ORDER BY id ASC;";
+        using var reader = command.ExecuteReader();
+
+        var tags = new List<(string, string, string)>();
+        while (reader.Read())
+        {
+            tags.Add((reader.GetString(0), reader.GetString(1), reader.GetString(2)));
+        }
+        return tags;
+    }
+
+    /// <summary>
     /// Opens a workspace database with the real workspace migration list.
     /// </summary>
     /// <param name="folderPath">The workspace folder path.</param>

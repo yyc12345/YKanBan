@@ -21,9 +21,10 @@ public class AppConfigStoreTests
         Assert.AreEqual(AppConfig.CurrentFormatVersion, config.Version);
         Assert.AreEqual(AppConfig.DefaultLanguage, config.Language);
         Assert.AreEqual(ThemeOption.FollowSystem, config.Theme);
-        Assert.AreEqual(CardSortOption.Id, config.Sort.Card);
-        Assert.AreEqual(ColumnWidthPreset.Standard, config.ColumnWidth.Preset);
-        Assert.AreEqual(320, config.ColumnWidth.CustomPixels);
+        Assert.AreEqual(SortOption.IdAscending, config.Display.CardSort);
+        Assert.AreEqual(SortOption.IdAscending, config.Display.ColumnSort);
+        Assert.AreEqual(ColumnWidthPreset.Standard, config.Display.ColumnWidth.Preset);
+        Assert.AreEqual(320, config.Display.ColumnWidth.CustomPixels);
         Assert.IsTrue(config.Confirmations.DeleteCard);
         Assert.IsTrue(config.Confirmations.DeleteColumn);
         Assert.IsTrue(config.Confirmations.DeleteTag);
@@ -66,8 +67,11 @@ public class AppConfigStoreTests
               "version": {{AppConfig.CurrentFormatVersion}},
               "language": "zh-Hans",
               "theme": "dark",
-              "sort": { "card": "title" },
-              "column-width": { "preset": "custom", "custom-pixels": 400 },
+              "display": {
+                "column-width": { "preset": "custom", "custom-pixels": 400 },
+                "card-sort": "title-asc",
+                "column-sort": "id-desc"
+              },
               "confirmations": {
                 "delete-card": false,
                 "delete-column": false,
@@ -82,9 +86,10 @@ public class AppConfigStoreTests
 
         Assert.AreEqual("zh-Hans", config.Language);
         Assert.AreEqual(ThemeOption.Dark, config.Theme);
-        Assert.AreEqual(CardSortOption.Title, config.Sort.Card);
-        Assert.AreEqual(ColumnWidthPreset.Custom, config.ColumnWidth.Preset);
-        Assert.AreEqual(400, config.ColumnWidth.CustomPixels);
+        Assert.AreEqual(SortOption.TitleAscending, config.Display.CardSort);
+        Assert.AreEqual(SortOption.IdDescending, config.Display.ColumnSort);
+        Assert.AreEqual(ColumnWidthPreset.Custom, config.Display.ColumnWidth.Preset);
+        Assert.AreEqual(400, config.Display.ColumnWidth.CustomPixels);
         Assert.IsFalse(config.Confirmations.DeleteCard);
         Assert.IsFalse(config.Confirmations.DeleteColumn);
         Assert.IsFalse(config.Confirmations.DeleteTag);
@@ -101,10 +106,10 @@ public class AppConfigStoreTests
 
         AppConfig config = store.Load();
 
-        Assert.IsNotNull(config.Sort);
-        Assert.IsNotNull(config.ColumnWidth);
+        Assert.IsNotNull(config.Display);
+        Assert.IsNotNull(config.Display.ColumnWidth);
         Assert.IsNotNull(config.Confirmations);
-        Assert.AreEqual(ColumnWidthPreset.Standard, config.ColumnWidth.Preset);
+        Assert.AreEqual(ColumnWidthPreset.Standard, config.Display.ColumnWidth.Preset);
     }
 
     [TestMethod]
@@ -117,8 +122,12 @@ public class AppConfigStoreTests
         var config = new AppConfig
         {
             Theme = ThemeOption.FollowSystem,
-            Sort = new SortSettings { Card = CardSortOption.UpdatedAt },
-            ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Custom, CustomPixels = 500 },
+            Display = new DisplaySettings
+            {
+                CardSort = SortOption.UpdatedDescending,
+                ColumnSort = SortOption.CreatedAscending,
+                ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Custom, CustomPixels = 500 },
+            },
             Confirmations = new ConfirmationSettings { DeleteColumn = false },
         };
         store.Save(config);
@@ -126,9 +135,12 @@ public class AppConfigStoreTests
         string json = File.ReadAllText(path);
         StringAssert.Contains(json, "\"delete-column\"");
         StringAssert.Contains(json, "\"discard-edit\"");
+        StringAssert.Contains(json, "\"card-sort\"");
+        StringAssert.Contains(json, "\"column-sort\"");
         StringAssert.Contains(json, "\"custom-pixels\"");
         StringAssert.Contains(json, "\"follow-system\"");
-        StringAssert.Contains(json, "\"updated-at\"");
+        StringAssert.Contains(json, "\"updated-desc\"");
+        StringAssert.Contains(json, "\"created-asc\"");
         // No member-name CamelCase must leak into the file.
         Assert.IsFalse(json.Contains("deleteColumn", StringComparison.Ordinal));
         Assert.IsFalse(json.Contains("CustomPixels", StringComparison.Ordinal));
@@ -145,8 +157,12 @@ public class AppConfigStoreTests
         {
             Language = "zh-Hans",
             Theme = ThemeOption.Light,
-            Sort = new SortSettings { Card = CardSortOption.CreatedAt },
-            ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Wide },
+            Display = new DisplaySettings
+            {
+                CardSort = SortOption.CreatedDescending,
+                ColumnSort = SortOption.TitleAscending,
+                ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Wide },
+            },
             Confirmations = new ConfirmationSettings { DiscardEdit = false },
         };
         store.Save(config);
@@ -154,8 +170,9 @@ public class AppConfigStoreTests
         AppConfig reloaded = store.Load();
         Assert.AreEqual(config.Language, reloaded.Language);
         Assert.AreEqual(config.Theme, reloaded.Theme);
-        Assert.AreEqual(config.Sort.Card, reloaded.Sort.Card);
-        Assert.AreEqual(config.ColumnWidth.Preset, reloaded.ColumnWidth.Preset);
+        Assert.AreEqual(config.Display.CardSort, reloaded.Display.CardSort);
+        Assert.AreEqual(config.Display.ColumnSort, reloaded.Display.ColumnSort);
+        Assert.AreEqual(config.Display.ColumnWidth.Preset, reloaded.Display.ColumnWidth.Preset);
         Assert.AreEqual(config.Confirmations.DiscardEdit, reloaded.Confirmations.DiscardEdit);
     }
 }

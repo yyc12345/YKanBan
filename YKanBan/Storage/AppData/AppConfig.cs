@@ -4,26 +4,42 @@ using Newtonsoft.Json;
 namespace YKanBan.Storage.AppData;
 
 /// <summary>
-/// Card ordering options. Every order falls back to id ascending as the final
-/// tie-breaker.
+/// Display ordering options, used for both cards and columns. Except for the id
+/// order, every option falls back to id ascending as the final tie-breaker.
 /// </summary>
-public enum CardSortOption
+public enum SortOption
 {
-    /// <summary>Primary key ascending (default).</summary>
-    [EnumMember(Value = "id")]
-    Id,
+    /// <summary>Primary key ascending.</summary>
+    [EnumMember(Value = "id-asc")]
+    IdAscending,
 
-    /// <summary>Creation time, oldest first.</summary>
-    [EnumMember(Value = "created-at")]
-    CreatedAt,
+    /// <summary>Primary key descending.</summary>
+    [EnumMember(Value = "id-desc")]
+    IdDescending,
 
-    /// <summary>Last modification time, most recently modified first.</summary>
-    [EnumMember(Value = "updated-at")]
-    UpdatedAt,
+    /// <summary>Creation time ascending.</summary>
+    [EnumMember(Value = "created-asc")]
+    CreatedAscending,
 
-    /// <summary>Title by code points (BINARY collation); empty titles sort first.</summary>
-    [EnumMember(Value = "title")]
-    Title,
+    /// <summary>Creation time descending.</summary>
+    [EnumMember(Value = "created-desc")]
+    CreatedDescending,
+
+    /// <summary>Last modification time ascending.</summary>
+    [EnumMember(Value = "updated-asc")]
+    UpdatedAscending,
+
+    /// <summary>Last modification time descending.</summary>
+    [EnumMember(Value = "updated-desc")]
+    UpdatedDescending,
+
+    /// <summary>Title by code points (BINARY collation) ascending.</summary>
+    [EnumMember(Value = "title-asc")]
+    TitleAscending,
+
+    /// <summary>Title by code points (BINARY collation) descending.</summary>
+    [EnumMember(Value = "title-desc")]
+    TitleDescending,
 }
 
 /// <summary>
@@ -67,18 +83,6 @@ public enum ThemeOption
 }
 
 /// <summary>
-/// Card ordering settings. The chosen order is global, not per workspace.
-/// </summary>
-public sealed class SortSettings
-{
-    /// <summary>
-    /// Gets or sets the order used by the board.
-    /// </summary>
-    [JsonProperty("card")]
-    public CardSortOption Card { get; set; } = CardSortOption.Id;
-}
-
-/// <summary>
 /// Board column width settings, applied globally.
 /// </summary>
 public sealed class ColumnWidthSettings
@@ -95,6 +99,31 @@ public sealed class ColumnWidthSettings
     /// </summary>
     [JsonProperty("custom-pixels")]
     public int CustomPixels { get; set; } = 320;
+}
+
+/// <summary>
+/// Everything that controls how the board is displayed: the column width and
+/// the card and column ordering.
+/// </summary>
+public sealed class DisplaySettings
+{
+    /// <summary>
+    /// Gets or sets the board column width settings.
+    /// </summary>
+    [JsonProperty("column-width")]
+    public ColumnWidthSettings ColumnWidth { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the order of cards within their column.
+    /// </summary>
+    [JsonProperty("card-sort")]
+    public SortOption CardSort { get; set; } = SortOption.IdAscending;
+
+    /// <summary>
+    /// Gets or sets the left-to-right order of the columns.
+    /// </summary>
+    [JsonProperty("column-sort")]
+    public SortOption ColumnSort { get; set; } = SortOption.IdAscending;
 }
 
 /// <summary>
@@ -164,16 +193,10 @@ public sealed class AppConfig
     public ThemeOption Theme { get; set; } = ThemeOption.FollowSystem;
 
     /// <summary>
-    /// Gets or sets the card ordering settings.
+    /// Gets or sets the board display settings (width and ordering).
     /// </summary>
-    [JsonProperty("sort")]
-    public SortSettings Sort { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets the board column width settings.
-    /// </summary>
-    [JsonProperty("column-width")]
-    public ColumnWidthSettings ColumnWidth { get; set; } = new();
+    [JsonProperty("display")]
+    public DisplaySettings Display { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the confirmation-dialog settings.

@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Board"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="600"
+             x:Class="YKanBan.Views.Board.ColumnView"
+             x:DataType="vm:ColumnViewModel">
+
+    <Border Width="{Binding Width}" MinWidth="160" MaxWidth="720"
+            Background="{DynamicResource BoardColumnBackgroundBrush}"
+            BorderBrush="{DynamicResource BoardColumnBorderBrush}"
+            BorderThickness="1" CornerRadius="8" VerticalAlignment="Stretch">
+
+        <Grid RowDefinitions="Auto,*" Margin="10">
+
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding ToolTipText}"/>
+                    <TextBlock Text="{Binding CardCount}" Opacity="0.6" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Margin="4,0,0,0" Padding="4,2"
+                        Command="{Binding AddCardCommand}"
+                        ToolTip.Tip="{x:Static lang:Resources.Column_AddCard}">
+                    <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                </Button>
+
+                <Button Grid.Column="2" Margin="2,0,0,0" Padding="4,2">
+                    <icons:PackIconLucide Kind="EllipsisVertical" Width="16" Height="16"/>
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Header="{x:Static lang:Resources.Column_Edit}" Command="{Binding EditCommand}"/>
+                            <MenuItem Header="{x:Static lang:Resources.Column_Delete}" Command="{Binding DeleteCommand}"/>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
+                <ItemsControl ItemsSource="{Binding Cards}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="8"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+
+        </Grid>
+    </Border>
+</UserControl>
