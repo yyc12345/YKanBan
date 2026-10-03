@@ -6,6 +6,11 @@ namespace YKanBan.Storage.Workspace;
 /// assignments. Data validity is expressed in DDL (CHECK / UNIQUE / FOREIGN
 /// KEY) so every stored row is valid by construction, and cascading deletes
 /// are covered by the same DDL.
+///
+/// Title and name uniqueness is NOCASE (ASCII case folding) while the columns
+/// themselves keep the default BINARY collation, so ordering by title stays
+/// code-point based. Until the first release the v1 script may be edited in
+/// place; after it, every schema change must be appended as a new migration.
 /// </summary>
 public static class WorkspaceSchema
 {
@@ -22,10 +27,11 @@ public static class WorkspaceSchema
         new SchemaMigration(CurrentVersion, "initial schema", """
             CREATE TABLE columns (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                title       TEXT    NOT NULL UNIQUE CHECK (length(title) > 0),
+                title       TEXT    NOT NULL CHECK (length(title) > 0),
                 description TEXT    NOT NULL DEFAULT '',
                 created_at  INTEGER NOT NULL,
-                updated_at  INTEGER NOT NULL
+                updated_at  INTEGER NOT NULL,
+                UNIQUE (title COLLATE NOCASE)
             );
 
             CREATE TABLE cards (
@@ -39,9 +45,10 @@ public static class WorkspaceSchema
 
             CREATE TABLE tags (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                name        TEXT    NOT NULL UNIQUE CHECK (length(name) > 0),
+                name        TEXT    NOT NULL CHECK (length(name) > 0),
                 color       TEXT    NOT NULL CHECK (color GLOB '#[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]'),
-                description TEXT    NOT NULL DEFAULT ''
+                description TEXT    NOT NULL DEFAULT '',
+                UNIQUE (name COLLATE NOCASE)
             );
 
             CREATE TABLE card_tags (

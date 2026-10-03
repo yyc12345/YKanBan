@@ -65,13 +65,42 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void ColumnTitlesCompareCaseSensitively()
+    public void ColumnTitlesDifferingOnlyInAsciiCaseAreRejected()
     {
         using var db = new FreshDatabase();
-        // BINARY collation: 'Foo' and 'foo' are distinct titles.
+        // NOCASE uniqueness: 'Foo' and 'foo' cannot coexist.
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
-        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('foo', 1, 1);");
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('foo', 1, 1);"));
+    }
+
+    [TestMethod]
+    public void ColumnTitlesDifferingOnlyInNonAsciiCaseAreAccepted()
+    {
+        using var db = new FreshDatabase();
+        // NOCASE folds ASCII only: 'Ä' and 'ä' remain distinct titles.
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Ä', 1, 1);");
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('ä', 1, 1);");
         Assert.AreEqual(2L, SqliteTestHelper.ScalarLong(db.Connection, "SELECT COUNT(*) FROM columns;"));
+    }
+
+    [TestMethod]
+    public void ColumnTitleCaseOnlyRenameOfSameRowIsAccepted()
+    {
+        using var db = new FreshDatabase();
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
+        int affected = SqliteTestHelper.Exec(db.Connection, "UPDATE columns SET title = 'foo' WHERE id = 1;");
+        Assert.AreEqual(1, affected);
+    }
+
+    [TestMethod]
+    public void ColumnTitlesStillOrderByCodePoint()
+    {
+        using var db = new FreshDatabase();
+        // Uniqueness is NOCASE, but the column collation stays BINARY: 'B' (0x42) sorts before 'a' (0x61).
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('a', 1, 1);");
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('B', 1, 1);");
+        Assert.AreEqual("B", SqliteTestHelper.ScalarString(db.Connection, "SELECT title FROM columns ORDER BY title LIMIT 1;"));
     }
 
     [TestMethod]
@@ -101,6 +130,24 @@ public class WorkspaceSchemaTests
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");
         Assert.ThrowsExactly<SqliteException>(() =>
             SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('bug', '#445566');"));
+    }
+
+    [TestMethod]
+    public void TagNamesDifferingOnlyInAsciiCaseAreRejected()
+    {
+        using var db = new FreshDatabase();
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");
+        Assert.ThrowsExactly<SqliteException>(() =>
+            SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('BUG', '#445566');"));
+    }
+
+    [TestMethod]
+    public void TagNamesDifferingOnlyInNonAsciiCaseAreAccepted()
+    {
+        using var db = new FreshDatabase();
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('Ä', '#112233');");
+        SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('ä', '#445566');");
+        Assert.AreEqual(2L, SqliteTestHelper.ScalarLong(db.Connection, "SELECT COUNT(*) FROM tags;"));
     }
 
     [TestMethod]

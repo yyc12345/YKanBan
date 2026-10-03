@@ -57,18 +57,20 @@
 
 ```
 columns: id INTEGER PK AUTOINCREMENT,
-         title TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(title) > 0),
+         title TEXT NOT NULL CHECK (length(title) > 0),
          description TEXT NOT NULL DEFAULT '',
-         created_at INT NOT NULL, updated_at INT NOT NULL
+         created_at INT NOT NULL, updated_at INT NOT NULL,
+         UNIQUE (title COLLATE NOCASE)      ← 仅唯一性 NOCASE，列本身保持 BINARY（排序按码点）
 cards:   id INTEGER PK AUTOINCREMENT,
          column_id INT NOT NULL → columns.id ON DELETE CASCADE,
          title TEXT NOT NULL DEFAULT '',
          content TEXT NOT NULL DEFAULT '',
          created_at INT NOT NULL, updated_at INT NOT NULL
 tags:    id INTEGER PK AUTOINCREMENT,
-         name TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(name) > 0),
+         name TEXT NOT NULL CHECK (length(name) > 0),
          color TEXT NOT NULL CHECK (GLOB '#'+六位十六进制，即 #RRGGBB 形态),
-         description TEXT NOT NULL DEFAULT ''
+         description TEXT NOT NULL DEFAULT '',
+         UNIQUE (name COLLATE NOCASE)
 card_tags: (card_id, tag_id) 复合主键，双向 ON DELETE CASCADE
 ```
 
