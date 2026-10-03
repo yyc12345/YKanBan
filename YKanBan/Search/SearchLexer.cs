@@ -35,8 +35,8 @@ public abstract record SearchToken
 /// quoted phrases and parentheses; whitespace only separates tokens.
 ///
 /// The lexer is strict: inside a phrase only <c>\"</c> and <c>\\</c> are valid
-/// escapes, a bare backslash or an unknown escape is rejected, and an
-/// unterminated phrase is rejected. Any input not covered by the token rules
+/// escapes, a bare backslash or an unknown escape is rejected, a backslash in a
+/// bare word is rejected, and an unterminated phrase is rejected. Any input not covered by the token rules
 /// is rejected rather than silently ignored.
 /// </summary>
 public static class SearchLexer
@@ -62,9 +62,11 @@ public static class SearchLexer
     private static readonly Parser<char, SearchToken> CloseParenParser =
         Parser.Char(')').Select(_ => (SearchToken)new SearchToken.CloseParen());
 
+    // ':' stays inside the word token (the parser splits qualifiers); a backslash
+    // is not a word character, so a bare one is left over and rejected by End.
     private static readonly Parser<char, SearchToken> WordParser =
         Parser<char>.Token(character =>
-                !char.IsWhiteSpace(character) && character != '(' && character != ')' && character != '"')
+                !char.IsWhiteSpace(character) && character != '(' && character != ')' && character != '"' && character != '\\')
             .AtLeastOnce()
             .Select(chars => (SearchToken)new SearchToken.Word(new string(chars.ToArray())));
 

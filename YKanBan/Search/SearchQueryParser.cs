@@ -6,8 +6,10 @@ namespace YKanBan.Search;
 /// <summary>
 /// Parses the search grammar with Pidgin, strictly: any malformed input
 /// (unbalanced parentheses, dangling or consecutive operators, unterminated
-/// phrases, invalid escapes, qualifier keys without a value or with an
-/// unknown/non-numeric id value) raises <see cref="SearchSyntaxException"/>.
+/// phrases, invalid escapes, a backslash in a bare word, unknown qualifier
+/// keys, qualifiers without a value, unquoted values containing ':' or equal
+/// to AND/OR, and id values that are not an unquoted positive integer with an
+/// optional '#') raises <see cref="SearchSyntaxException"/>.
 ///
 /// Only uppercase AND/OR are operators (lowercase ones are plain words); AND —
 /// explicit or by adjacency — binds tighter than OR; parentheses group. Blank
@@ -131,54 +133,85 @@ public static class SearchQueryParser
     private static Parser<SearchToken, SearchNode> QualifierFrom(string word)
     {
         int colonIndex = word.IndexOf(':');
-
-        // Only a leading run of letters/digits/underscores before ':' can be a qualifier key.
-        if (colonIndex <= 0 || !IsQualifierKeyCandidate(word.AsSpan(0, colonIndex)))
+        if (colonIndex < 0)
         {
             return Parser<SearchToken>.Return<SearchNode>(new SearchNode.FreeText(word));
         }
 
+        // Any ':' in a bare word makes it a qualifier, so the text before it must be a known key.
         string key = word[..colonIndex];
         string value = word[(colonIndex + 1)..];
 
         if (!TryLookupQualifier(key, out QualifierKind kind))
         {
-            return Parser<SearchToken>.Fail<SearchNode>($"Unknown qualifier key '{key}'.");
+            return Parser<SearchToken>.Fail<SearchNode>($"Unknown qualifier key '{key}'; quote the text to search for it literally.");
         }
 
         // "key:" without an inline value takes the value from the following phrase, e.g. tag:"a b".
-        return value.Length == 0
-            ? PhraseText.Bind(text => AtomParser(kind, text))
-            : AtomParser(kind, value);
+        if (value.Length == 0)
+        {
+            return kind == QualifierKind.Id
+                ? Parser<SearchToken>.Fail<SearchNode>("The id qualifier expects an unquoted positive integer.")
+                : PhraseText.Select(text => TextAtom(kind, text));
+        }
+
+        if (value.Contains(':'))
+        {
+            return Parser<SearchToken>.Fail<SearchNode>($"Unquoted value '{value}' of qualifier '{key}' contains ':'; quote the value.");
+        }
+
+        if (value is "AND" or "OR")
+        {
+            return Parser<SearchToken>.Fail<SearchNode>($"Operator {value} cannot be a qualifier value; quote it to search for it literally.");
+        }
+
+        if (kind == QualifierKind.Id)
+        {
+            return TryParseCardId(value, out long id)
+                ? Parser<SearchToken>.Return<SearchNode>(new SearchNode.CardId(id))
+                : Parser<SearchToken>.Fail<SearchNode>($"The id qualifier expects a positive integer, got '{value}'.");
+        }
+
+        return Parser<SearchToken>.Return(TextAtom(kind, value));
     }
 
     /// <summary>
-    /// Builds the atom parser for a qualifier value, failing strictly on a non-numeric id.
+    /// Builds the atom for a textual qualifier value.
     /// </summary>
-    /// <param name="kind">The qualifier kind.</param>
+    /// <param name="kind">The qualifier kind; never <see cref="QualifierKind.Id"/>.</param>
     /// <param name="value">The qualifier value.</param>
-    /// <returns>The parser producing the atom node.</returns>
-    private static Parser<SearchToken, SearchNode> AtomParser(QualifierKind kind, string value) =>
-        AtomFrom(kind, value) is { } atom
-            ? Parser<SearchToken>.Return(atom)
-            : Parser<SearchToken>.Fail<SearchNode>($"The id qualifier expects an integer, got '{value}'.");
-
-    /// <summary>
-    /// Builds the atom for a qualifier value; null when an id value is not an integer.
-    /// </summary>
-    /// <param name="kind">The qualifier kind.</param>
-    /// <param name="value">The qualifier value.</param>
-    /// <returns>The atom node, or <see langword="null"/> for an invalid id value.</returns>
-    private static SearchNode? AtomFrom(QualifierKind kind, string value) => kind switch
+    /// <returns>The atom node.</returns>
+    private static SearchNode TextAtom(QualifierKind kind, string value) => kind switch
     {
         QualifierKind.Tag => new SearchNode.TagName(value),
         QualifierKind.Title => new SearchNode.FieldText(SearchField.Title, value),
         QualifierKind.Content => new SearchNode.FieldText(SearchField.Content, value),
         QualifierKind.Column => new SearchNode.ColumnTitle(value),
-        QualifierKind.Id when long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long id) =>
-            new SearchNode.CardId(id),
-        _ => null,
+        _ => throw new InvalidOperationException($"Qualifier kind {kind} has no textual value."),
     };
+
+    /// <summary>
+    /// Parses an id qualifier value: decimal digits with an optional leading
+    /// <c>#</c>, denoting a positive integer.
+    /// </summary>
+    /// <param name="value">The inline qualifier value.</param>
+    /// <param name="id">The parsed card id.</param>
+    /// <returns><see langword="true"/> when the value is a valid positive card id.</returns>
+    private static bool TryParseCardId(string value, out long id)
+    {
+        ReadOnlySpan<char> digits = value.AsSpan();
+        if (digits.StartsWith("#"))
+        {
+            digits = digits[1..];
+        }
+
+        // Digits only: the span check rules out signs, whitespace and other NumberStyles leniency.
+        id = 0;
+        return digits.Length > 0
+            && !digits.ContainsAnyExceptInRange('0', '9')
+            && long.TryParse(digits, NumberStyles.None, CultureInfo.InvariantCulture, out id)
+            && id > 0;
+    }
 
     /// <summary>
     /// Looks up a qualifier key in the extension table with ordinal (case-sensitive) matching.
@@ -199,25 +232,6 @@ public static class SearchQueryParser
 
         kind = default;
         return false;
-    }
-
-    /// <summary>
-    /// Returns whether the text looks like a qualifier key: a non-empty run of
-    /// letters, digits or underscores.
-    /// </summary>
-    /// <param name="text">The candidate key text.</param>
-    /// <returns><see langword="true"/> when every character is a word character.</returns>
-    private static bool IsQualifierKeyCandidate(ReadOnlySpan<char> text)
-    {
-        foreach (char character in text)
-        {
-            if (!(char.IsLetterOrDigit(character) || character == '_'))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /// <summary>

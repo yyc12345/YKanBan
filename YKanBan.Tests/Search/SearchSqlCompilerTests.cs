@@ -169,10 +169,25 @@ public class SearchSqlCompilerTests
     {
         CompiledSearch compiled = SearchSqlCompiler.Compile(new SearchNode.FreeText("x"));
 
+        // One folded parameter shared by the title and content tests.
         StringAssert.Contains(compiled.Predicate, "$p0");
-        StringAssert.Contains(compiled.Predicate, "$p1");
-        Assert.AreEqual(2, compiled.Parameters.Count);
-        Assert.AreEqual("%x%", compiled.Parameters[0].Value);
-        Assert.AreEqual("%x%", compiled.Parameters[1].Value);
+        Assert.AreEqual(1, compiled.Parameters.Count);
+        Assert.AreEqual("x", compiled.Parameters[0].Value);
+    }
+
+    [TestMethod]
+    public void MatchingFoldsNonAsciiCase()
+    {
+        using var fixture = new SearchFixture();
+        SqliteTestHelper.Exec(fixture.Connection, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('Érable', '', 1, 1);");
+        SqliteTestHelper.Exec(fixture.Connection, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (3, 'Ärger', 'Straße ΣΟΦΙΑ', 1, 1);");
+        SqliteTestHelper.Exec(fixture.Connection, "INSERT INTO tags (name, color, description) VALUES ('Äpfel', '#123456', '');");
+        SqliteTestHelper.Exec(fixture.Connection, "INSERT INTO card_tags (card_id, tag_id) VALUES (5, 4);");
+
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("ärger"));
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("title:ÄRGER"));
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("content:σοφια"));
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("tag:äpfel"));
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("column:érable"));
     }
 }
