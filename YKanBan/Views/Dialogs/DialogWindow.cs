@@ -1,4 +1,6 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using YKanBan.ViewModels.Dialogs;
 
 namespace YKanBan.Views.Dialogs;
@@ -9,6 +11,8 @@ namespace YKanBan.Views.Dialogs;
 /// <see cref="DialogViewModelBase"/> asks, with the result as the dialog result.
 /// The title bar close button is routed to the view model's cancel path, so a
 /// dialog with unsaved changes can ask before discarding them.
+/// On opening, the first visible, enabled and editable text box takes the
+/// focus with its text selected; dialogs without one leave the focus alone.
 /// </summary>
 public class DialogWindow : Window
 {
@@ -38,6 +42,24 @@ public class DialogWindow : Window
         if (_viewModel is not null)
         {
             _viewModel.CloseRequested += OnCloseRequested;
+        }
+    }
+
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+
+        // Wait for the first layout pass so visibility and enabled state are settled.
+        Dispatcher.UIThread.Post(FocusFirstTextBox, DispatcherPriority.Loaded);
+    }
+
+    private void FocusFirstTextBox()
+    {
+        TextBox? target = this.GetVisualDescendants().OfType<TextBox>()
+            .FirstOrDefault(box => box.IsEffectivelyVisible && box.IsEffectivelyEnabled && box.Focusable && !box.IsReadOnly);
+        if (target is not null && target.Focus())
+        {
+            target.SelectAll();
         }
     }
 
