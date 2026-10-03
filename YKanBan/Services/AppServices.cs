@@ -64,6 +64,16 @@ public sealed class AppServices : IDisposable
     }
 
     /// <summary>
+    /// Releases the open workspace session, if any, so its lock and connection
+    /// do not outlive a workspace that could not be shown.
+    /// </summary>
+    public void CloseWorkspace()
+    {
+        Session?.Dispose();
+        Session = null;
+    }
+
+    /// <summary>
     /// Persists the configuration when this session changed a setting; called
     /// once at shutdown. A write failure only loses this session's settings
     /// changes, the same accepted loss as a crash, so it is logged and ignored.

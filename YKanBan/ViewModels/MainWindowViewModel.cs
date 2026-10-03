@@ -114,7 +114,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// <param name="session">The opened workspace session.</param>
     private void ShowWorkspace(string folderPath, WorkspaceSession session)
     {
-        Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout, _services.Config, _dialogs);
+        try
+        {
+            Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout, _services.Config, _dialogs);
+        }
+        catch
+        {
+            // The first board read failed: the caller shows an error page, which holds no workspace.
+            _services.CloseWorkspace();
+            throw;
+        }
+
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
 
