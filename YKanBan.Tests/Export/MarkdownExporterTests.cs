@@ -205,6 +205,29 @@ public class MarkdownExporterTests
     }
 
     [TestMethod]
+    public void TagTableCellsEscapeBackslashesSoAPipeAfterOneStaysEscaped()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            var tag = new TagModel(1, @"a\|b", RgbColor.Parse("#112233"), @"C:\temp\");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [],
+                [(tag, 0L)],
+                ExportedAt);
+
+            StringAssert.Contains(markdown, @"| a\\\|b | #112233 | C:\\temp\\ | 0 |");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
     [DataRow("plain", "`plain`")]
     [DataRow("a`b", "``a`b``")]
     [DataRow("a``b`c", "```a``b`c```")]

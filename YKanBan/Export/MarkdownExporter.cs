@@ -11,7 +11,7 @@ namespace YKanBan.Export;
 /// uses that one per-language pattern. The whole document uses LF line endings
 /// on every platform. Card bodies and column descriptions are emitted verbatim
 /// apart from line endings; column and card titles are collapsed to one line;
-/// tag names become inline code with a long enough backtick fence; tag table cells escape '|' and turn line breaks into &lt;br&gt;. The
+/// tag names become inline code with a long enough backtick fence; tag table cells escape '\' and '|' and turn line breaks into &lt;br&gt;. The
 /// output is meant for reading only — there is no re-import.
 /// </summary>
 public static class MarkdownExporter
@@ -130,12 +130,14 @@ public static class MarkdownExporter
     }
 
     /// <summary>
-    /// Formats a table cell: escaped pipe characters, line breaks as &lt;br&gt;.
+    /// Formats a table cell: escaped backslashes and pipe characters, line breaks as &lt;br&gt;.
     /// </summary>
     /// <param name="text">The raw cell text.</param>
     /// <returns>The escaped single-line text.</returns>
     private static string Cell(string text) =>
-        text.Replace("|", "\\|").Replace("\r\n", "<br>").Replace("\r", "<br>").Replace("\n", "<br>");
+        // Backslashes first: the table splitter reads "\\" as an escaped backslash, so the
+        // '|' after a literal backslash would otherwise end the cell.
+        text.Replace("\\", "\\\\").Replace("|", "\\|").Replace("\r\n", "<br>").Replace("\r", "<br>").Replace("\n", "<br>");
 
     /// <summary>
     /// Renders text as an inline code span whose backtick fence is one longer than
