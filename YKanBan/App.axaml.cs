@@ -26,6 +26,12 @@ public partial class App : Application
     /// </summary>
     public static string StartupLanguage { get; private set; } = AppConfig.DefaultLanguage;
 
+    /// <summary>
+    /// Gets the flow direction of the startup culture. FlowDirection does not
+    /// inherit across windows, so the main window and every modal window apply it.
+    /// </summary>
+    public static FlowDirection UiFlowDirection { get; private set; } = FlowDirection.LeftToRight;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -43,19 +49,20 @@ public partial class App : Application
             CultureInfo culture = ResolveCulture(Services.Config.Language);
             StartupLanguage = Services.Config.Language;
             Resx.Culture = culture;
+
+            // RTL detection drives the flow direction of every window; the two
+            // supported languages are LTR, but the infrastructure stays in
+            // place for future languages.
+            UiFlowDirection = culture.TextInfo.IsRightToLeft
+                ? FlowDirection.RightToLeft
+                : FlowDirection.LeftToRight;
             ApplyTheme(Services.Config.Theme);
 
             var viewModel = new MainWindowViewModel(Services, desktop.Args ?? []);
             desktop.MainWindow = new MainWindow
             {
                 DataContext = viewModel,
-
-                // RTL detection drives the whole window flow direction; the two
-                // supported languages are LTR, but the infrastructure stays in
-                // place for future languages.
-                FlowDirection = culture.TextInfo.IsRightToLeft
-                    ? FlowDirection.RightToLeft
-                    : FlowDirection.LeftToRight,
+                FlowDirection = UiFlowDirection,
             };
         }
 

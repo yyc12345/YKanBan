@@ -37,7 +37,7 @@ public partial class MainWindow : Window
         {
             DataContext = new SettingsDialogViewModel(App.Services.Config, App.StartupLanguage),
         };
-        await dialog.ShowDialog(this);
+        await ShowModalAsync(dialog);
     }
 
     /// <summary>Shows the about dialog centered on this window.</summary>
@@ -47,6 +47,18 @@ public partial class MainWindow : Window
         {
             DataContext = new AboutDialogViewModel(),
         };
-        await dialog.ShowDialog(this);
+        await ShowModalAsync(dialog);
+    }
+
+    /// <summary>
+    /// Shows a modal window owned by this window. Every modal goes through here:
+    /// FlowDirection does not inherit across windows, so it is applied explicitly.
+    /// </summary>
+    /// <param name="dialog">The modal window to show.</param>
+    /// <returns>A task completing when the dialog closes.</returns>
+    private Task ShowModalAsync(Window dialog)
+    {
+        dialog.FlowDirection = App.UiFlowDirection;
+        return dialog.ShowDialog(this);
     }
 }
