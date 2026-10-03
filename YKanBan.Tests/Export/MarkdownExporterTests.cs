@@ -182,6 +182,21 @@ public class MarkdownExporterTests
     }
 
     [TestMethod]
+    [DataRow("D:\\", "D")]
+    [DataRow("a<b>c|d?e*f\"g", "abcdefg")]
+    [DataRow("/", null)]
+    public void FileNameDropsCharactersThatAreInvalidInFileNames(string workspaceName, string? expectedName)
+    {
+        string fileName = MarkdownExporter.BuildFileName(workspaceName, ExportedAt);
+
+        CultureInfo culture = Resources.Culture ?? CultureInfo.CurrentUICulture;
+        Assert.AreEqual(
+            string.Format(culture, Resources.Export_FileNamePattern, expectedName ?? Resources.App_Name, ExportedAt),
+            fileName);
+        Assert.AreEqual(-1, fileName.IndexOfAny(Path.GetInvalidFileNameChars()));
+    }
+
+    [TestMethod]
     public void TagTableCellsEscapePipesAndLineBreaks()
     {
         CultureInfo? original = Resources.Culture;

@@ -67,7 +67,10 @@ public static class MarkdownExporter
 
     /// <summary>
     /// Builds the default export file name in the UI language, for example
-    /// "MyRepo-export-20260930-142537.md".
+    /// "MyRepo-export-20260930-142537.md". Characters that are not allowed in a
+    /// file name on any supported platform are dropped from the workspace name
+    /// (a workspace at a drive root is named "D:\"); a name left empty falls
+    /// back to the application name.
     /// </summary>
     /// <param name="workspaceName">Workspace display name.</param>
     /// <param name="exportedAt">Export moment.</param>
@@ -75,8 +78,22 @@ public static class MarkdownExporter
     public static string BuildFileName(string workspaceName, DateTimeOffset exportedAt)
     {
         CultureInfo culture = Resources.Culture ?? CultureInfo.CurrentUICulture;
-        return string.Format(culture, Resources.Export_FileNamePattern, workspaceName, exportedAt);
+        string safeName = new(workspaceName.Where(character => !IsInvalidFileNameCharacter(character)).ToArray());
+        if (safeName.Length == 0)
+        {
+            safeName = Resources.App_Name;
+        }
+        return string.Format(culture, Resources.Export_FileNamePattern, safeName, exportedAt);
     }
+
+    /// <summary>
+    /// Tells whether a character is invalid in a file name on Windows, Linux or
+    /// macOS; the Windows set is the widest, so the result is the same on every platform.
+    /// </summary>
+    /// <param name="character">The character to test.</param>
+    /// <returns><see langword="true"/> when the character must not appear in a file name.</returns>
+    private static bool IsInvalidFileNameCharacter(char character) =>
+        character < ' ' || character is '<' or '>' or ':' or '"' or '/' or '\\' or '|' or '?' or '*';
 
     /// <summary>
     /// Appends one card block: heading, body, tags line and timestamps line.
