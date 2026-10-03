@@ -89,6 +89,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             Content = new LockConflictPageViewModel(folderPath);
         }
+        catch (Exception exception)
+        {
+            // Newer schema, damaged database, I/O or permission errors, and anything unrecognized.
+            Debug.WriteLine(exception);
+            Content = new OpenFailedPageViewModel(folderPath, exception);
+        }
     }
 
     /// <summary>
@@ -120,10 +126,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             WorkspacePreset.AddPresetColumns(page.FolderPath);
             OpenWorkspace(page.FolderPath);
         }
-        catch (Exception exception) when (exception is YKanBanException or IOException or UnauthorizedAccessException)
+        catch (Exception exception)
         {
-            // Initialization failed; the page remains so the user can retry.
+            // Initialization failed: switch to the open-failed page, which has no operations.
             Debug.WriteLine(exception);
+            Content = new OpenFailedPageViewModel(page.FolderPath, exception);
         }
 
         return Task.CompletedTask;

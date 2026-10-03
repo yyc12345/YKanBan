@@ -31,10 +31,46 @@ public class LaunchArgumentsTests
     }
 
     [TestMethod]
-    public void SinglePathIsAccepted()
+    public void SingleAbsolutePathIsAccepted()
     {
-        bool parsed = LaunchArguments.TryParse([@"C:\Repo\MyProject"], out string? path);
+        string absolute = Path.Combine(Path.GetTempPath(), "Repo", "MyProject");
+        bool parsed = LaunchArguments.TryParse([absolute], out string? path);
         Assert.IsTrue(parsed);
-        Assert.AreEqual(@"C:\Repo\MyProject", path);
+        Assert.AreEqual(absolute, path);
+    }
+
+    [TestMethod]
+    public void RelativePathResolvesAgainstCurrentDirectory()
+    {
+        Assert.IsTrue(LaunchArguments.TryParse(["MyProject"], out string? path));
+        Assert.AreEqual(Path.Combine(Environment.CurrentDirectory, "MyProject"), path);
+
+        Assert.IsTrue(LaunchArguments.TryParse(["."], out path));
+        Assert.AreEqual(Path.GetFullPath(Environment.CurrentDirectory), path);
+    }
+
+    [TestMethod]
+    [DataRow("-")]
+    [DataRow("-x")]
+    [DataRow("--help")]
+    [DataRow("--path=foo")]
+    public void OptionLikeArgumentIsRejected(string argument)
+    {
+        Assert.IsFalse(LaunchArguments.TryParse([argument], out string? path));
+        Assert.IsNull(path);
+    }
+
+    [TestMethod]
+    public void OptionAlongsidePathIsRejected()
+    {
+        Assert.IsFalse(LaunchArguments.TryParse(["--help", "MyProject"], out string? path));
+        Assert.IsNull(path);
+    }
+
+    [TestMethod]
+    public void MalformedPathIsRejected()
+    {
+        Assert.IsFalse(LaunchArguments.TryParse(["a\0b"], out string? path));
+        Assert.IsNull(path);
     }
 }

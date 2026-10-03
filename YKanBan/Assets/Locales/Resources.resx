@@ -70,6 +70,27 @@
   <data name="Error_LockConflict_Message" xml:space="preserve">
     <value>The workspace is already open in another instance: {0}</value>
   </data>
+  <data name="Error_OpenFailed_Title" xml:space="preserve">
+    <value>Cannot open workspace</value>
+  </data>
+  <data name="Error_OpenFailed_SchemaTooNew" xml:space="preserve">
+    <value>The workspace database was created by a newer version of YKanBan (schema version {1}; this version supports up to {2}): {0}</value>
+  </data>
+  <data name="Error_OpenFailed_Database" xml:space="preserve">
+    <value>The workspace database cannot be opened or is damaged: {0}</value>
+  </data>
+  <data name="Error_OpenFailed_AccessDenied" xml:space="preserve">
+    <value>Access to the workspace was denied: {0}</value>
+  </data>
+  <data name="Error_OpenFailed_Io" xml:space="preserve">
+    <value>A file system error occurred while opening the workspace: {0}</value>
+  </data>
+  <data name="Error_OpenFailed_Generic" xml:space="preserve">
+    <value>An unexpected error occurred while opening the workspace: {0}</value>
+  </data>
+  <data name="Error_OpenFailed_Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
   <data name="Settings_Title" xml:space="preserve">
     <value>Settings</value>
   </data>
