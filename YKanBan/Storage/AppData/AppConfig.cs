@@ -13,10 +13,6 @@ public enum CardSortOption
     [EnumMember(Value = "id")]
     Id,
 
-    /// <summary>Creation time, oldest first.</summary>
-    [EnumMember(Value = "created-at")]
-    CreatedAt,
-
     /// <summary>Last modification time, most recently modified first.</summary>
     [EnumMember(Value = "updated-at")]
     UpdatedAt,

@@ -145,7 +145,7 @@ public class AppConfigStoreTests
         {
             Language = "zh-Hans",
             Theme = ThemeOption.Light,
-            Sort = new SortSettings { Card = CardSortOption.CreatedAt },
+            Sort = new SortSettings { Card = CardSortOption.Title },
             ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Wide },
             Confirmations = new ConfirmationSettings { DiscardEdit = false },
         };
