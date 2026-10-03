@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace YKanBan.ViewModels.Dialogs;
 
 /// <summary>
@@ -47,4 +49,16 @@ public static class DialogServiceExtensions
     /// <returns>A task completing when the dialog closes.</returns>
     public static Task ShowMessageAsync(this IDialogService dialogs, string title, string message, string? details = null) =>
         dialogs.ShowAsync(new MessageDialogViewModel(title, message, details));
+
+    /// <summary>
+    /// Reports that reading from the workspace failed, so the view may be stale.
+    /// </summary>
+    /// <param name="dialogs">The dialog service.</param>
+    /// <param name="exception">The read failure; its untranslated message is shown as details.</param>
+    /// <returns>A task completing when the dialog closes.</returns>
+    public static Task ShowReadFailedAsync(this IDialogService dialogs, Exception exception)
+    {
+        Debug.WriteLine(exception);
+        return dialogs.ShowMessageAsync(Resources.Error_Read_Title, Resources.Error_Read_Message, exception.Message);
+    }
 }

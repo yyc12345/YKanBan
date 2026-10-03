@@ -156,7 +156,18 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
     [RelayCommand]
     private async Task AddTagAsync()
     {
-        var picker = new TagPickerDialogViewModel(_repository, Tags.Select(tag => tag.Tag.Id).ToHashSet());
+        TagPickerDialogViewModel picker;
+        try
+        {
+            picker = new TagPickerDialogViewModel(_repository, Tags.Select(tag => tag.Tag.Id).ToHashSet());
+        }
+        catch (Exception exception)
+        {
+            // The picker lists the tags as it opens; a read failure must not escape the command.
+            await _dialogs.ShowReadFailedAsync(exception);
+            return;
+        }
+
         if (await _dialogs.ShowAsync(picker) && picker.PickedTag is { } picked)
         {
             Tags.Add(new TagBadgeViewModel(picked));

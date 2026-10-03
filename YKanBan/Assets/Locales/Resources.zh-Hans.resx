@@ -343,6 +343,12 @@
   <data name="Error_Operation_Message" xml:space="preserve">
     <value>更改未能写入工作区，看板显示的是已保存的状态。</value>
   </data>
+  <data name="Error_Read_Title" xml:space="preserve">
+    <value>读取失败</value>
+  </data>
+  <data name="Error_Read_Message" xml:space="preserve">
+    <value>无法从工作区读取数据，当前显示的内容可能不是最新的。</value>
+  </data>
   <data name="TagEditor_TitleNew" xml:space="preserve">
     <value>新建标签</value>
   </data>

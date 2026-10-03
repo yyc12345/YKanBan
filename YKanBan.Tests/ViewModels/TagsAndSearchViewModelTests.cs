@@ -138,7 +138,7 @@ public class TagsAndSearchViewModelTests
         board.SearchText = "alpha";
         await board.SearchCommand.ExecuteAsync(null);
         Assert.IsTrue(board.HasSearchText);
-        board.ClearSearchCommand.Execute(null);
+        await board.ClearSearchCommand.ExecuteAsync(null);
 
         Assert.AreEqual("", board.SearchText);
         Assert.IsFalse(board.HasSearchText);
@@ -312,6 +312,24 @@ public class TagsAndSearchViewModelTests
         Assert.AreEqual(0, fixture.Repository.GetTags().Count);
     }
 
+    [TestMethod]
+    public async Task TagReadFailuresAreReportedInsteadOfThrown()
+    {
+        using var fixture = new Fixture();
+        fixture.Repository.AddTag("bug", new RgbColor(1, 2, 3), "");
+        fixture.Config.Confirmations.DeleteTag = false;
+        TagsViewModel tags = fixture.CreateTags();
+
+        // Every read and write fails from now on.
+        fixture.Repository.Dispose();
+        await tags.Tags[0].DeleteCommand.ExecuteAsync(null);
+
+        CollectionAssert.AreEqual(
+            new[] { Resources.Error_Operation_Title, Resources.Error_Read_Title },
+            fixture.Dialogs.Shown.Select(dialog => ((MessageDialogViewModel)dialog).Title).ToArray());
+        Assert.AreEqual("bug", tags.Tags.Single().Tag.Name);
+    }
+
     #endregion
 
     #region Workspace wiring and export
@@ -334,7 +352,7 @@ public class TagsAndSearchViewModelTests
         Assert.AreEqual(0, workspace.Board.Columns.Sum(column => column.CardCount));
 
         // Re-tag through the repository, then a board write updates the usage count.
-        workspace.Board.ClearSearchCommand.Execute(null);
+        await workspace.Board.ClearSearchCommand.ExecuteAsync(null);
         TagModel ui = fixture.Repository.AddTag("ui", new RgbColor(4, 5, 6), "");
         fixture.Repository.UpdateCard(card.Id, "a", "", [ui.Id]);
         Assert.AreEqual(0, workspace.Tags.Tags.Count);

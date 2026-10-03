@@ -45,8 +45,8 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         _dialogs = dialogs;
         Board = new BoardViewModel(session.Repository, config, dialogs);
         Tags = new TagsViewModel(session.Repository, config, dialogs);
-        Board.DataWritten += (_, _) => Tags.Refresh();
-        Tags.TagsChanged += (_, _) => Board.Refresh();
+        Board.DataWritten += async (_, _) => await Tags.RefreshOrReportAsync();
+        Tags.TagsChanged += async (_, _) => await Board.RefreshOrReportAsync();
     }
 
     /// <summary>

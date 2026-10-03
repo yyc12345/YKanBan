@@ -57,15 +57,36 @@ public sealed partial class TagsViewModel : ViewModelBase
     /// <summary>
     /// Reloads the tags with their usage counts.
     /// </summary>
+    /// <exception cref="Exception">Reading the workspace failed; the list is left unchanged.</exception>
     public void Refresh()
     {
+        IReadOnlyList<(TagModel Tag, long UsageCount)> tags = _repository.GetTagsWithUsage();
         Tags.Clear();
-        foreach ((TagModel tag, long usage) in _repository.GetTagsWithUsage())
+        foreach ((TagModel tag, long usage) in tags)
         {
             Tags.Add(new TagRowViewModel(this, tag, usage));
         }
         OnPropertyChanged(nameof(Summary));
         OnPropertyChanged(nameof(IsEmpty));
+    }
+
+    /// <summary>
+    /// Reloads like <see cref="Refresh"/>, but reports a read failure in a
+    /// message dialog instead of throwing.
+    /// </summary>
+    /// <returns><see langword="true"/> when the list was reloaded.</returns>
+    public async Task<bool> RefreshOrReportAsync()
+    {
+        try
+        {
+            Refresh();
+            return true;
+        }
+        catch (Exception exception)
+        {
+            await _dialogs.ShowReadFailedAsync(exception);
+            return false;
+        }
     }
 
     /// <summary>
@@ -81,7 +102,7 @@ public sealed partial class TagsViewModel : ViewModelBase
             (name, color, description) => _repository.AddTag(name, color, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            AfterWrite();
+            await AfterWriteAsync();
         }
     }
 
@@ -98,7 +119,7 @@ public sealed partial class TagsViewModel : ViewModelBase
             (name, color, description) => _repository.UpdateTag(tag.Id, name, color, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            AfterWrite();
+            await AfterWriteAsync();
         }
     }
 
@@ -130,15 +151,19 @@ public sealed partial class TagsViewModel : ViewModelBase
             await _dialogs.ShowMessageAsync(
                 Resources.Error_Operation_Title, Resources.Error_Operation_Message, exception.Message);
         }
-        AfterWrite();
+        await AfterWriteAsync();
     }
 
     /// <summary>
-    /// Reloads the list and tells the board that tags changed.
+    /// Reloads the list and tells the board that tags changed; a failed reload
+    /// is reported and not announced.
     /// </summary>
-    private void AfterWrite()
+    /// <returns>A task completing after the reload.</returns>
+    private async Task AfterWriteAsync()
     {
-        Refresh();
-        TagsChanged?.Invoke(this, EventArgs.Empty);
+        if (await RefreshOrReportAsync())
+        {
+            TagsChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

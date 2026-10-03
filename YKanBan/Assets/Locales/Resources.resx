@@ -343,6 +343,12 @@
   <data name="Error_Operation_Message" xml:space="preserve">
     <value>The change could not be written to the workspace. The board shows the stored state.</value>
   </data>
+  <data name="Error_Read_Title" xml:space="preserve">
+    <value>Reading failed</value>
+  </data>
+  <data name="Error_Read_Message" xml:space="preserve">
+    <value>The data could not be read from the workspace. What is shown may be out of date.</value>
+  </data>
   <data name="TagEditor_TitleNew" xml:space="preserve">
     <value>New tag</value>
   </data>

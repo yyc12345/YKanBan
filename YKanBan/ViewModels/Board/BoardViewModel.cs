@@ -107,10 +107,25 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <summary>
     /// Reloads the columns and the cards matching <see cref="ActiveFilter"/>.
     /// </summary>
-    public void Refresh()
+    /// <exception cref="Exception">Reading the workspace failed; the board is left unchanged.</exception>
+    public void Refresh() => Load(ActiveFilter);
+
+    /// <summary>
+    /// Reloads like <see cref="Refresh"/>, but reports a read failure in a
+    /// message dialog instead of throwing.
+    /// </summary>
+    /// <returns><see langword="true"/> when the board was reloaded.</returns>
+    public Task<bool> RefreshOrReportAsync() => TryLoadAsync(ActiveFilter);
+
+    /// <summary>
+    /// Reloads the board with the given filter; the columns are only replaced
+    /// once both queries have succeeded.
+    /// </summary>
+    /// <param name="filter">The search to apply; <see langword="null"/> shows every card.</param>
+    private void Load(CompiledSearch? filter)
     {
         IReadOnlyList<ColumnModel> columns = _repository.GetColumns();
-        ILookup<long, CardModel> cardsByColumn = _repository.GetCards(ActiveFilter).ToLookup(card => card.ColumnId);
+        ILookup<long, CardModel> cardsByColumn = _repository.GetCards(filter).ToLookup(card => card.ColumnId);
         var sort = (CardSortOption)SelectedSort.Value;
 
         ColumnModels = columns;
@@ -122,8 +137,29 @@ public sealed partial class BoardViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Reloads the board with the given filter and reports a read failure in a message dialog.
+    /// </summary>
+    /// <param name="filter">The search to apply; <see langword="null"/> shows every card.</param>
+    /// <returns><see langword="true"/> when the board was reloaded.</returns>
+    private async Task<bool> TryLoadAsync(CompiledSearch? filter)
+    {
+        try
+        {
+            Load(filter);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            await _dialogs.ShowReadFailedAsync(exception);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Parses and runs the search box text; blank text shows every card. An
-    /// invalid expression only shows the error dialog.
+    /// invalid expression only shows the error dialog. The expression becomes
+    /// <see cref="ActiveFilter"/> only once its query has succeeded, so a failed
+    /// search leaves the previous result and later refreshes untouched.
     /// </summary>
     /// <returns>A task completing after the refresh or the error dialog.</returns>
     [RelayCommand]
@@ -143,19 +179,24 @@ public sealed partial class BoardViewModel : ViewModelBase
             return;
         }
 
-        ActiveFilter = filter;
-        Refresh();
+        if (await TryLoadAsync(filter))
+        {
+            ActiveFilter = filter;
+        }
     }
 
     /// <summary>
     /// Empties the search box and shows every card again.
     /// </summary>
+    /// <returns>A task completing after the refresh.</returns>
     [RelayCommand]
-    private void ClearSearch()
+    private async Task ClearSearchAsync()
     {
         SearchText = "";
-        ActiveFilter = null;
-        Refresh();
+        if (await TryLoadAsync(null))
+        {
+            ActiveFilter = null;
+        }
     }
 
     /// <summary>
@@ -168,7 +209,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         var dialog = new ColumnEditorDialogViewModel(null, (title, description) => _repository.AddColumn(title, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            RefreshAfterWrite();
+            await RefreshAfterWriteAsync();
         }
     }
 
@@ -196,7 +237,7 @@ public sealed partial class BoardViewModel : ViewModelBase
             column, (title, description) => _repository.UpdateColumn(column.Id, title, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            RefreshAfterWrite();
+            await RefreshAfterWriteAsync();
         }
     }
 
@@ -235,7 +276,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         await _dialogs.ShowAsync(editor);
 
         // Refresh even after a cancel: the nested picker may have created tags.
-        RefreshAfterWrite();
+        await RefreshAfterWriteAsync();
     }
 
     /// <summary>
@@ -245,17 +286,27 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <returns>A task completing when the editor closes.</returns>
     internal async Task EditCardAsync(long cardId)
     {
-        CardModel? card = _repository.GetCard(cardId);
+        CardModel? card;
+        try
+        {
+            card = _repository.GetCard(cardId);
+        }
+        catch (Exception exception)
+        {
+            await _dialogs.ShowReadFailedAsync(exception);
+            return;
+        }
+
         if (card is null)
         {
-            Refresh();
+            await RefreshOrReportAsync();
             return;
         }
 
         var editor = CardEditorDialogViewModel.ForExistingCard(
             _repository, _dialogs, card, _config.Confirmations.DiscardEdit);
         await _dialogs.ShowAsync(editor);
-        RefreshAfterWrite();
+        await RefreshAfterWriteAsync();
     }
 
     /// <summary>
@@ -314,16 +365,20 @@ public sealed partial class BoardViewModel : ViewModelBase
             await _dialogs.ShowMessageAsync(
                 Resources.Error_Operation_Title, Resources.Error_Operation_Message, exception.Message);
         }
-        RefreshAfterWrite();
+        await RefreshAfterWriteAsync();
     }
 
     /// <summary>
-    /// Refreshes after a write and announces it.
+    /// Refreshes after a write and announces it; a failed refresh is reported
+    /// and not announced, so a broken workspace yields one read-failure dialog.
     /// </summary>
-    private void RefreshAfterWrite()
+    /// <returns>A task completing after the refresh.</returns>
+    private async Task RefreshAfterWriteAsync()
     {
-        Refresh();
-        DataWritten?.Invoke(this, EventArgs.Empty);
+        if (await RefreshOrReportAsync())
+        {
+            DataWritten?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     /// <summary>
@@ -333,6 +388,8 @@ public sealed partial class BoardViewModel : ViewModelBase
     partial void OnSelectedSortChanged(OptionItem value)
     {
         _config.Sort.Card = (CardSortOption)value.Value;
-        Refresh();
+
+        // A property setter cannot await; the refresh reports its own failures.
+        _ = RefreshOrReportAsync();
     }
 }

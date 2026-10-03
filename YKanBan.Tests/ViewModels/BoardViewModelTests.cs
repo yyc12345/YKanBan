@@ -286,6 +286,52 @@ public class BoardViewModelTests
     }
 
     [TestMethod]
+    public async Task FailedSearchQueryIsReportedAndKeepsThePreviousResultAndFilter()
+    {
+        using var fixture = new Fixture();
+        ColumnModel column = fixture.Repository.AddColumn("A", "");
+        fixture.Repository.AddCard(column.Id, "alpha", "", []);
+        fixture.Repository.AddCard(column.Id, "beta", "", []);
+        BoardViewModel board = fixture.CreateBoard();
+        board.SearchText = "alpha";
+        await board.SearchCommand.ExecuteAsync(null);
+        CompiledSearch? alphaFilter = board.ActiveFilter;
+
+        // Every read fails from now on.
+        fixture.Repository.Dispose();
+        board.SearchText = "beta";
+        await board.SearchCommand.ExecuteAsync(null);
+
+        var error = (MessageDialogViewModel)fixture.Dialogs.Shown.Single();
+        Assert.AreEqual(Resources.Error_Read_Title, error.Title);
+        Assert.AreSame(alphaFilter, board.ActiveFilter);
+        CollectionAssert.AreEqual(new[] { "alpha" }, board.Columns.Single().Cards.Select(card => card.Title).ToArray());
+    }
+
+    [TestMethod]
+    public async Task ReadFailuresOnBoardCommandsAreReportedInsteadOfThrown()
+    {
+        using var fixture = new Fixture();
+        ColumnModel column = fixture.Repository.AddColumn("A", "");
+        CardModel card = fixture.Repository.AddCard(column.Id, "a", "", []);
+        BoardViewModel board = fixture.CreateBoard();
+        var editor = CardEditorDialogViewModel.ForExistingCard(fixture.Repository, fixture.Dialogs, card, confirmDiscard: false);
+        fixture.Repository.Dispose();
+
+        board.SelectedSort = board.SortOptions.Single(option => (CardSortOption)option.Value == CardSortOption.Title);
+        await board.ClearSearchCommand.ExecuteAsync(null);
+        await board.Columns.Single().Cards.Single().EditCommand.ExecuteAsync(null);
+        await board.Columns.Single().Cards.Single().MoveToCommand.ExecuteAsync(column.Id);
+        await editor.AddTagCommand.ExecuteAsync(null);
+
+        // Sort, clear, edit, the failed move with its refresh, and the tag picker.
+        string read = Resources.Error_Read_Title;
+        CollectionAssert.AreEqual(
+            new[] { read, read, read, Resources.Error_Operation_Title, read, read },
+            fixture.Dialogs.Shown.Select(dialog => ((MessageDialogViewModel)dialog).Title).ToArray());
+    }
+
+    [TestMethod]
     public void TagPickerReportsInvalidColorAndDuplicateNameWithoutClosing()
     {
         using var fixture = new Fixture();
