@@ -5,23 +5,27 @@ namespace YKanBan.ViewModels.Dialogs;
 
 /// <summary>
 /// The settings dialog: language (restart to apply), theme and the four
-/// confirmation-dialog toggles. Nothing is applied until the user accepts;
-/// cancelling or closing the window discards the changes.
+/// confirmation-dialog toggles. A theme selection is previewed immediately;
+/// everything else waits until the user accepts. Cancelling or closing the
+/// window discards the changes and restores the theme the dialog opened with.
 /// </summary>
 public sealed partial class SettingsDialogViewModel : ViewModelBase
 {
     private readonly AppConfig _config;
     private readonly string _startupLanguage;
+    private readonly Action<ThemeOption> _applyTheme;
 
     /// <summary>
     /// Initializes the dialog from the live configuration.
     /// </summary>
     /// <param name="config">The live application configuration.</param>
     /// <param name="startupLanguage">The language applied at startup, for the restart notice.</param>
-    public SettingsDialogViewModel(AppConfig config, string startupLanguage)
+    /// <param name="applyTheme">Applies a theme to the running app; defaults to <see cref="App.ApplyTheme"/>.</param>
+    public SettingsDialogViewModel(AppConfig config, string startupLanguage, Action<ThemeOption>? applyTheme = null)
     {
         _config = config;
         _startupLanguage = startupLanguage;
+        _applyTheme = applyTheme ?? App.ApplyTheme;
 
         Languages =
         [
@@ -63,7 +67,8 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase
     private OptionItem? selectedLanguage;
 
     /// <summary>
-    /// Gets or sets the selected theme; applied when the dialog is accepted.
+    /// Gets or sets the selected theme; applied to the running app as soon as it
+    /// changes, and saved to the configuration when the dialog is accepted.
     /// </summary>
     [ObservableProperty]
     private OptionItem? selectedTheme;
@@ -110,13 +115,29 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase
         if (SelectedTheme is not null)
         {
             _config.Theme = (ThemeOption)SelectedTheme.Value;
-            App.ApplyTheme(_config.Theme);
         }
 
         _config.Confirmations.DeleteCard = ConfirmDeleteCard;
         _config.Confirmations.DeleteColumn = ConfirmDeleteColumn;
         _config.Confirmations.DeleteTag = ConfirmDeleteTag;
         _config.Confirmations.DiscardEdit = ConfirmDiscardEdit;
+    }
+
+    /// <summary>
+    /// Discards the working values and restores the theme the dialog opened with.
+    /// </summary>
+    public void Cancel() => _applyTheme(_config.Theme);
+
+    /// <summary>
+    /// Previews a theme selection on the running app.
+    /// </summary>
+    /// <param name="value">The new selection.</param>
+    partial void OnSelectedThemeChanged(OptionItem? value)
+    {
+        if (value is not null)
+        {
+            _applyTheme((ThemeOption)value.Value);
+        }
     }
 
     /// <summary>
