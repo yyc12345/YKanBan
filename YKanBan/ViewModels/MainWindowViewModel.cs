@@ -4,6 +4,7 @@ using YKanBan.Launching;
 using YKanBan.Services;
 using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
+using YKanBan.ViewModels.Dialogs;
 using YKanBan.ViewModels.ErrorPages;
 
 namespace YKanBan.ViewModels;
@@ -16,15 +17,18 @@ namespace YKanBan.ViewModels;
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly AppServices _services;
+    private readonly IDialogService _dialogs;
 
     /// <summary>
     /// Initializes the view model and resolves the workspace state.
     /// </summary>
     /// <param name="services">The process composition root.</param>
+    /// <param name="dialogs">The modal dialog service used by the board.</param>
     /// <param name="arguments">The command-line arguments (excluding the executable).</param>
-    public MainWindowViewModel(AppServices services, IReadOnlyList<string> arguments)
+    public MainWindowViewModel(AppServices services, IDialogService dialogs, IReadOnlyList<string> arguments)
     {
         _services = services;
+        _dialogs = dialogs;
         ShowSettings = new Interaction<Unit>();
         ShowAbout = new Interaction<Unit>();
         InitializeWorkspace = new Interaction<Unit>();
@@ -104,7 +108,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private void OpenWorkspace(string folderPath)
     {
         WorkspaceSession session = _services.OpenWorkspace(folderPath);
-        Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout);
+        Content = new WorkspaceViewModel(session, ShowSettings, ShowAbout, _services.Config, _dialogs);
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
 

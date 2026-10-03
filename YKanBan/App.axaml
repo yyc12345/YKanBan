@@ -26,10 +26,20 @@
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="TopBarBackgroundBrush" Color="#F6F7F9"/>
                     <SolidColorBrush x:Key="TopBarBorderBrush" Color="#E2E4EA"/>
+                    <SolidColorBrush x:Key="PanelBorderBrush" Color="#E2E4EA"/>
+                    <SolidColorBrush x:Key="ColumnBackgroundBrush" Color="#F3F4F7"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="CardForegroundBrush" Color="#1C1F23"/>
+                    <SolidColorBrush x:Key="ErrorTextBrush" Color="#D52515"/>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="TopBarBackgroundBrush" Color="#1C1E24"/>
                     <SolidColorBrush x:Key="TopBarBorderBrush" Color="#2C2F37"/>
+                    <SolidColorBrush x:Key="PanelBorderBrush" Color="#33363F"/>
+                    <SolidColorBrush x:Key="ColumnBackgroundBrush" Color="#1A1C21"/>
+                    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#25282F"/>
+                    <SolidColorBrush x:Key="CardForegroundBrush" Color="#E6E8EC"/>
+                    <SolidColorBrush x:Key="ErrorTextBrush" Color="#FC725A"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

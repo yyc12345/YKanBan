@@ -1,5 +1,8 @@
 using CommunityToolkit.Mvvm.Input;
+using YKanBan.Storage.AppData;
 using YKanBan.Storage.Workspace;
+using YKanBan.ViewModels.Board;
+using YKanBan.ViewModels.Dialogs;
 
 namespace YKanBan.ViewModels;
 
@@ -19,16 +22,21 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     /// <param name="session">The open workspace session.</param>
     /// <param name="showSettings">The interaction that opens the settings dialog.</param>
     /// <param name="showAbout">The interaction that opens the about dialog.</param>
+    /// <param name="config">The live application configuration.</param>
+    /// <param name="dialogs">The modal dialog service of the board.</param>
     public WorkspaceViewModel(
         WorkspaceSession session,
         Interaction<Unit> showSettings,
-        Interaction<Unit> showAbout)
+        Interaction<Unit> showAbout,
+        AppConfig config,
+        IDialogService dialogs)
     {
         Session = session;
         WorkspaceName = new DirectoryInfo(session.FolderPath).Name;
         WorkspacePath = session.FolderPath;
         _showSettings = showSettings;
         _showAbout = showAbout;
+        Board = new BoardViewModel(session.Repository, config, dialogs);
     }
 
     /// <summary>
@@ -45,6 +53,11 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     /// Gets the full workspace folder path.
     /// </summary>
     public string WorkspacePath { get; }
+
+    /// <summary>
+    /// Gets the board tab.
+    /// </summary>
+    public BoardViewModel Board { get; }
 
     /// <summary>
     /// Opens the settings dialog through the registered interaction.

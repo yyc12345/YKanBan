@@ -1,0 +1,176 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Board"
+             xmlns:vmBase="using:YKanBan.ViewModels"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="YKanBan.Views.Board.BoardView"
+             x:DataType="vm:BoardViewModel"
+             x:Name="Root">
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="8">
+
+        <!-- Toolbar. The search bar joins on the left with the search feature. -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Command="{Binding AddColumnCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Board_AddColumn}"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding AdjustColumnWidthCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="MoveHorizontal" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Board_ColumnWidth}"/>
+                </StackPanel>
+            </Button>
+            <ComboBox ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" MinWidth="160"
+                      ToolTip.Tip="{x:Static lang:Resources.Board_Sort}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vmBase:OptionItem">
+                        <TextBlock Text="{Binding Label}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Columns left to right; each column scrolls its own virtualized card list. -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Columns}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="12"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ColumnViewModel">
+                        <Border Width="{Binding #Root.((vm:BoardViewModel)DataContext).ColumnWidth}"
+                                Background="{DynamicResource ColumnBackgroundBrush}"
+                                BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
+                                CornerRadius="6" Padding="8">
+                            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+
+                                <!-- Column header: title, count, description, new card, edit/delete menu. -->
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding CardCount}" Opacity="0.6"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Description}" IsVisible="{Binding HasDescription}"
+                                                   FontSize="12" Opacity="0.7" TextWrapping="Wrap" MaxLines="3"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Command="{Binding AddCardCommand}" VerticalAlignment="Top"
+                                            Theme="{StaticResource BorderlessButton}" Padding="4"
+                                            ToolTip.Tip="{x:Static lang:Resources.Board_AddCard}">
+                                        <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                                    </Button>
+                                    <Button Grid.Column="2" VerticalAlignment="Top"
+                                            Theme="{StaticResource BorderlessButton}" Padding="4"
+                                            ToolTip.Tip="{x:Static lang:Resources.Menu_More}">
+                                        <icons:PackIconLucide Kind="Ellipsis" Width="16" Height="16"/>
+                                        <Button.Flyout>
+                                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                                <MenuItem Header="{x:Static lang:Resources.Menu_Edit}" Command="{Binding EditCommand}"/>
+                                                <MenuItem Header="{x:Static lang:Resources.Menu_Delete}" Command="{Binding DeleteCommand}"/>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Cards top to bottom, UI-virtualized for large columns. -->
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding Cards}">
+                                    <ItemsControl.Template>
+                                        <ControlTemplate>
+                                            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                          VerticalScrollBarVisibility="Auto">
+                                                <ItemsPresenter Name="PART_ItemsPresenter"
+                                                                ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                                            </ScrollViewer>
+                                        </ControlTemplate>
+                                    </ItemsControl.Template>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CardViewModel">
+                                            <Panel Margin="0,0,0,8">
+                                                <!-- The card body opens the editor. -->
+                                                <Button Command="{Binding EditCommand}"
+                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                                        VerticalContentAlignment="Top"
+                                                        Background="{DynamicResource CardBackgroundBrush}"
+                                                        Foreground="{DynamicResource CardForegroundBrush}"
+                                                        FontWeight="Normal"
+                                                        BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Padding="10,8" Cursor="Hand">
+                                                    <StackPanel Spacing="6">
+                                                        <TextBlock TextWrapping="Wrap" Margin="0,0,24,0">
+                                                            <Run Text="{Binding IdText}" FontWeight="Bold"/><Run Text="{Binding TitleSuffix}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Text="{Binding Excerpt}" IsVisible="{Binding HasExcerpt}"
+                                                                   TextWrapping="Wrap" FontSize="12" Opacity="0.8"
+                                                                   FontWeight="Normal"/>
+                                                        <ItemsControl ItemsSource="{Binding Tags}" IsVisible="{Binding HasTags}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:TagBadgeViewModel">
+                                                                    <Border Background="{Binding Background}" CornerRadius="10"
+                                                                            Padding="8,1" Margin="0,0,4,4">
+                                                                        <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}"
+                                                                                   FontSize="11" FontWeight="Normal"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </Button>
+
+                                                <!-- Card menu: delete, move to column. -->
+                                                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+                                                        Theme="{StaticResource BorderlessButton}" Padding="4"
+                                                        ToolTip.Tip="{x:Static lang:Resources.Menu_More}">
+                                                    <icons:PackIconLucide Kind="Ellipsis" Width="14" Height="14"/>
+                                                    <Button.Flyout>
+                                                        <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                                            <MenuItem Header="{x:Static lang:Resources.Menu_Delete}"
+                                                                      Command="{Binding DeleteCommand}"/>
+                                                            <MenuItem Header="{x:Static lang:Resources.Menu_MoveTo}"
+                                                                      ItemsSource="{Binding MoveTargets}">
+                                                                <MenuItem.ItemContainerTheme>
+                                                                    <ControlTheme TargetType="MenuItem"
+                                                                                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                                                                                  x:DataType="vm:MoveTargetViewModel">
+                                                                        <Setter Property="Header" Value="{Binding Title}"/>
+                                                                        <Setter Property="Command" Value="{Binding Command}"/>
+                                                                        <Setter Property="CommandParameter" Value="{Binding ColumnId}"/>
+                                                                        <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+                                                                    </ControlTheme>
+                                                                </MenuItem.ItemContainerTheme>
+                                                            </MenuItem>
+                                                        </MenuFlyout>
+                                                    </Button.Flyout>
+                                                </Button>
+                                            </Panel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

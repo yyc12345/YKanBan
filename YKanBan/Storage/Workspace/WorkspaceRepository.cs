@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using YKanBan.Models;
+using YKanBan.Search;
 
 namespace YKanBan.Storage.Workspace;
 
@@ -71,14 +72,15 @@ public sealed class WorkspaceRepository : IDisposable
     /// <param name="title">The non-empty, table-unique title.</param>
     /// <param name="description">The optional description.</param>
     /// <returns>The created column.</returns>
-    /// <exception cref="SqliteException">The title is empty or not unique.</exception>
+    /// <exception cref="NameRequiredException">The title is empty.</exception>
+    /// <exception cref="DuplicateNameException">The title is not unique.</exception>
     public ColumnModel AddColumn(string title, string description)
     {
         long now = UnixTime.Now;
         using var transaction = _connection.BeginTransaction();
-        long id = ExecuteInsert(transaction,
+        long id = MapNameConstraint(NamedEntity.Column, title, () => ExecuteInsert(transaction,
             "INSERT INTO columns (title, description, created_at, updated_at) VALUES ($title, $description, $now, $now);",
-            ("$title", title), ("$description", description), ("$now", now));
+            ("$title", title), ("$description", description), ("$now", now)));
         transaction.Commit();
 
         return new ColumnModel(id, title, description, now, now);
@@ -93,7 +95,8 @@ public sealed class WorkspaceRepository : IDisposable
     /// <param name="description">The new description.</param>
     /// <returns>The updated column, or the unchanged one for a no-op.</returns>
     /// <exception cref="InvalidOperationException">The column does not exist.</exception>
-    /// <exception cref="SqliteException">The new title is empty or not unique.</exception>
+    /// <exception cref="NameRequiredException">The new title is empty.</exception>
+    /// <exception cref="DuplicateNameException">The new title is not unique.</exception>
     public ColumnModel UpdateColumn(long columnId, string title, string description)
     {
         ColumnModel existing = GetColumn(columnId)
@@ -112,7 +115,7 @@ public sealed class WorkspaceRepository : IDisposable
         command.Parameters.AddWithValue("$description", description);
         command.Parameters.AddWithValue("$now", now);
         command.Parameters.AddWithValue("$id", columnId);
-        command.ExecuteNonQuery();
+        MapNameConstraint(NamedEntity.Column, title, command.ExecuteNonQuery);
 
         return new ColumnModel(columnId, title, description, existing.CreatedAt, now);
     }
@@ -132,16 +135,34 @@ public sealed class WorkspaceRepository : IDisposable
     /// Returns all cards with their assigned tags loaded, ordered by id ascending.
     /// </summary>
     /// <returns>All cards in id order.</returns>
-    public IReadOnlyList<CardModel> GetCards()
+    public IReadOnlyList<CardModel> GetCards() => GetCards(null);
+
+    /// <summary>
+    /// Returns the cards matching a compiled search, with all of their assigned
+    /// tags loaded (the filter selects cards, it never trims their tag lists),
+    /// ordered by id ascending.
+    /// </summary>
+    /// <param name="filter">The compiled search, or <see langword="null"/> for every card.</param>
+    /// <returns>The matching cards in id order.</returns>
+    public IReadOnlyList<CardModel> GetCards(CompiledSearch? filter)
     {
-        using var command = CreateCommand("""
+        string where = filter is null ? "" : $"WHERE {filter.Predicate}";
+        using var command = CreateCommand($"""
             SELECT c.id, c.column_id, c.title, c.content, c.created_at, c.updated_at,
                    t.id, t.name, t.color, t.description
             FROM cards c
             LEFT JOIN card_tags ct ON ct.card_id = c.id
             LEFT JOIN tags t ON t.id = ct.tag_id
-            ORDER BY c.id ASC;
+            {where}
+            ORDER BY c.id ASC, t.id ASC;
             """);
+        if (filter is not null)
+        {
+            foreach ((string name, object value) in filter.Parameters)
+            {
+                command.Parameters.AddWithValue(name, value);
+            }
+        }
         using var reader = command.ExecuteReader();
 
         // Single grouped pass: one output card per distinct card id, with its tags accumulated alongside.
@@ -186,7 +207,7 @@ public sealed class WorkspaceRepository : IDisposable
             LEFT JOIN card_tags ct ON ct.card_id = c.id
             LEFT JOIN tags t ON t.id = ct.tag_id
             WHERE c.id = $id
-            ORDER BY c.id ASC;
+            ORDER BY t.id ASC;
             """);
         command.Parameters.AddWithValue("$id", cardId);
         using var reader = command.ExecuteReader();
@@ -303,6 +324,18 @@ public sealed class WorkspaceRepository : IDisposable
     }
 
     /// <summary>
+    /// Counts the cards of a column, regardless of any search filter.
+    /// </summary>
+    /// <param name="columnId">The column id.</param>
+    /// <returns>The number of cards in the column.</returns>
+    public long CountCards(long columnId)
+    {
+        using var command = CreateCommand("SELECT COUNT(*) FROM cards WHERE column_id = $id;");
+        command.Parameters.AddWithValue("$id", columnId);
+        return (long)command.ExecuteScalar()!;
+    }
+
+    /// <summary>
     /// Deletes a card; the DDL cascade removes its tag links.
     /// </summary>
     /// <param name="cardId">The card to delete.</param>
@@ -361,13 +394,14 @@ public sealed class WorkspaceRepository : IDisposable
     /// <param name="color">The tag color.</param>
     /// <param name="description">The optional description.</param>
     /// <returns>The created tag.</returns>
-    /// <exception cref="SqliteException">The name is empty or not unique.</exception>
+    /// <exception cref="NameRequiredException">The name is empty.</exception>
+    /// <exception cref="DuplicateNameException">The name is not unique.</exception>
     public TagModel AddTag(string name, RgbColor color, string description)
     {
         using var transaction = _connection.BeginTransaction();
-        long id = ExecuteInsert(transaction,
+        long id = MapNameConstraint(NamedEntity.Tag, name, () => ExecuteInsert(transaction,
             "INSERT INTO tags (name, color, description) VALUES ($name, $color, $description);",
-            ("$name", name), ("$color", color.ToString()), ("$description", description));
+            ("$name", name), ("$color", color.ToString()), ("$description", description)));
         transaction.Commit();
 
         return new TagModel(id, name, color, description);
@@ -382,7 +416,8 @@ public sealed class WorkspaceRepository : IDisposable
     /// <param name="description">The new description.</param>
     /// <returns>The updated tag, or the unchanged one for a no-op.</returns>
     /// <exception cref="InvalidOperationException">The tag does not exist.</exception>
-    /// <exception cref="SqliteException">The new name is empty or not unique.</exception>
+    /// <exception cref="NameRequiredException">The new name is empty.</exception>
+    /// <exception cref="DuplicateNameException">The new name is not unique.</exception>
     public TagModel UpdateTag(long tagId, string name, RgbColor color, string description)
     {
         TagModel existing = GetTag(tagId)
@@ -400,7 +435,7 @@ public sealed class WorkspaceRepository : IDisposable
         command.Parameters.AddWithValue("$color", color.ToString());
         command.Parameters.AddWithValue("$description", description);
         command.Parameters.AddWithValue("$id", tagId);
-        command.ExecuteNonQuery();
+        MapNameConstraint(NamedEntity.Tag, name, command.ExecuteNonQuery);
 
         return new TagModel(tagId, name, color, description);
     }
@@ -415,6 +450,40 @@ public sealed class WorkspaceRepository : IDisposable
     #endregion
 
     #region Helpers
+
+    /// <summary>SQLite extended result code of a failed CHECK constraint.</summary>
+    private const int SqliteConstraintCheck = 275;
+
+    /// <summary>SQLite extended result code of a failed UNIQUE constraint.</summary>
+    private const int SqliteConstraintUnique = 2067;
+
+    /// <summary>
+    /// Runs a write against columns.title or tags.name and translates the
+    /// schema's non-empty (CHECK) and uniqueness (UNIQUE) violations into typed
+    /// exceptions that the UI maps to localized messages.
+    /// </summary>
+    /// <typeparam name="T">The write's result type.</typeparam>
+    /// <param name="entity">The entity being written.</param>
+    /// <param name="name">The name or title being written.</param>
+    /// <param name="write">The write to run.</param>
+    /// <returns>The write's result.</returns>
+    /// <exception cref="NameRequiredException">The name is empty.</exception>
+    /// <exception cref="DuplicateNameException">The name is not unique.</exception>
+    private static T MapNameConstraint<T>(NamedEntity entity, string name, Func<T> write)
+    {
+        try
+        {
+            return write();
+        }
+        catch (SqliteException exception) when (exception.SqliteExtendedErrorCode == SqliteConstraintCheck)
+        {
+            throw new NameRequiredException(entity, exception);
+        }
+        catch (SqliteException exception) when (exception.SqliteExtendedErrorCode == SqliteConstraintUnique)
+        {
+            throw new DuplicateNameException(entity, name, exception);
+        }
+    }
 
     /// <summary>
     /// Returns the tag with the given id.

@@ -184,4 +184,160 @@
   <data name="Export_TagsTableHeader" xml:space="preserve">
     <value>| 名称 | 颜色 | 描述 | 使用数 |</value>
   </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Common_Discard" xml:space="preserve">
+    <value>丢弃</value>
+  </data>
+  <data name="Common_TimePattern" xml:space="preserve">
+    <value>yyyy年M月d日 HH:mm</value>
+  </data>
+  <data name="Board_AddColumn" xml:space="preserve">
+    <value>新建列</value>
+  </data>
+  <data name="Board_ColumnWidth" xml:space="preserve">
+    <value>列宽</value>
+  </data>
+  <data name="Board_Sort" xml:space="preserve">
+    <value>卡片排序</value>
+  </data>
+  <data name="Board_AddCard" xml:space="preserve">
+    <value>新建卡片</value>
+  </data>
+  <data name="Sort_Id" xml:space="preserve">
+    <value>按 ID</value>
+  </data>
+  <data name="Sort_UpdatedAt" xml:space="preserve">
+    <value>最近修改</value>
+  </data>
+  <data name="Sort_Title" xml:space="preserve">
+    <value>按标题</value>
+  </data>
+  <data name="Menu_More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>编辑</value>
+  </data>
+  <data name="Menu_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Menu_MoveTo" xml:space="preserve">
+    <value>移动到列</value>
+  </data>
+  <data name="Field_Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Field_Description" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="Field_Content" xml:space="preserve">
+    <value>内容</value>
+  </data>
+  <data name="Field_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Field_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Field_Color" xml:space="preserve">
+    <value>#RRGGBB</value>
+  </data>
+  <data name="ColumnEditor_TitleNew" xml:space="preserve">
+    <value>新建列</value>
+  </data>
+  <data name="ColumnEditor_TitleEdit" xml:space="preserve">
+    <value>编辑列</value>
+  </data>
+  <data name="ColumnWidth_Title" xml:space="preserve">
+    <value>列宽</value>
+  </data>
+  <data name="ColumnWidth_Narrow" xml:space="preserve">
+    <value>窄（{0} px）</value>
+  </data>
+  <data name="ColumnWidth_Standard" xml:space="preserve">
+    <value>标准（{0} px）</value>
+  </data>
+  <data name="ColumnWidth_Wide" xml:space="preserve">
+    <value>宽（{0} px）</value>
+  </data>
+  <data name="ColumnWidth_Custom" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="ColumnWidth_Range" xml:space="preserve">
+    <value>{0}–{1} px</value>
+  </data>
+  <data name="CardEditor_TitleNew" xml:space="preserve">
+    <value>新建卡片</value>
+  </data>
+  <data name="CardEditor_TitleEdit" xml:space="preserve">
+    <value>编辑卡片</value>
+  </data>
+  <data name="CardEditor_TitleWatermark" xml:space="preserve">
+    <value>无标题</value>
+  </data>
+  <data name="CardEditor_Created" xml:space="preserve">
+    <value>创建于 {0}</value>
+  </data>
+  <data name="CardEditor_Modified" xml:space="preserve">
+    <value>修改于 {0}</value>
+  </data>
+  <data name="CardEditor_AddTag" xml:space="preserve">
+    <value>添加标签</value>
+  </data>
+  <data name="CardEditor_RemoveTag" xml:space="preserve">
+    <value>移除标签</value>
+  </data>
+  <data name="TagPicker_Title" xml:space="preserve">
+    <value>添加标签</value>
+  </data>
+  <data name="TagPicker_FilterWatermark" xml:space="preserve">
+    <value>筛选标签</value>
+  </data>
+  <data name="TagPicker_NoMatches" xml:space="preserve">
+    <value>没有匹配的标签</value>
+  </data>
+  <data name="TagPicker_NewTag" xml:space="preserve">
+    <value>新建标签</value>
+  </data>
+  <data name="TagPicker_Create" xml:space="preserve">
+    <value>新建并添加</value>
+  </data>
+  <data name="Confirm_Title" xml:space="preserve">
+    <value>确认</value>
+  </data>
+  <data name="Confirm_DeleteCard" xml:space="preserve">
+    <value>删除卡片“{0}”？</value>
+  </data>
+  <data name="Confirm_DeleteColumn" xml:space="preserve">
+    <value>删除列“{0}”及其中的 {1} 张卡片？</value>
+  </data>
+  <data name="Confirm_DiscardEdit" xml:space="preserve">
+    <value>放弃未保存的更改？</value>
+  </data>
+  <data name="Error_Column_TitleRequired" xml:space="preserve">
+    <value>列标题不能为空。</value>
+  </data>
+  <data name="Error_Column_Duplicate" xml:space="preserve">
+    <value>已存在名为“{0}”的列（名称不区分大小写）。</value>
+  </data>
+  <data name="Error_Tag_NameRequired" xml:space="preserve">
+    <value>标签名称不能为空。</value>
+  </data>
+  <data name="Error_Tag_Duplicate" xml:space="preserve">
+    <value>已存在名为“{0}”的标签（名称不区分大小写）。</value>
+  </data>
+  <data name="Error_Tag_InvalidColor" xml:space="preserve">
+    <value>颜色须为 #RRGGBB 格式。</value>
+  </data>
+  <data name="Error_SaveFailed" xml:space="preserve">
+    <value>保存失败：{0}</value>
+  </data>
+  <data name="Error_Operation_Title" xml:space="preserve">
+    <value>操作失败</value>
+  </data>
+  <data name="Error_Operation_Message" xml:space="preserve">
+    <value>更改未能写入工作区，看板显示的是已保存的状态。</value>
+  </data>
 </root>

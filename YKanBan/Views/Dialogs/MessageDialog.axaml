@@ -1,0 +1,19 @@
+<dialogs:DialogWindow xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+                      xmlns:dialogs="using:YKanBan.Views.Dialogs"
+                      xmlns:lang="using:YKanBan"
+                      x:Class="YKanBan.Views.Dialogs.MessageDialog"
+                      x:DataType="vm:MessageDialogViewModel"
+                      Title="{Binding Title}"
+                      MinWidth="360" MaxWidth="560"
+                      WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        <SelectableTextBlock Text="{Binding Details}" IsVisible="{Binding HasDetails}"
+                             TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+        <Button Content="{x:Static lang:Resources.Common_Ok}" Command="{Binding OkCommand}"
+                HorizontalAlignment="Right" MinWidth="90" IsDefault="True" IsCancel="True"/>
+    </StackPanel>
+</dialogs:DialogWindow>

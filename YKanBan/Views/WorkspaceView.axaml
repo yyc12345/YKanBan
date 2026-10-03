@@ -48,9 +48,11 @@
             </Grid>
         </Border>
 
-        <!-- Tags and board tabs; their contents arrive with the corresponding features. -->
+        <!-- Board and tags tabs; the tags tab is filled in by the tag feature. -->
         <TabControl Grid.Row="1" Margin="8">
-            <TabItem Header="{x:Static lang:Resources.Tab_Board}"/>
+            <TabItem Header="{x:Static lang:Resources.Tab_Board}">
+                <ContentControl Content="{Binding Board}" Margin="0,8,0,0"/>
+            </TabItem>
             <TabItem Header="{x:Static lang:Resources.Tab_Tags}"/>
         </TabControl>
 

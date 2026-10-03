@@ -1,0 +1,76 @@
+<dialogs:DialogWindow xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+                      xmlns:board="using:YKanBan.ViewModels.Board"
+                      xmlns:dialogs="using:YKanBan.Views.Dialogs"
+                      xmlns:lang="using:YKanBan"
+                      xmlns:icons="using:IconPacks.Avalonia.Lucide"
+                      x:Class="YKanBan.Views.Dialogs.TagPickerDialog"
+                      x:DataType="vm:TagPickerDialogViewModel"
+                      x:Name="Root"
+                      Title="{x:Static lang:Resources.TagPicker_Title}"
+                      SizeToContent="Manual" CanResize="True"
+                      Width="460" Height="560" MinWidth="380" MinHeight="440"
+                      WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="20" RowDefinitions="Auto,*,Auto,Auto" RowSpacing="12">
+
+        <TextBox Grid.Row="0" Text="{Binding FilterText}" Watermark="{x:Static lang:Resources.TagPicker_FilterWatermark}">
+            <TextBox.InnerLeftContent>
+                <icons:PackIconLucide Kind="Search" Width="14" Height="14" Margin="8,0,0,0" Opacity="0.6"
+                                      VerticalAlignment="Center"/>
+            </TextBox.InnerLeftContent>
+        </TextBox>
+
+        <!-- Existing tags not yet on the card; one click picks a tag. -->
+        <Border Grid.Row="1" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1" CornerRadius="4">
+            <Panel>
+                <ListBox ItemsSource="{Binding FilteredTags}" Background="Transparent">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="board:TagBadgeViewModel">
+                            <Button Command="{Binding #Root.((vm:TagPickerDialogViewModel)DataContext).PickCommand}"
+                                    CommandParameter="{Binding}"
+                                    Theme="{StaticResource BorderlessButton}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="4">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Border Background="{Binding Background}" CornerRadius="10" Padding="8,2">
+                                        <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="12"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding Description}" Opacity="0.7" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Text="{x:Static lang:Resources.TagPicker_NoMatches}" IsVisible="{Binding NoMatches}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+            </Panel>
+        </Border>
+
+        <!-- New tag: written to the tags table right away, even if the card edit is cancelled. -->
+        <StackPanel Grid.Row="2" Spacing="8">
+            <TextBlock Text="{x:Static lang:Resources.TagPicker_NewTag}" FontWeight="SemiBold"/>
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding NewName}" Watermark="{x:Static lang:Resources.Field_Name}"/>
+                <TextBox Grid.Column="1" Text="{Binding NewColor}" Width="100"
+                         Watermark="{x:Static lang:Resources.Field_Color}"/>
+                <Border Grid.Column="2" Width="28" Height="28" CornerRadius="4"
+                        Background="{Binding NewColorPreview}"
+                        BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1"/>
+            </Grid>
+            <TextBox Text="{Binding NewDescription}" Watermark="{x:Static lang:Resources.Field_Description}"/>
+            <TextBlock Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                       Foreground="{DynamicResource ErrorTextBrush}" TextWrapping="Wrap"/>
+            <Button Command="{Binding CreateCommand}" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="14" Height="14"/>
+                    <TextBlock Text="{x:Static lang:Resources.TagPicker_Create}"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <Button Grid.Row="3" Content="{x:Static lang:Resources.Common_Cancel}" Command="{Binding CancelCommand}"
+                HorizontalAlignment="Right" MinWidth="90" IsCancel="True"/>
+    </Grid>
+</dialogs:DialogWindow>

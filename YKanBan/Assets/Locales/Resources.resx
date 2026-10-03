@@ -184,4 +184,160 @@
   <data name="Export_TagsTableHeader" xml:space="preserve">
     <value>| Name | Color | Description | Usage |</value>
   </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common_Discard" xml:space="preserve">
+    <value>Discard</value>
+  </data>
+  <data name="Common_TimePattern" xml:space="preserve">
+    <value>yyyy-MM-dd HH:mm</value>
+  </data>
+  <data name="Board_AddColumn" xml:space="preserve">
+    <value>New column</value>
+  </data>
+  <data name="Board_ColumnWidth" xml:space="preserve">
+    <value>Column width</value>
+  </data>
+  <data name="Board_Sort" xml:space="preserve">
+    <value>Card order</value>
+  </data>
+  <data name="Board_AddCard" xml:space="preserve">
+    <value>New card</value>
+  </data>
+  <data name="Sort_Id" xml:space="preserve">
+    <value>By id</value>
+  </data>
+  <data name="Sort_UpdatedAt" xml:space="preserve">
+    <value>Recently modified</value>
+  </data>
+  <data name="Sort_Title" xml:space="preserve">
+    <value>By title</value>
+  </data>
+  <data name="Menu_More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Menu_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Menu_MoveTo" xml:space="preserve">
+    <value>Move to column</value>
+  </data>
+  <data name="Field_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Field_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Field_Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="Field_Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="Field_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Field_Color" xml:space="preserve">
+    <value>#RRGGBB</value>
+  </data>
+  <data name="ColumnEditor_TitleNew" xml:space="preserve">
+    <value>New column</value>
+  </data>
+  <data name="ColumnEditor_TitleEdit" xml:space="preserve">
+    <value>Edit column</value>
+  </data>
+  <data name="ColumnWidth_Title" xml:space="preserve">
+    <value>Column width</value>
+  </data>
+  <data name="ColumnWidth_Narrow" xml:space="preserve">
+    <value>Narrow ({0} px)</value>
+  </data>
+  <data name="ColumnWidth_Standard" xml:space="preserve">
+    <value>Standard ({0} px)</value>
+  </data>
+  <data name="ColumnWidth_Wide" xml:space="preserve">
+    <value>Wide ({0} px)</value>
+  </data>
+  <data name="ColumnWidth_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ColumnWidth_Range" xml:space="preserve">
+    <value>{0}–{1} px</value>
+  </data>
+  <data name="CardEditor_TitleNew" xml:space="preserve">
+    <value>New card</value>
+  </data>
+  <data name="CardEditor_TitleEdit" xml:space="preserve">
+    <value>Edit card</value>
+  </data>
+  <data name="CardEditor_TitleWatermark" xml:space="preserve">
+    <value>No title</value>
+  </data>
+  <data name="CardEditor_Created" xml:space="preserve">
+    <value>Created {0}</value>
+  </data>
+  <data name="CardEditor_Modified" xml:space="preserve">
+    <value>Modified {0}</value>
+  </data>
+  <data name="CardEditor_AddTag" xml:space="preserve">
+    <value>Add tag</value>
+  </data>
+  <data name="CardEditor_RemoveTag" xml:space="preserve">
+    <value>Remove tag</value>
+  </data>
+  <data name="TagPicker_Title" xml:space="preserve">
+    <value>Add tag</value>
+  </data>
+  <data name="TagPicker_FilterWatermark" xml:space="preserve">
+    <value>Filter tags</value>
+  </data>
+  <data name="TagPicker_NoMatches" xml:space="preserve">
+    <value>No matching tags</value>
+  </data>
+  <data name="TagPicker_NewTag" xml:space="preserve">
+    <value>New tag</value>
+  </data>
+  <data name="TagPicker_Create" xml:space="preserve">
+    <value>Create and add</value>
+  </data>
+  <data name="Confirm_Title" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Confirm_DeleteCard" xml:space="preserve">
+    <value>Delete card "{0}"?</value>
+  </data>
+  <data name="Confirm_DeleteColumn" xml:space="preserve">
+    <value>Delete column "{0}" and its {1} card(s)?</value>
+  </data>
+  <data name="Confirm_DiscardEdit" xml:space="preserve">
+    <value>Discard the unsaved changes?</value>
+  </data>
+  <data name="Error_Column_TitleRequired" xml:space="preserve">
+    <value>The column title is required.</value>
+  </data>
+  <data name="Error_Column_Duplicate" xml:space="preserve">
+    <value>A column named "{0}" already exists (names are case-insensitive).</value>
+  </data>
+  <data name="Error_Tag_NameRequired" xml:space="preserve">
+    <value>The tag name is required.</value>
+  </data>
+  <data name="Error_Tag_Duplicate" xml:space="preserve">
+    <value>A tag named "{0}" already exists (names are case-insensitive).</value>
+  </data>
+  <data name="Error_Tag_InvalidColor" xml:space="preserve">
+    <value>The color must be written as #RRGGBB.</value>
+  </data>
+  <data name="Error_SaveFailed" xml:space="preserve">
+    <value>Saving failed: {0}</value>
+  </data>
+  <data name="Error_Operation_Title" xml:space="preserve">
+    <value>Operation failed</value>
+  </data>
+  <data name="Error_Operation_Message" xml:space="preserve">
+    <value>The change could not be written to the workspace. The board shows the stored state.</value>
+  </data>
 </root>

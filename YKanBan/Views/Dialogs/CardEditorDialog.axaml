@@ -1,0 +1,81 @@
+<dialogs:DialogWindow xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+                      xmlns:board="using:YKanBan.ViewModels.Board"
+                      xmlns:dialogs="using:YKanBan.Views.Dialogs"
+                      xmlns:lang="using:YKanBan"
+                      xmlns:icons="using:IconPacks.Avalonia.Lucide"
+                      x:Class="YKanBan.Views.Dialogs.CardEditorDialog"
+                      x:DataType="vm:CardEditorDialogViewModel"
+                      x:Name="Root"
+                      Title="{Binding Title}"
+                      SizeToContent="Manual" CanResize="True"
+                      Width="600" Height="560" MinWidth="440" MinHeight="420"
+                      WindowStartupLocation="CenterOwner">
+
+    <Grid Margin="20" RowDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto" RowSpacing="12">
+
+        <!-- Read-only id and timestamps; not shown while the card does not exist yet. -->
+        <WrapPanel Grid.Row="0" IsVisible="{Binding IsExisting}" Orientation="Horizontal">
+            <TextBlock Text="{Binding IdText}" FontWeight="Bold" Margin="0,0,16,0"/>
+            <TextBlock Text="{Binding CreatedText}" Opacity="0.7" Margin="0,0,16,0"/>
+            <TextBlock Text="{Binding ModifiedText}" Opacity="0.7"/>
+        </WrapPanel>
+
+        <StackPanel Grid.Row="1" Spacing="4">
+            <TextBlock Text="{x:Static lang:Resources.Field_Title}"/>
+            <TextBox Text="{Binding CardTitle}" Watermark="{x:Static lang:Resources.CardEditor_TitleWatermark}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="2" RowDefinitions="Auto,*" RowSpacing="4">
+            <TextBlock Grid.Row="0" Text="{x:Static lang:Resources.Field_Content}"/>
+            <TextBox Grid.Row="1" Text="{Binding Content}" AcceptsReturn="True" TextWrapping="Wrap"
+                     VerticalAlignment="Stretch"
+                     VerticalContentAlignment="Top"/>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Spacing="6">
+            <TextBlock Text="{x:Static lang:Resources.Field_Tags}"/>
+            <ItemsControl ItemsSource="{Binding Tags}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="board:TagBadgeViewModel">
+                        <Border Background="{Binding Background}" CornerRadius="10" Padding="8,2,4,2"
+                                Margin="0,0,6,6" ToolTip.Tip="{Binding Description}">
+                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}"
+                                           VerticalAlignment="Center" FontSize="12"/>
+                                <Button Command="{Binding #Root.((vm:CardEditorDialogViewModel)DataContext).RemoveTagCommand}"
+                                        CommandParameter="{Binding}"
+                                        Theme="{StaticResource BorderlessButton}" Padding="2"
+                                        ToolTip.Tip="{x:Static lang:Resources.CardEditor_RemoveTag}">
+                                    <icons:PackIconLucide Kind="X" Width="12" Height="12" Foreground="{Binding Foreground}"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Command="{Binding AddTagCommand}" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="14" Height="14"/>
+                    <TextBlock Text="{x:Static lang:Resources.CardEditor_AddTag}"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <TextBlock Grid.Row="4" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                   Foreground="{DynamicResource ErrorTextBrush}" TextWrapping="Wrap"/>
+
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{x:Static lang:Resources.Common_Ok}" Command="{Binding ConfirmCommand}"
+                    Classes="Primary" MinWidth="90"/>
+            <Button Content="{x:Static lang:Resources.Common_Cancel}" Command="{Binding CancelCommand}"
+                    MinWidth="90" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</dialogs:DialogWindow>

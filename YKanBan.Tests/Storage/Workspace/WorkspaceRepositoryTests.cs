@@ -1,5 +1,7 @@
 using Microsoft.Data.Sqlite;
 using YKanBan.Models;
+using YKanBan.Search;
+using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
 
@@ -253,8 +255,87 @@ public class WorkspaceRepositoryTests
     public void AddTagWithDuplicateNameIsRejected()
     {
         using var fixture = new RepositoryFixture();
-        Assert.ThrowsExactly<SqliteException>(() =>
-            fixture.Repository.AddTag("bug", RgbColor.Parse("#123456"), ""));
+        DuplicateNameException exception = Assert.ThrowsExactly<DuplicateNameException>(() =>
+            fixture.Repository.AddTag("BUG", RgbColor.Parse("#123456"), ""));
+        Assert.AreEqual(NamedEntity.Tag, exception.Entity);
+        Assert.AreEqual("BUG", exception.Name);
+        Assert.AreEqual(2, fixture.Repository.GetTags().Count);
+    }
+
+    [TestMethod]
+    public void AddTagWithEmptyNameIsRejected()
+    {
+        using var fixture = new RepositoryFixture();
+        NameRequiredException exception = Assert.ThrowsExactly<NameRequiredException>(() =>
+            fixture.Repository.AddTag("", RgbColor.Parse("#123456"), ""));
+        Assert.AreEqual(NamedEntity.Tag, exception.Entity);
+    }
+
+    [TestMethod]
+    public void UpdateTagToExistingNameIsRejectedAndKeepsTheRow()
+    {
+        using var fixture = new RepositoryFixture();
+        Assert.ThrowsExactly<DuplicateNameException>(() =>
+            fixture.Repository.UpdateTag(fixture.UiTagId, "Bug", RgbColor.Parse("#00ff00"), ""));
+        Assert.AreEqual("ui", fixture.Repository.GetTags().Single(tag => tag.Id == fixture.UiTagId).Name);
+    }
+
+    [TestMethod]
+    public void AddColumnWithDuplicateTitleIsRejectedCaseInsensitively()
+    {
+        using var fixture = new RepositoryFixture();
+        DuplicateNameException exception = Assert.ThrowsExactly<DuplicateNameException>(() =>
+            fixture.Repository.AddColumn("COL", ""));
+        Assert.AreEqual(NamedEntity.Column, exception.Entity);
+        Assert.AreEqual(1, fixture.Repository.GetColumns().Count);
+    }
+
+    [TestMethod]
+    public void AddColumnWithEmptyTitleIsRejected()
+    {
+        using var fixture = new RepositoryFixture();
+        NameRequiredException exception = Assert.ThrowsExactly<NameRequiredException>(() =>
+            fixture.Repository.AddColumn("", "description"));
+        Assert.AreEqual(NamedEntity.Column, exception.Entity);
+        Assert.AreEqual(1, fixture.Repository.GetColumns().Count);
+    }
+
+    [TestMethod]
+    public void UpdateColumnConstraintViolationsAreTyped()
+    {
+        using var fixture = new RepositoryFixture();
+        ColumnModel other = fixture.Repository.AddColumn("Other", "");
+
+        Assert.ThrowsExactly<DuplicateNameException>(() => fixture.Repository.UpdateColumn(other.Id, "col", ""));
+        Assert.ThrowsExactly<NameRequiredException>(() => fixture.Repository.UpdateColumn(other.Id, "", ""));
+        Assert.AreEqual("Other", fixture.Repository.GetColumn(other.Id)!.Title);
+    }
+
+    [TestMethod]
+    public void GetCardsWithFilterReturnsMatchesWithAllOfTheirTags()
+    {
+        using var fixture = new RepositoryFixture();
+        fixture.Repository.AddCard(fixture.ColumnId, "Other", "", []);
+
+        // Filtering by one tag must still load both tags of the matching card.
+        CompiledSearch filter = SearchSqlCompiler.Compile(SearchQueryParser.Parse("tag:ui")!);
+        IReadOnlyList<CardModel> cards = fixture.Repository.GetCards(filter);
+
+        Assert.AreEqual(1, cards.Count);
+        Assert.AreEqual(fixture.CardId, cards[0].Id);
+        CollectionAssert.AreEqual(new[] { "bug", "ui" }, cards[0].Tags.Select(tag => tag.Name).ToArray());
+        Assert.AreEqual(2, fixture.Repository.GetCards(null).Count);
+    }
+
+    [TestMethod]
+    public void CountCardsCountsPerColumn()
+    {
+        using var fixture = new RepositoryFixture();
+        ColumnModel empty = fixture.Repository.AddColumn("Empty", "");
+        fixture.Repository.AddCard(fixture.ColumnId, "", "", []);
+
+        Assert.AreEqual(2L, fixture.Repository.CountCards(fixture.ColumnId));
+        Assert.AreEqual(0L, fixture.Repository.CountCards(empty.Id));
     }
 
     [TestMethod]

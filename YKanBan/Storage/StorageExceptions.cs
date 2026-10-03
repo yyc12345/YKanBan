@@ -136,3 +136,69 @@ public sealed class SchemaVersionException : YKanBanException
         SupportedVersion = supportedVersion;
     }
 }
+
+/// <summary>
+/// The entities whose name/title is constrained by the schema to be non-empty
+/// and table-unique.
+/// </summary>
+public enum NamedEntity
+{
+    /// <summary>A board column (constraint on columns.title).</summary>
+    Column,
+
+    /// <summary>A tag (constraint on tags.name).</summary>
+    Tag,
+}
+
+/// <summary>
+/// Signals that a column title or tag name was empty, violating the schema's
+/// CHECK constraint. Nothing was written.
+/// </summary>
+public sealed class NameRequiredException : YKanBanException
+{
+    /// <summary>
+    /// Gets the entity whose name was empty.
+    /// </summary>
+    public NamedEntity Entity { get; }
+
+    /// <summary>
+    /// Initializes the exception for an empty name.
+    /// </summary>
+    /// <param name="entity">The entity whose name was empty.</param>
+    /// <param name="innerException">The underlying constraint violation.</param>
+    public NameRequiredException(NamedEntity entity, Exception innerException)
+        : base($"The {entity.ToString().ToLowerInvariant()} name must not be empty.", innerException)
+    {
+        Entity = entity;
+    }
+}
+
+/// <summary>
+/// Signals that a column title or tag name already exists (compared with ASCII
+/// case folding), violating the schema's UNIQUE constraint. Nothing was written.
+/// </summary>
+public sealed class DuplicateNameException : YKanBanException
+{
+    /// <summary>
+    /// Gets the entity whose name collided.
+    /// </summary>
+    public NamedEntity Entity { get; }
+
+    /// <summary>
+    /// Gets the rejected name.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// Initializes the exception for a name collision.
+    /// </summary>
+    /// <param name="entity">The entity whose name collided.</param>
+    /// <param name="name">The rejected name.</param>
+    /// <param name="innerException">The underlying constraint violation.</param>
+    public DuplicateNameException(NamedEntity entity, string name, Exception innerException)
+        : base($"A {entity.ToString().ToLowerInvariant()} named '{name}' already exists.", innerException)
+    {
+        Entity = entity;
+        Name = name;
+    }
+}

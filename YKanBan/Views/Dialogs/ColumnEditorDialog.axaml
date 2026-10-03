@@ -1,0 +1,33 @@
+<dialogs:DialogWindow xmlns="https://github.com/avaloniaui"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+                      xmlns:dialogs="using:YKanBan.Views.Dialogs"
+                      xmlns:lang="using:YKanBan"
+                      x:Class="YKanBan.Views.Dialogs.ColumnEditorDialog"
+                      x:DataType="vm:ColumnEditorDialogViewModel"
+                      Title="{Binding Title}"
+                      Width="440"
+                      WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="20" Spacing="14">
+        <StackPanel Spacing="4">
+            <TextBlock Text="{x:Static lang:Resources.Field_Title}"/>
+            <TextBox Text="{Binding ColumnTitle}"/>
+        </StackPanel>
+        <StackPanel Spacing="4">
+            <TextBlock Text="{x:Static lang:Resources.Field_Description}"/>
+            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap"
+                     MinHeight="72" MaxHeight="200"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                   Foreground="{DynamicResource ErrorTextBrush}" TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{x:Static lang:Resources.Common_Ok}" Command="{Binding ConfirmCommand}"
+                    Classes="Primary" MinWidth="90" IsDefault="True"/>
+            <Button Content="{x:Static lang:Resources.Common_Cancel}" Command="{Binding CancelCommand}"
+                    MinWidth="90" IsCancel="True"/>
+        </StackPanel>
+    </StackPanel>
+</dialogs:DialogWindow>

@@ -58,12 +58,15 @@ public partial class App : Application
                 : FlowDirection.LeftToRight;
             ApplyTheme(Services.Config.Theme);
 
-            var viewModel = new MainWindowViewModel(Services, desktop.Args ?? []);
-            desktop.MainWindow = new MainWindow
+            var dialogs = new DialogService();
+            var viewModel = new MainWindowViewModel(Services, dialogs, desktop.Args ?? []);
+            var mainWindow = new MainWindow
             {
                 DataContext = viewModel,
                 FlowDirection = UiFlowDirection,
             };
+            dialogs.Attach(mainWindow);
+            desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
