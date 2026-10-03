@@ -123,7 +123,7 @@ public class MarkdownExporterTests
     }
 
     /// <summary>
-    /// Normalizes CRLF line endings so expected and actual compare consistently.
+    /// Normalizes the expected document, built with the platform newline, to the exporter's LF.
     /// </summary>
     /// <param name="text">The text to normalize.</param>
     /// <returns>The text with normalized line endings.</returns>
@@ -139,7 +139,7 @@ public class MarkdownExporterTests
         try
         {
             Resources.Culture = culture;
-            Assert.AreEqual(Normalize(BuildExpected(culture)), Normalize(ExportBoard()));
+            Assert.AreEqual(Normalize(BuildExpected(culture)), ExportBoard());
         }
         finally
         {
@@ -225,7 +225,7 @@ public class MarkdownExporterTests
                 [(tag, 1L)],
                 ExportedAt);
 
-            StringAssert.Contains(markdown, string.Format(Resources.Culture, Resources.Export_TagsLine, expected) + Environment.NewLine);
+            StringAssert.Contains(markdown, string.Format(Resources.Culture, Resources.Export_TagsLine, expected) + "\n");
         }
         finally
         {
@@ -240,15 +240,62 @@ public class MarkdownExporterTests
         try
         {
             Resources.Culture = new CultureInfo("en");
-            string markdown = Normalize(MarkdownExporter.Export(
+            string markdown = MarkdownExporter.Export(
                 "W",
                 [new ColumnModel(1, "C", "line one\n# not a heading | pipe", 1, 1)],
                 [new CardModel(1, 1, "T", "body\n\n## raw | `md`", 1, 1, [])],
                 [],
-                ExportedAt));
+                ExportedAt);
 
             StringAssert.Contains(markdown, "\nline one\n# not a heading | pipe\n");
             StringAssert.Contains(markdown, "\nbody\n\n## raw | `md`\n");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void LineEndingsAreLfOnEveryPlatform()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", "one\r\ntwo\rthree", 1, 1)],
+                [new CardModel(1, 1, "T", "a\r\nb", 1, 1, [])],
+                [],
+                ExportedAt);
+
+            Assert.IsFalse(markdown.Contains('\r'));
+            StringAssert.Contains(markdown, "\none\ntwo\nthree\n");
+            StringAssert.Contains(markdown, "\na\nb\n");
+        }
+        finally
+        {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void ColumnTitleIsCollapsedToOneLine()
+    {
+        CultureInfo? original = Resources.Culture;
+        try
+        {
+            Resources.Culture = new CultureInfo("en");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "To\r\nDo\nNow", string.Empty, 1, 1)],
+                [],
+                [],
+                ExportedAt);
+
+            string heading = string.Format(Resources.Culture, Resources.Export_ColumnHeading, "To Do Now", 0);
+            StringAssert.Contains(markdown, "\n" + heading + "\n");
         }
         finally
         {

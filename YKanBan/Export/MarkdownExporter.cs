@@ -8,9 +8,10 @@ namespace YKanBan.Export;
 /// Generates the human-readable Markdown snapshot of a whole board. All
 /// template text and the time format come from the ResX resources in the current
 /// UI language; every timestamp (export time and card created/modified times)
-/// uses that one per-language pattern. Card bodies and column descriptions are
-/// emitted verbatim; tag names become inline code with a long enough backtick
-/// fence; tag table cells escape '|' and turn line breaks into &lt;br&gt;. The
+/// uses that one per-language pattern. The whole document uses LF line endings
+/// on every platform. Card bodies and column descriptions are emitted verbatim
+/// apart from line endings; column and card titles are collapsed to one line;
+/// tag names become inline code with a long enough backtick fence; tag table cells escape '|' and turn line breaks into &lt;br&gt;. The
 /// output is meant for reading only — there is no re-import.
 /// </summary>
 public static class MarkdownExporter
@@ -36,10 +37,10 @@ public static class MarkdownExporter
         var builder = new StringBuilder();
 
         // Header: workspace name and the export timestamp in the UI language's format.
-        builder.AppendLine(string.Format(culture, Resources.Export_WorkspaceHeading, workspaceName));
-        builder.AppendLine(string.Format(
+        AppendLine(builder, string.Format(culture, Resources.Export_WorkspaceHeading, SingleLine(workspaceName)));
+        AppendLine(builder, string.Format(
             culture, Resources.Export_ExportedAtLine, exportedAt.ToString(Resources.Export_TimePattern, culture)));
-        builder.AppendLine();
+        AppendLine(builder);
 
         // Board body: every column in id order, empty ones included; independent of
         // the board's search filter and card sort option.
@@ -47,12 +48,12 @@ public static class MarkdownExporter
         {
             IReadOnlyList<CardModel> cardsInColumn =
                 cards.Where(card => card.ColumnId == column.Id).OrderBy(card => card.Id).ToArray();
-            builder.AppendLine(string.Format(culture, Resources.Export_ColumnHeading, column.Title, cardsInColumn.Count));
+            AppendLine(builder, string.Format(culture, Resources.Export_ColumnHeading, SingleLine(column.Title), cardsInColumn.Count));
             if (column.Description.Length > 0)
             {
-                builder.AppendLine(column.Description);
+                AppendLine(builder, ToLf(column.Description));
             }
-            builder.AppendLine();
+            AppendLine(builder);
 
             foreach (CardModel card in cardsInColumn)
             {
@@ -86,25 +87,25 @@ public static class MarkdownExporter
     private static void AppendCard(StringBuilder builder, CardModel card, CultureInfo culture)
     {
         // Heading: "#id title"; an untitled card shows only the id.
-        builder.AppendLine(card.Title.Length == 0
+        AppendLine(builder, card.Title.Length == 0
             ? $"### #{card.Id}"
             : $"### #{card.Id} {SingleLine(card.Title)}");
 
         if (card.Content.Length > 0)
         {
-            builder.AppendLine(card.Content);
+            AppendLine(builder, ToLf(card.Content));
         }
 
         if (card.Tags.Count > 0)
         {
             string names = string.Join(" ", card.Tags.Select(tag => InlineCode(tag.Name)));
-            builder.AppendLine(string.Format(culture, Resources.Export_TagsLine, names));
+            AppendLine(builder, string.Format(culture, Resources.Export_TagsLine, names));
         }
 
         string created = ToLocalTime(card.CreatedAt).ToString(Resources.Export_TimePattern, culture);
         string updated = ToLocalTime(card.UpdatedAt).ToString(Resources.Export_TimePattern, culture);
-        builder.AppendLine(string.Format(culture, Resources.Export_CreatedModifiedLine, created, updated));
-        builder.AppendLine();
+        AppendLine(builder, string.Format(culture, Resources.Export_CreatedModifiedLine, created, updated));
+        AppendLine(builder);
     }
 
     /// <summary>
@@ -118,13 +119,13 @@ public static class MarkdownExporter
         IReadOnlyList<(TagModel Tag, long UsageCount)> tags,
         CultureInfo culture)
     {
-        builder.AppendLine(Resources.Export_TagsSummaryHeading);
-        builder.AppendLine(Resources.Export_TagsTableHeader);
-        builder.AppendLine("|---|---|---|---|");
+        AppendLine(builder, Resources.Export_TagsSummaryHeading);
+        AppendLine(builder, Resources.Export_TagsTableHeader);
+        AppendLine(builder, "|---|---|---|---|");
         foreach ((TagModel tag, long usage) in tags)
         {
             // '|' and line breaks would break the table row; neutralize them.
-            builder.AppendLine($"| {Cell(tag.Name)} | {tag.Color} | {Cell(tag.Description)} | {usage} |");
+            AppendLine(builder, $"| {Cell(tag.Name)} | {tag.Color} | {Cell(tag.Description)} | {usage} |");
         }
     }
 
@@ -157,6 +158,20 @@ public static class MarkdownExporter
         string padding = text.StartsWith('`') || text.EndsWith('`') ? " " : string.Empty;
         return fence + padding + text + padding + fence;
     }
+
+    /// <summary>
+    /// Appends a line terminated by LF, whatever the platform's newline.
+    /// </summary>
+    /// <param name="builder">The output builder.</param>
+    /// <param name="text">The line text; empty for a blank line.</param>
+    private static void AppendLine(StringBuilder builder, string text = "") => builder.Append(text).Append('\n');
+
+    /// <summary>
+    /// Converts CRLF and lone CR line breaks to LF.
+    /// </summary>
+    /// <param name="text">The raw text.</param>
+    /// <returns>The text with LF line breaks only.</returns>
+    private static string ToLf(string text) => text.Replace("\r\n", "\n").Replace('\r', '\n');
 
     /// <summary>
     /// Collapses line breaks so the text stays on one Markdown line.
