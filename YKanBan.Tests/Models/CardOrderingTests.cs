@@ -40,7 +40,7 @@ public class CardOrderingTests
     public void TitleSortsSupplementaryCharactersAfterBmpPrivateUse()
     {
         // U+1F600 is a surrogate pair in UTF-16, so ordinal comparison would put it before U+E000.
-        CardModel[] cards = [Card(1, "\U0001F600"), Card(2, "")];
+        CardModel[] cards = [Card(1, "\U0001F600"), Card(2, "\uE000")];
         CollectionAssert.AreEqual(new[] { 2L, 1L }, Ids(cards, CardSortOption.Title));
     }
 }
