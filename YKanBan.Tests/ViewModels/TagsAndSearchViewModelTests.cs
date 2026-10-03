@@ -414,5 +414,22 @@ public class TagsAndSearchViewModelTests
         Assert.IsTrue(message.HasDetails);
     }
 
+    [TestMethod]
+    public async Task ExportReadFailureIsReportedAndLeavesTheTargetUntouched()
+    {
+        using var fixture = new Fixture();
+        WorkspaceViewModel workspace = fixture.CreateWorkspace();
+        string path = Path.Combine(fixture.Directory.FullPath, "out.md");
+        File.WriteAllText(path, "previous");
+        fixture.Dialogs.SaveFilePath = path;
+
+        fixture.Repository.Dispose();
+        await workspace.ExportCommand.ExecuteAsync(null);
+
+        var message = (MessageDialogViewModel)fixture.Dialogs.Shown.Single();
+        Assert.AreEqual(Resources.Export_Failed_Title, message.Title);
+        Assert.AreEqual("previous", File.ReadAllText(path));
+    }
+
     #endregion
 }

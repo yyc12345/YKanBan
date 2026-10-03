@@ -27,10 +27,12 @@ internal sealed class ScriptedDialogService : IDialogService
         return result ?? false;
     }
 
-    public Task<string?> PickSaveFilePathAsync(string suggestedFileName)
+    public Task<Func<Task<Stream>>?> PickSaveFileAsync(string suggestedFileName)
     {
         SuggestedFileNames.Add(suggestedFileName);
-        return Task.FromResult(SaveFilePath);
+        string? path = SaveFilePath;
+        return Task.FromResult<Func<Task<Stream>>?>(
+            path is null ? null : () => Task.FromResult<Stream>(File.Create(path)));
     }
 
     /// <summary>Answers every confirmation dialog with the given choice.</summary>

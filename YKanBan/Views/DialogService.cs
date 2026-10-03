@@ -52,7 +52,7 @@ public sealed class DialogService : IDialogService
     }
 
     /// <inheritdoc/>
-    public async Task<string?> PickSaveFilePathAsync(string suggestedFileName)
+    public async Task<Func<Task<Stream>>?> PickSaveFileAsync(string suggestedFileName)
     {
         if (!_owners.TryPeek(out Window? owner))
         {
@@ -69,7 +69,28 @@ public sealed class DialogService : IDialogService
                 new FilePickerFileType(YKanBan.Resources.Export_FileTypeMarkdown) { Patterns = ["*.md"] },
             ],
         });
-        return file?.TryGetLocalPath();
+        if (file is null)
+        {
+            return null;
+        }
+
+        // A local file is replaced through the file system; a target without a
+        // local path (a sandboxed or virtual location) is written through the
+        // storage provider, emptied first because it may already have content.
+        string? localPath = file.TryGetLocalPath();
+        if (localPath is not null)
+        {
+            return () => Task.FromResult<Stream>(new FileStream(localPath, FileMode.Create, FileAccess.Write));
+        }
+        return async () =>
+        {
+            Stream stream = await file.OpenWriteAsync();
+            if (stream.CanSeek)
+            {
+                stream.SetLength(0);
+            }
+            return stream;
+        };
     }
 
     /// <summary>

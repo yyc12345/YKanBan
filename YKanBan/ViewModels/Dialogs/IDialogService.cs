@@ -20,8 +20,12 @@ public interface IDialogService
     /// Shows the system save-file dialog for a Markdown file.
     /// </summary>
     /// <param name="suggestedFileName">The proposed file name.</param>
-    /// <returns>The chosen local path, or <see langword="null"/> when the user cancelled.</returns>
-    Task<string?> PickSaveFilePathAsync(string suggestedFileName);
+    /// <returns>
+    /// A function opening the chosen file for writing, emptied first, or
+    /// <see langword="null"/> when the user cancelled. Nothing is created or
+    /// truncated until the function is called.
+    /// </returns>
+    Task<Func<Task<Stream>>?> PickSaveFileAsync(string suggestedFileName);
 }
 
 /// <summary>

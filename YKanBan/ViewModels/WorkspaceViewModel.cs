@@ -96,18 +96,22 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     private async Task ExportAsync()
     {
         DateTimeOffset exportedAt = DateTimeOffset.Now;
-        string? path = await _dialogs.PickSaveFilePathAsync(MarkdownExporter.BuildFileName(WorkspaceName, exportedAt));
-        if (path is null)
-        {
-            return;
-        }
-
         try
         {
+            Func<Task<Stream>>? openTarget =
+                await _dialogs.PickSaveFileAsync(MarkdownExporter.BuildFileName(WorkspaceName, exportedAt));
+            if (openTarget is null)
+            {
+                return;
+            }
+
+            // Read everything before opening the target, so a failed read leaves an existing file untouched.
             WorkspaceRepository repository = Session.Repository;
             string markdown = MarkdownExporter.Export(
                 WorkspaceName, repository.GetColumns(), repository.GetCards(), repository.GetTagsWithUsage(), exportedAt);
-            await File.WriteAllTextAsync(path, markdown, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            await using Stream stream = await openTarget();
+            await using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            await writer.WriteAsync(markdown);
         }
         catch (Exception exception)
         {
