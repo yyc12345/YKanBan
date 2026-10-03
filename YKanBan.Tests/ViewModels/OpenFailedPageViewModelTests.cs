@@ -44,6 +44,9 @@ public class OpenFailedPageViewModelTests
                 Expected(Resources.Error_OpenFailed_SchemaTooNew, 3L, 1),
                 OpenFailedPageViewModel.BuildMessage(Folder, new SchemaVersionException(3, 1)));
             Assert.AreEqual(
+                Expected(Resources.Error_OpenFailed_DatabaseMissing),
+                OpenFailedPageViewModel.BuildMessage(Folder, new WorkspaceDatabaseMissingException("/work/repo/.ykanban/ykanban.db")));
+            Assert.AreEqual(
                 Expected(Resources.Error_OpenFailed_Database),
                 OpenFailedPageViewModel.BuildMessage(Folder, new SqliteException("file is not a database", 26)));
             Assert.AreEqual(

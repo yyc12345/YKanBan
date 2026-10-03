@@ -6,7 +6,7 @@ namespace YKanBan.ViewModels.ErrorPages;
 
 /// <summary>
 /// The full-window page shown when a workspace cannot be opened or initialized:
-/// a schema newer than this build, an unopenable or damaged database, an I/O or
+/// a schema newer than this build, a missing, unopenable or damaged database, an I/O or
 /// permission error, or any unrecognized failure. It shows a localized message
 /// chosen by exception type plus the read-only, copyable English exception
 /// details, and has no operations.
@@ -55,6 +55,7 @@ public sealed class OpenFailedPageViewModel : ViewModelBase
         {
             SchemaVersionException schema => string.Format(
                 culture, Resources.Error_OpenFailed_SchemaTooNew, folderPath, schema.StoredVersion, schema.SupportedVersion),
+            WorkspaceDatabaseMissingException => string.Format(culture, Resources.Error_OpenFailed_DatabaseMissing, folderPath),
             SqliteException => string.Format(culture, Resources.Error_OpenFailed_Database, folderPath),
             UnauthorizedAccessException => string.Format(culture, Resources.Error_OpenFailed_AccessDenied, folderPath),
             IOException => string.Format(culture, Resources.Error_OpenFailed_Io, folderPath),

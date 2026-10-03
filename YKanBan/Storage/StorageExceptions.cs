@@ -62,6 +62,28 @@ public sealed class WorkspaceNotInitializedException : YKanBanException
 }
 
 /// <summary>
+/// Signals that .ykanban exists but its database file does not, so the
+/// workspace data is missing; a new empty database is never created silently.
+/// </summary>
+public sealed class WorkspaceDatabaseMissingException : YKanBanException
+{
+    /// <summary>
+    /// Gets the database file that was expected to exist.
+    /// </summary>
+    public string DatabasePath { get; }
+
+    /// <summary>
+    /// Initializes the exception for a missing workspace database.
+    /// </summary>
+    /// <param name="databasePath">The missing database file path.</param>
+    public WorkspaceDatabaseMissingException(string databasePath)
+        : base($"The workspace database is missing: {databasePath}")
+    {
+        DatabasePath = databasePath;
+    }
+}
+
+/// <summary>
 /// Signals that another instance already holds the workspace lock, so this
 /// process must not touch the workspace.
 /// </summary>

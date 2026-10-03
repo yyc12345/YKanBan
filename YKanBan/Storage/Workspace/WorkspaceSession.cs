@@ -41,7 +41,21 @@ public sealed class WorkspaceSession : IDisposable
     /// <returns>The opened session; dispose it to release the lock and connection.</returns>
     /// <exception cref="WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
     /// <exception cref="WorkspaceLockException">Another instance already holds the lock.</exception>
-    public static WorkspaceSession Open(string folderPath) => OpenLocked(folderPath, WorkspaceLock.Acquire(folderPath));
+    /// <exception cref="WorkspaceDatabaseMissingException">.ykanban exists but its database file does not.</exception>
+    public static WorkspaceSession Open(string folderPath)
+    {
+        WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
+
+        // Opening would otherwise create an empty database and show an empty board as if nothing was lost.
+        string databasePath = WorkspacePaths.Database(folderPath);
+        if (!File.Exists(databasePath))
+        {
+            workspaceLock.Dispose();
+            throw new WorkspaceDatabaseMissingException(databasePath);
+        }
+
+        return OpenLocked(folderPath, workspaceLock);
+    }
 
     /// <summary>
     /// Initializes a workspace with its preset columns and opens it. The lock

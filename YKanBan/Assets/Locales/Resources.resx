@@ -79,6 +79,9 @@
   <data name="Error_OpenFailed_Database" xml:space="preserve">
     <value>The workspace database cannot be opened or is damaged: {0}</value>
   </data>
+  <data name="Error_OpenFailed_DatabaseMissing" xml:space="preserve">
+    <value>The workspace database (.ykanban/ykanban.db) is missing. Restore it from a backup together with its -wal and -shm files, or delete the .ykanban folder to initialize the workspace again: {0}</value>
+  </data>
   <data name="Error_OpenFailed_AccessDenied" xml:space="preserve">
     <value>Access to the workspace was denied: {0}</value>
   </data>

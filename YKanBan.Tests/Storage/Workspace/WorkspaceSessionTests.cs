@@ -89,4 +89,19 @@ public class WorkspaceSessionTests
         Assert.ThrowsExactly<InvalidOperationException>(() => WorkspaceSession.Initialize(directory.FullPath));
         using WorkspaceSession reopened = WorkspaceSession.Open(directory.FullPath);
     }
+
+    [TestMethod]
+    public void OpenWithMissingDatabaseThrowsAndCreatesNothing()
+    {
+        using var directory = new TempDirectory();
+        WorkspaceInitializer.Initialize(directory.FullPath);
+        string databasePath = WorkspacePaths.Database(directory.FullPath);
+        File.Delete(databasePath);
+
+        Assert.ThrowsExactly<WorkspaceDatabaseMissingException>(() => WorkspaceSession.Open(directory.FullPath));
+        Assert.IsFalse(File.Exists(databasePath));
+
+        // The lock was released again: the next attempt fails the same way, not with a lock conflict.
+        Assert.ThrowsExactly<WorkspaceDatabaseMissingException>(() => WorkspaceSession.Open(directory.FullPath));
+    }
 }
