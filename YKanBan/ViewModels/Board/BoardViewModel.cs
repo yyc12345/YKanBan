@@ -11,8 +11,12 @@ using YKanBan.ViewModels.Dialogs;
 namespace YKanBan.ViewModels.Board;
 
 /// <summary>
-/// The board tab: the toolbar (new column, column width, card sort) and the
-/// columns laid out left to right, each listing its cards top to bottom.
+/// The board tab: the toolbar (search bar, new column, column width, card sort)
+/// and the columns laid out left to right, each listing its cards top to bottom.
+///
+/// The search runs only on an explicit search (button or Enter), never while
+/// typing. An invalid expression is reported in a message dialog and changes
+/// nothing: the box keeps its text and the board keeps the previous result.
 ///
 /// Every write is followed by <see cref="Refresh"/>, which re-queries with the
 /// most recently successful search expression (<see cref="ActiveFilter"/>), not
@@ -51,6 +55,12 @@ public sealed partial class BoardViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Raised after every board write (the refresh included), so the tags tab
+    /// can update its usage counts.
+    /// </summary>
+    public event EventHandler? DataWritten;
+
+    /// <summary>
     /// Gets the columns in id order.
     /// </summary>
     public ObservableCollection<ColumnViewModel> Columns { get; } = [];
@@ -69,6 +79,18 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// Gets or sets the most recently successful search; <see langword="null"/> shows every card.
     /// </summary>
     public CompiledSearch? ActiveFilter { get; set; }
+
+    /// <summary>
+    /// Gets or sets the search box text; it only takes effect on <see cref="SearchCommand"/>.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSearchText))]
+    private string searchText = "";
+
+    /// <summary>
+    /// Gets whether the search box holds text (shows the clear button).
+    /// </summary>
+    public bool HasSearchText => SearchText.Length > 0;
 
     /// <summary>
     /// Gets or sets the selected card sort option; changing it is persisted and re-sorts the board.
@@ -100,6 +122,43 @@ public sealed partial class BoardViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Parses and runs the search box text; blank text shows every card. An
+    /// invalid expression only shows the error dialog.
+    /// </summary>
+    /// <returns>A task completing after the refresh or the error dialog.</returns>
+    [RelayCommand]
+    private async Task SearchAsync()
+    {
+        CompiledSearch? filter;
+        try
+        {
+            SearchNode? query = SearchQueryParser.Parse(SearchText);
+            filter = query is null ? null : SearchSqlCompiler.Compile(query);
+        }
+        catch (SearchSyntaxException exception)
+        {
+            await _dialogs.ShowMessageAsync(
+                Resources.Search_Error_Title,
+                string.Format(Resources.Culture, Resources.Search_Error_Message, exception.Message));
+            return;
+        }
+
+        ActiveFilter = filter;
+        Refresh();
+    }
+
+    /// <summary>
+    /// Empties the search box and shows every card again.
+    /// </summary>
+    [RelayCommand]
+    private void ClearSearch()
+    {
+        SearchText = "";
+        ActiveFilter = null;
+        Refresh();
+    }
+
+    /// <summary>
     /// Opens the new-column dialog.
     /// </summary>
     /// <returns>A task completing when the dialog closes.</returns>
@@ -109,7 +168,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         var dialog = new ColumnEditorDialogViewModel(null, (title, description) => _repository.AddColumn(title, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            Refresh();
+            RefreshAfterWrite();
         }
     }
 
@@ -137,7 +196,7 @@ public sealed partial class BoardViewModel : ViewModelBase
             column, (title, description) => _repository.UpdateColumn(column.Id, title, description));
         if (await _dialogs.ShowAsync(dialog))
         {
-            Refresh();
+            RefreshAfterWrite();
         }
     }
 
@@ -176,7 +235,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         await _dialogs.ShowAsync(editor);
 
         // Refresh even after a cancel: the nested picker may have created tags.
-        Refresh();
+        RefreshAfterWrite();
     }
 
     /// <summary>
@@ -196,7 +255,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         var editor = CardEditorDialogViewModel.ForExistingCard(
             _repository, _dialogs, card, _config.Confirmations.DiscardEdit);
         await _dialogs.ShowAsync(editor);
-        Refresh();
+        RefreshAfterWrite();
     }
 
     /// <summary>
@@ -255,7 +314,16 @@ public sealed partial class BoardViewModel : ViewModelBase
             await _dialogs.ShowMessageAsync(
                 Resources.Error_Operation_Title, Resources.Error_Operation_Message, exception.Message);
         }
+        RefreshAfterWrite();
+    }
+
+    /// <summary>
+    /// Refreshes after a write and announces it.
+    /// </summary>
+    private void RefreshAfterWrite()
+    {
         Refresh();
+        DataWritten?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using YKanBan.ViewModels.Dialogs;
 using YKanBan.Views.Dialogs;
 
@@ -48,6 +49,27 @@ public sealed class DialogService : IDialogService
         {
             _owners.Pop();
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task<string?> PickSaveFilePathAsync(string suggestedFileName)
+    {
+        if (!_owners.TryPeek(out Window? owner))
+        {
+            throw new InvalidOperationException("The dialog service has no main window attached.");
+        }
+
+        IStorageFile? file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            SuggestedFileName = suggestedFileName,
+            DefaultExtension = "md",
+            ShowOverwritePrompt = true,
+            FileTypeChoices =
+            [
+                new FilePickerFileType(YKanBan.Resources.Export_FileTypeMarkdown) { Patterns = ["*.md"] },
+            ],
+        });
+        return file?.TryGetLocalPath();
     }
 
     /// <summary>

@@ -340,4 +340,52 @@
   <data name="Error_Operation_Message" xml:space="preserve">
     <value>更改未能写入工作区，看板显示的是已保存的状态。</value>
   </data>
+  <data name="TagEditor_TitleNew" xml:space="preserve">
+    <value>新建标签</value>
+  </data>
+  <data name="TagEditor_TitleEdit" xml:space="preserve">
+    <value>编辑标签</value>
+  </data>
+  <data name="TagEditor_ColorLabel" xml:space="preserve">
+    <value>颜色</value>
+  </data>
+  <data name="Tags_AddTag" xml:space="preserve">
+    <value>新建标签</value>
+  </data>
+  <data name="Tags_Summary" xml:space="preserve">
+    <value>共 {0} 个标签</value>
+  </data>
+  <data name="Tags_UsageCount" xml:space="preserve">
+    <value>{0} 张卡片</value>
+  </data>
+  <data name="Tags_Empty" xml:space="preserve">
+    <value>还没有标签。</value>
+  </data>
+  <data name="Confirm_DeleteTag" xml:space="preserve">
+    <value>删除标签“{0}”？将从 {1} 张卡片移除该标签。</value>
+  </data>
+  <data name="Board_SearchWatermark" xml:space="preserve">
+    <value>搜索，例如 tag:bug OR title:登录</value>
+  </data>
+  <data name="Board_Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="Board_ClearSearch" xml:space="preserve">
+    <value>清空</value>
+  </data>
+  <data name="Search_Error_Title" xml:space="preserve">
+    <value>搜索表达式错误</value>
+  </data>
+  <data name="Search_Error_Message" xml:space="preserve">
+    <value>查询表达式有误，详情：{0}</value>
+  </data>
+  <data name="Export_FileTypeMarkdown" xml:space="preserve">
+    <value>Markdown 文档</value>
+  </data>
+  <data name="Export_Failed_Title" xml:space="preserve">
+    <value>导出失败</value>
+  </data>
+  <data name="Export_Failed_Message" xml:space="preserve">
+    <value>无法写入导出文件。</value>
+  </data>
 </root>

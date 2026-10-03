@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Tags"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="YKanBan.Views.Tags.TagsView"
+             x:DataType="vm:TagsViewModel">
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="8">
+
+        <!-- Toolbar: tag total on the left, new tag on the right. -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding Summary}" VerticalAlignment="Center" Opacity="0.7"/>
+            <Button Grid.Column="1" Command="{Binding AddTagCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Tags_AddTag}"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Tag list: badge, description, usage count, edit and delete. -->
+        <Border Grid.Row="1" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="1" CornerRadius="6">
+            <Panel>
+                <ItemsControl ItemsSource="{Binding Tags}">
+                    <ItemsControl.Template>
+                        <ControlTemplate>
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ItemsControl.Template>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TagRowViewModel">
+                            <Border BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
+                                    Padding="16,10">
+                                <Grid ColumnDefinitions="240,*,Auto,Auto" ColumnSpacing="16">
+                                    <Border Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                            Background="{Binding Badge.Background}" CornerRadius="10" Padding="10,2"
+                                            ToolTip.Tip="{Binding ColorText}">
+                                        <TextBlock Text="{Binding Badge.Name}" Foreground="{Binding Badge.Foreground}"
+                                                   FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="{Binding Description}" VerticalAlignment="Center"
+                                               Opacity="0.75" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding UsageText}" VerticalAlignment="Center"
+                                               Opacity="0.7"/>
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4">
+                                        <Button Command="{Binding EditCommand}" Theme="{StaticResource BorderlessButton}"
+                                                Padding="6" ToolTip.Tip="{x:Static lang:Resources.Menu_Edit}">
+                                            <icons:PackIconLucide Kind="Pencil" Width="14" Height="14"/>
+                                        </Button>
+                                        <Button Command="{Binding DeleteCommand}" Theme="{StaticResource BorderlessButton}"
+                                                Padding="6" ToolTip.Tip="{x:Static lang:Resources.Menu_Delete}">
+                                            <icons:PackIconLucide Kind="Trash2" Width="14" Height="14"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="{x:Static lang:Resources.Tags_Empty}" IsVisible="{Binding IsEmpty}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+            </Panel>
+        </Border>
+    </Grid>
+</UserControl>

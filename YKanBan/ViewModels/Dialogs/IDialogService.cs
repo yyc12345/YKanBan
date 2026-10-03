@@ -13,6 +13,13 @@ public interface IDialogService
     /// <param name="dialog">The dialog view model; its window is resolved by naming convention.</param>
     /// <returns>The dialog result: <see langword="true"/> when it was accepted.</returns>
     Task<bool> ShowAsync(DialogViewModelBase dialog);
+
+    /// <summary>
+    /// Shows the system save-file dialog for a Markdown file.
+    /// </summary>
+    /// <param name="suggestedFileName">The proposed file name.</param>
+    /// <returns>The chosen local path, or <see langword="null"/> when the user cancelled.</returns>
+    Task<string?> PickSaveFilePathAsync(string suggestedFileName);
 }
 
 /// <summary>

@@ -6,7 +6,7 @@
                       x:Class="YKanBan.Views.Dialogs.ColumnEditorDialog"
                       x:DataType="vm:ColumnEditorDialogViewModel"
                       Title="{Binding Title}"
-                      Width="440"
+                      SizeToContent="Height" Width="440"
                       WindowStartupLocation="CenterOwner">
 
     <StackPanel Margin="20" Spacing="14">

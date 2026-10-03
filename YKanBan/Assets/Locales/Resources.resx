@@ -340,4 +340,52 @@
   <data name="Error_Operation_Message" xml:space="preserve">
     <value>The change could not be written to the workspace. The board shows the stored state.</value>
   </data>
+  <data name="TagEditor_TitleNew" xml:space="preserve">
+    <value>New tag</value>
+  </data>
+  <data name="TagEditor_TitleEdit" xml:space="preserve">
+    <value>Edit tag</value>
+  </data>
+  <data name="TagEditor_ColorLabel" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="Tags_AddTag" xml:space="preserve">
+    <value>New tag</value>
+  </data>
+  <data name="Tags_Summary" xml:space="preserve">
+    <value>{0} tag(s)</value>
+  </data>
+  <data name="Tags_UsageCount" xml:space="preserve">
+    <value>{0} card(s)</value>
+  </data>
+  <data name="Tags_Empty" xml:space="preserve">
+    <value>No tags yet.</value>
+  </data>
+  <data name="Confirm_DeleteTag" xml:space="preserve">
+    <value>Delete tag "{0}"? It will be removed from {1} card(s).</value>
+  </data>
+  <data name="Board_SearchWatermark" xml:space="preserve">
+    <value>Search, e.g. tag:bug OR title:login</value>
+  </data>
+  <data name="Board_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Board_ClearSearch" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Search_Error_Title" xml:space="preserve">
+    <value>Invalid search</value>
+  </data>
+  <data name="Search_Error_Message" xml:space="preserve">
+    <value>The query expression is invalid. Details: {0}</value>
+  </data>
+  <data name="Export_FileTypeMarkdown" xml:space="preserve">
+    <value>Markdown document</value>
+  </data>
+  <data name="Export_Failed_Title" xml:space="preserve">
+    <value>Export failed</value>
+  </data>
+  <data name="Export_Failed_Message" xml:space="preserve">
+    <value>The export file could not be written.</value>
+  </data>
 </root>

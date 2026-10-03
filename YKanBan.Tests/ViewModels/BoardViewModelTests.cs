@@ -16,42 +16,6 @@ namespace YKanBan.Tests.ViewModels;
 [TestClass]
 public class BoardViewModelTests
 {
-    /// <summary>
-    /// Records every dialog shown and lets a test script answer it. The result
-    /// is whatever the dialog closed with; a dialog the script leaves open
-    /// counts as dismissed.
-    /// </summary>
-    private sealed class ScriptedDialogService : IDialogService
-    {
-        public List<DialogViewModelBase> Shown { get; } = [];
-
-        public Func<DialogViewModelBase, Task> Script { get; set; } = _ => Task.CompletedTask;
-
-        public async Task<bool> ShowAsync(DialogViewModelBase dialog)
-        {
-            Shown.Add(dialog);
-            bool? result = null;
-            dialog.CloseRequested += (_, closed) => result ??= closed;
-            await Script(dialog);
-            return result ?? false;
-        }
-    }
-
-    /// <summary>Answers every confirmation dialog with the given choice.</summary>
-    private static Func<DialogViewModelBase, Task> AnswerConfirmations(bool confirm) => dialog =>
-    {
-        if (dialog is ConfirmDialogViewModel confirmation)
-        {
-            if (confirm)
-            {
-                confirmation.ConfirmCommand.Execute(null);
-                return Task.CompletedTask;
-            }
-            return confirmation.CancelCommand.ExecuteAsync(null);
-        }
-        return Task.CompletedTask;
-    };
-
     private sealed class Fixture : IDisposable
     {
         public TempDirectory Directory { get; } = new();
@@ -144,7 +108,7 @@ public class BoardViewModelTests
         fixture.Repository.AddCard(column.Id, "", "", []);
         fixture.Repository.AddCard(column.Id, "", "", []);
         BoardViewModel board = fixture.CreateBoard();
-        fixture.Dialogs.Script = AnswerConfirmations(false);
+        fixture.Dialogs.Script = ScriptedDialogService.AnswerConfirmations(false);
 
         await board.Columns[0].DeleteCommand.ExecuteAsync(null);
 
@@ -174,7 +138,7 @@ public class BoardViewModelTests
         ColumnModel column = fixture.Repository.AddColumn("A", "");
         fixture.Repository.AddCard(column.Id, "gone", "", []);
         BoardViewModel board = fixture.CreateBoard();
-        fixture.Dialogs.Script = AnswerConfirmations(true);
+        fixture.Dialogs.Script = ScriptedDialogService.AnswerConfirmations(true);
 
         await board.Columns[0].Cards[0].DeleteCommand.ExecuteAsync(null);
 
@@ -271,11 +235,11 @@ public class BoardViewModelTests
         editor.CloseRequested += (_, result) => closedWith = result;
         editor.Content = "draft";
 
-        fixture.Dialogs.Script = AnswerConfirmations(false);
+        fixture.Dialogs.Script = ScriptedDialogService.AnswerConfirmations(false);
         await editor.RequestCancelAsync();
         Assert.IsNull(closedWith, "Declining the discard keeps the editor open.");
 
-        fixture.Dialogs.Script = AnswerConfirmations(true);
+        fixture.Dialogs.Script = ScriptedDialogService.AnswerConfirmations(true);
         await editor.RequestCancelAsync();
         Assert.IsFalse(closedWith);
         Assert.AreEqual(0, fixture.Repository.GetCards().Count);

@@ -21,15 +21,6 @@ namespace YKanBan.ViewModels.Dialogs;
 /// </summary>
 public sealed partial class TagPickerDialogViewModel : DialogViewModelBase
 {
-    /// <summary>
-    /// Default colors proposed for new tags, cycled by the number of existing tags.
-    /// </summary>
-    private static readonly RgbColor[] Palette =
-    [
-        new(0xd7, 0x3a, 0x4a), new(0x00, 0x75, 0xca), new(0x0e, 0x8a, 0x16), new(0xfb, 0xca, 0x04),
-        new(0x7c, 0x3a, 0xed), new(0xe9, 0x9b, 0x3c), new(0x00, 0x8b, 0x8b), new(0xcf, 0xd3, 0xd7),
-    ];
-
     private readonly WorkspaceRepository _repository;
     private readonly IReadOnlyList<TagBadgeViewModel> _available;
 
@@ -48,7 +39,7 @@ public sealed partial class TagPickerDialogViewModel : DialogViewModelBase
             .ToList();
         FilteredTags = new ObservableCollection<TagBadgeViewModel>(_available);
 
-        newColor = Palette[all.Count % Palette.Length].ToString();
+        newColor = TagColors.DefaultFor(all.Count).ToString();
         UpdateColorPreview();
     }
 
