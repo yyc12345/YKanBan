@@ -16,7 +16,7 @@ dotnet run --project YKanBan -- <path>
 
 Packages are pinned in `YKanBan/YKanBan.csproj`.
 
-Release archives for win-x64, linux-x64, osx-x64 and osx-arm64 are produced by the manually triggered workflow in `.github/workflows/build.yml`; `packaging/package.sh` packs one published RID.
+Release archives for win-x64, linux-x64 and osx-arm64 are produced by the manually triggered workflow in `.github/workflows/build.yml`; `packaging/package.sh` packs one published RID.
 
 ## License
 
