@@ -87,8 +87,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase {
     /// Opens the workspace and switches the content to the normal view.
     /// </summary>
     /// <param name="folderPath">The workspace folder to open.</param>
-    private void OpenWorkspace(string folderPath) {
-        WorkspaceSession session = _services.OpenWorkspace(folderPath);
+    private void OpenWorkspace(string folderPath) => OpenWorkspace(folderPath, _services.OpenWorkspace(folderPath));
+
+    /// <summary>
+    /// Switches the content to the normal view of an already opened workspace.
+    /// </summary>
+    /// <param name="folderPath">The workspace folder.</param>
+    /// <param name="session">The opened workspace session.</param>
+    private void OpenWorkspace(string folderPath, WorkspaceSession session) {
         Content = new WorkspaceViewModel(_services, session, ShowSettings, ShowAbout);
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
@@ -104,10 +110,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase {
         }
 
         try {
-            WorkspaceInitializer.Initialize(page.FolderPath);
-            WorkspacePreset.AddPresetColumns(page.FolderPath);
-            WorkspacePreset.AddPresetTags(page.FolderPath);
-            OpenWorkspace(page.FolderPath);
+            OpenWorkspace(page.FolderPath, _services.InitializeWorkspace(page.FolderPath));
         } catch (Exception exception) when (exception is YKanBanException or IOException or UnauthorizedAccessException) {
             // Initialization failed; the page remains so the user can retry.
             Debug.WriteLine(exception);

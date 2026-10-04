@@ -25,6 +25,12 @@ public static class WorkspaceInitializer {
     /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
     /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
     public static void Initialize(string folderPath) {
+        // YYC MARK: this class is deliberately a lock-free, functional unit; it
+        // does not acquire the workspace lock. Ensuring the lock is held before
+        // initialization is the caller's responsibility (see
+        // WorkspaceSession.Initialize). The schema migration and the later preset
+        // writes are also not one transaction, so a crash mid-initialization can
+        // leave a partially built database; that is accepted here.
         if (!Directory.Exists(folderPath)) {
             throw new WorkspaceDirectoryMissingException(folderPath);
         }

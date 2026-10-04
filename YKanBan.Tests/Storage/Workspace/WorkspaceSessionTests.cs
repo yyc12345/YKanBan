@@ -42,6 +42,42 @@ public class WorkspaceSessionTests {
     }
 
     [TestMethod]
+    public void OpenWithoutDatabaseThrowsDatabaseMissing() {
+        using var directory = new TempDirectory();
+        WorkspaceInitializer.Initialize(directory.FullPath);
+        File.Delete(WorkspacePaths.Database(directory.FullPath));
+
+        Assert.ThrowsExactly<WorkspaceDatabaseMissingException>(
+            () => WorkspaceSession.Open(directory.FullPath));
+    }
+
+    [TestMethod]
+    public void InitializeHoldsLockAndSeedsPreset() {
+        using var directory = new TempDirectory();
+
+        using WorkspaceSession session = WorkspaceSession.Initialize(directory.FullPath);
+
+        // The lock is held for the whole session, so a second initialize cannot interleave.
+        Assert.ThrowsExactly<WorkspaceLockException>(() => WorkspaceSession.Initialize(directory.FullPath));
+
+        // The preset columns and tags were written under the same lock.
+        Assert.AreEqual(3, session.Repository.GetColumns().Count);
+        Assert.AreEqual(8, session.Repository.GetTags().Count);
+    }
+
+    [TestMethod]
+    public void InitializeExistingWorkspaceThrowsAndReleasesLock() {
+        using var directory = new TempDirectory();
+        WorkspaceInitializer.Initialize(directory.FullPath);
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => WorkspaceSession.Initialize(directory.FullPath));
+
+        // The failed initialize released the lock, so the workspace can still be opened.
+        using WorkspaceSession session = WorkspaceSession.Open(directory.FullPath);
+        Assert.AreEqual(directory.FullPath, session.FolderPath);
+    }
+
+    [TestMethod]
     public void RepositoryIsUsableThroughSession() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);

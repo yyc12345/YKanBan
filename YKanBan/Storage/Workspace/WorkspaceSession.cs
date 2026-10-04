@@ -38,9 +38,55 @@ public sealed class WorkspaceSession : IDisposable {
     /// <param name="folderPath">The workspace folder to open.</param>
     /// <returns>The opened session; dispose it to release the lock and connection.</returns>
     /// <exception cref="WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
+    /// <exception cref="WorkspaceDatabaseMissingException">.ykanban exists but its database file does not.</exception>
     /// <exception cref="WorkspaceLockException">Another instance already holds the lock.</exception>
     public static WorkspaceSession Open(string folderPath) {
         WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
+
+        // Opening would otherwise create an empty database and show an empty board as if nothing was lost.
+        string databasePath = WorkspacePaths.Database(folderPath);
+        if (!File.Exists(databasePath)) {
+            workspaceLock.Dispose();
+            throw new WorkspaceDatabaseMissingException(databasePath);
+        }
+
+        return OpenLocked(folderPath, workspaceLock);
+    }
+
+    /// <summary>
+    /// Initializes a workspace with its preset columns and tags, then opens it.
+    /// The lock is taken right after .ykanban is created and is never released in
+    /// between, so no other instance can interleave with the initialization.
+    /// </summary>
+    /// <param name="folderPath">The existing folder to initialize.</param>
+    /// <returns>The opened session; dispose it to release the lock and connection.</returns>
+    /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="WorkspaceLockException">Another instance holds the workspace lock.</exception>
+    /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
+    public static WorkspaceSession Initialize(string folderPath) {
+        // .ykanban first: the lock file lives inside it. Taking the lock here,
+        // before any database work, keeps two instances from initializing the same
+        // folder at once; WorkspaceInitializer stays a lock-free functional class.
+        Directory.CreateDirectory(WorkspacePaths.Root(folderPath));
+        WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
+        try {
+            WorkspaceInitializer.Initialize(folderPath);
+            WorkspacePreset.AddPresetColumns(folderPath);
+            WorkspacePreset.AddPresetTags(folderPath);
+            return OpenLocked(folderPath, workspaceLock);
+        } catch {
+            workspaceLock.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Opens the repository under an already held lock; the lock is released if that fails.
+    /// </summary>
+    /// <param name="folderPath">The workspace folder.</param>
+    /// <param name="workspaceLock">The held workspace lock.</param>
+    /// <returns>The opened session.</returns>
+    private static WorkspaceSession OpenLocked(string folderPath, WorkspaceLock workspaceLock) {
         try {
             var repository = new WorkspaceRepository(folderPath);
             return new WorkspaceSession(folderPath, workspaceLock, repository);

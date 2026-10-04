@@ -46,8 +46,32 @@ public sealed class AppServices : IDisposable {
     }
 
     /// <summary>
+    /// Initializes a fresh workspace and opens it, holding the lock throughout.
+    /// </summary>
+    /// <param name="folderPath">The folder to initialize.</param>
+    /// <returns>The open session.</returns>
+    /// <exception cref="YKanBan.Storage.WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
+    /// <exception cref="YKanBan.Storage.WorkspaceLockException">Another instance already holds the lock.</exception>
+    public WorkspaceSession InitializeWorkspace(string folderPath) {
+        Session = WorkspaceSession.Initialize(folderPath);
+        return Session;
+    }
+
+    /// <summary>
+    /// Releases the workspace session, if any, and forgets it.
+    /// </summary>
+    public void CloseWorkspace() {
+        Session?.Dispose();
+        Session = null;
+    }
+
+    /// <summary>
     /// Persists the configuration; called once at shutdown.
     /// </summary>
+    // YYC MARK: the whole app.json is rewritten unconditionally at shutdown.
+    // Running several instances would make the last one to exit overwrite every
+    // field with its own in-memory state. Multi-instance use is not supported,
+    // so this last-writer-wins behavior is accepted.
     public void SaveConfiguration() => ConfigStore.Save(Config);
 
     /// <summary>
