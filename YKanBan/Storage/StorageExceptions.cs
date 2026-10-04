@@ -73,38 +73,14 @@ public sealed class WorkspaceLockException : YKanBanException
     public string LockFilePath { get; }
 
     /// <summary>
-    /// Gets the best-effort holder diagnostics read from the lock file, or
-    /// <see langword="null"/> when they could not be read.
-    /// </summary>
-    public string? HolderDiagnostics { get; }
-
-    /// <summary>
     /// Initializes the exception for a failed lock acquisition.
     /// </summary>
     /// <param name="lockFilePath">The lock file that is already held.</param>
-    /// <param name="holderDiagnostics">Diagnostics of the current holder, when readable.</param>
     /// <param name="innerException">The underlying I/O error.</param>
-    public WorkspaceLockException(string lockFilePath, string? holderDiagnostics, Exception innerException)
-        : base(BuildMessage(lockFilePath, holderDiagnostics), innerException)
+    public WorkspaceLockException(string lockFilePath, Exception innerException)
+        : base($"The workspace is locked by another instance: {lockFilePath}", innerException)
     {
         LockFilePath = lockFilePath;
-        HolderDiagnostics = holderDiagnostics;
-    }
-
-    /// <summary>
-    /// Composes the diagnostic message, appending holder details when they were readable.
-    /// </summary>
-    /// <param name="lockFilePath">The lock file that is already held.</param>
-    /// <param name="holderDiagnostics">Diagnostics of the current holder, when readable.</param>
-    /// <returns>The English diagnostic message.</returns>
-    private static string BuildMessage(string lockFilePath, string? holderDiagnostics)
-    {
-        string message = $"The workspace is locked by another instance: {lockFilePath}";
-        if (!string.IsNullOrEmpty(holderDiagnostics))
-        {
-            message += $" Lock holder: {holderDiagnostics}";
-        }
-        return message;
     }
 }
 

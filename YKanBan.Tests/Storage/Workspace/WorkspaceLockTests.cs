@@ -5,7 +5,7 @@ using YKanBan.Tests.TestUtilities;
 namespace YKanBan.Tests.Storage.Workspace;
 
 /// <summary>
-/// Tests for exclusive lock acquisition, diagnostics and release.
+/// Tests for exclusive lock acquisition and release.
 /// </summary>
 [TestClass]
 public class WorkspaceLockTests
@@ -42,7 +42,7 @@ public class WorkspaceLockTests
     }
 
     [TestMethod]
-    public void LockFileContainsHolderDiagnosticsAfterRelease()
+    public void LockFileIsEmptyAfterRelease()
     {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
@@ -51,9 +51,7 @@ public class WorkspaceLockTests
         {
         }
 
-        // The file survives release and carries PID / machine name / time for humans.
-        string content = File.ReadAllText(WorkspacePaths.LockFile(directory.FullPath));
-        StringAssert.Contains(content, "pid=");
-        StringAssert.Contains(content, $"machine={Environment.MachineName}");
+        // The lock file survives release but carries no content; only the OS handle matters.
+        Assert.AreEqual(0L, new FileInfo(WorkspacePaths.LockFile(directory.FullPath)).Length);
     }
 }
