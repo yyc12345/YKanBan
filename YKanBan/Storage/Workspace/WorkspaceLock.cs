@@ -39,6 +39,9 @@ public sealed class WorkspaceLock : IDisposable
         try
         {
             // FileShare.None gives the exclusive semantics; FileMode.Create empties any stale file.
+            // SAFETY: FileMode.Create truncates a pre-existing file, but the lock
+            // file is empty by design and the path always comes from
+            // WorkspacePaths.LockFile, so no user data is ever affected.
             stream = new FileStream(lockFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
         }
         catch (DirectoryNotFoundException)

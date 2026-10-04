@@ -25,6 +25,9 @@ public sealed class TempDirectory : IDisposable
     {
         try
         {
+            // SAFETY: Recursive directory delete is safe: FullPath is the
+            // read-only, GUID-named directory this instance created under the
+            // OS temp folder, so it can never target user data or the temp root.
             Directory.Delete(FullPath, recursive: true);
         }
         catch (IOException)
@@ -32,6 +35,8 @@ public sealed class TempDirectory : IDisposable
             Thread.Sleep(100);
             try
             {
+                // SAFETY: Retry of the same recursive delete, still confined to
+                // this instance's own temp directory.
                 Directory.Delete(FullPath, recursive: true);
             }
             catch (IOException)
