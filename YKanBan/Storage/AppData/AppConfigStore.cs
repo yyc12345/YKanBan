@@ -10,8 +10,8 @@ namespace YKanBan.Storage.AppData;
 /// then defaults are used; an individual invalid field (unknown enum value or
 /// language, out-of-range width, wrong type) falls back to its own default while
 /// the other fields are kept; a file that exists but cannot be read (I/O or
-/// permission error) also yields defaults. Saving happens only when the configuration differs
-/// from what was loaded, and writes the file directly (no atomic replace) —
+/// permission error) also yields defaults. Saving happens only when this session
+/// changed a setting (<see cref="ConfigSection.IsDirty"/>), and writes the file directly (no atomic replace) —
 /// losing the last session's settings to a crash is an accepted trade-off.
 /// </summary>
 public sealed class AppConfigStore
@@ -36,9 +36,6 @@ public sealed class AppConfigStore
         Error = (_, args) => args.ErrorContext.Handled = true,
     });
 
-    /// <summary>The serialized form of the configuration as last loaded or saved.</summary>
-    private string _persistedSnapshot = Serialize(new AppConfig());
-
     /// <summary>
     /// Initializes a store bound to a specific app.json path.
     /// </summary>
@@ -51,8 +48,8 @@ public sealed class AppConfigStore
     public string FilePath { get; }
 
     /// <summary>
-    /// Loads the configuration and records it as the persisted baseline for
-    /// <see cref="SaveIfChanged"/>. A missing file yields defaults; a file that
+    /// Loads the configuration with a clear dirty flag, the baseline for
+    /// <see cref="SaveIfDirty"/>. A missing file yields defaults; a file that
     /// is not a JSON object is backed up to app.json.bak (best effort) and then
     /// defaults are used; invalid fields fall back to their defaults
     /// individually; a file that cannot be read yields defaults. Never throws for
@@ -63,39 +60,37 @@ public sealed class AppConfigStore
     {
         AppConfig config = Read();
 
-        // The baseline is the effective configuration, so field fallbacks alone never trigger a write.
-        _persistedSnapshot = Serialize(config);
+        // Deserializing and field fallbacks go through the setters; neither is a change by this session.
+        config.AcceptChanges();
         return config;
     }
 
     /// <summary>
-    /// Writes the configuration only when it differs from the loaded or last
-    /// saved one, i.e. when this session changed a setting.
+    /// Writes the configuration only when a setting was changed since it was
+    /// loaded or last saved, even if it was later changed back.
     /// </summary>
     /// <param name="config">The live configuration.</param>
     /// <returns><see langword="true"/> when the file was written.</returns>
-    public bool SaveIfChanged(AppConfig config)
+    public bool SaveIfDirty(AppConfig config)
     {
-        string json = Serialize(config);
-        if (json == _persistedSnapshot)
+        if (!config.IsDirty)
         {
             return false;
         }
 
-        Write(json);
-        _persistedSnapshot = json;
+        Save(config);
         return true;
     }
 
     /// <summary>
-    /// Writes the configuration directly to disk (no atomic replace), unconditionally.
+    /// Writes the configuration directly to disk (no atomic replace),
+    /// unconditionally, and clears its dirty flag.
     /// </summary>
     /// <param name="config">The configuration to serialize.</param>
     public void Save(AppConfig config)
     {
-        string json = Serialize(config);
-        Write(json);
-        _persistedSnapshot = json;
+        Write(Serialize(config));
+        config.AcceptChanges();
     }
 
     /// <summary>

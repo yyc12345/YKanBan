@@ -289,7 +289,7 @@ public class AppConfigStoreTests
 
         AppConfig config = store.Load();
 
-        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsFalse(store.SaveIfDirty(config));
         Assert.IsFalse(File.Exists(path));
     }
 
@@ -304,7 +304,7 @@ public class AppConfigStoreTests
 
         AppConfig config = store.Load();
 
-        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsFalse(store.SaveIfDirty(config));
         Assert.AreEqual(original, File.ReadAllText(path));
     }
 
@@ -318,15 +318,15 @@ public class AppConfigStoreTests
 
         config.Sort.Card = CardSortOption.UpdatedAt;
 
-        Assert.IsTrue(store.SaveIfChanged(config));
+        Assert.IsTrue(store.SaveIfDirty(config));
         Assert.AreEqual(CardSortOption.UpdatedAt, new AppConfigStore(path).Load().Sort.Card);
 
         // Saved state is the new baseline.
-        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsFalse(store.SaveIfDirty(config));
     }
 
     [TestMethod]
-    public void ChangeRevertedWithinSessionIsNotWritten()
+    public void ChangeRevertedWithinSessionIsStillWritten()
     {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
@@ -336,7 +336,49 @@ public class AppConfigStoreTests
         config.Theme = ThemeOption.Dark;
         config.Theme = ThemeOption.FollowSystem;
 
-        Assert.IsFalse(store.SaveIfChanged(config));
+        Assert.IsTrue(store.SaveIfDirty(config));
+        Assert.IsTrue(File.Exists(path));
+    }
+
+    [TestMethod]
+    public void AssigningTheCurrentValuesIsNotAChange()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        var store = new AppConfigStore(path);
+        AppConfig config = store.Load();
+
+        config.Theme = config.Theme;
+        config.Sort.Card = config.Sort.Card;
+        config.Confirmations.DeleteTag = config.Confirmations.DeleteTag;
+
+        Assert.IsFalse(store.SaveIfDirty(config));
         Assert.IsFalse(File.Exists(path));
+    }
+
+    [TestMethod]
+    public void NestedSettingChangeMarksTheConfigurationDirty()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        var store = new AppConfigStore(path);
+        AppConfig config = store.Load();
+
+        config.Confirmations.DiscardEdit = false;
+
+        Assert.IsTrue(config.IsDirty);
+        Assert.IsTrue(store.SaveIfDirty(config));
+        Assert.IsFalse(config.IsDirty);
+        Assert.IsFalse(new AppConfigStore(path).Load().Confirmations.DiscardEdit);
+    }
+
+    [TestMethod]
+    public void LoadedFileIsNotDirty()
+    {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, """{ "theme": "dark", "confirmations": { "delete-card": false } }""");
+
+        Assert.IsFalse(new AppConfigStore(path).Load().IsDirty);
     }
 }

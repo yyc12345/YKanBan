@@ -82,7 +82,7 @@ public sealed class AppServices : IDisposable
     {
         try
         {
-            ConfigStore.SaveIfChanged(Config);
+            ConfigStore.SaveIfDirty(Config);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
