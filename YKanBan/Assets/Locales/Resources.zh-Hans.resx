@@ -343,6 +343,9 @@
   <data name="Error_Operation_Message" xml:space="preserve">
     <value>更改未能写入工作区，看板显示的是已保存的状态。</value>
   </data>
+  <data name="Error_ViewNotFound" xml:space="preserve">
+    <value>找不到视图：{0}</value>
+  </data>
   <data name="Error_Read_Title" xml:space="preserve">
     <value>读取失败</value>
   </data>
