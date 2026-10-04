@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using YKanBan.Models;
+using YKanBan.Search;
 using YKanBan.Services;
 using YKanBan.Storage.AppData;
 using YKanBan.Storage.Workspace;
@@ -18,6 +19,9 @@ public sealed partial class BoardViewModel : ViewModelBase
 {
     private readonly AppServices _services;
     private readonly WorkspaceRepository _repository;
+
+    // The active search result filter, or null when the whole board is shown.
+    private IReadOnlyCollection<long>? _matchedCardIds;
 
     /// <summary>
     /// Initializes the board, loading its current content.
@@ -67,6 +71,21 @@ public sealed partial class BoardViewModel : ViewModelBase
     private double columnWidth;
 
     /// <summary>
+    /// Gets a value indicating whether a search filter is currently applied.
+    /// </summary>
+    public bool IsFiltering => _matchedCardIds is not null;
+
+    /// <summary>
+    /// Gets the localized filter status text shown as the status icon tooltip.
+    /// </summary>
+    public string FilterStatusText => IsFiltering ? Resources.Board_FilterActive : Resources.Board_FilterInactive;
+
+    /// <summary>
+    /// Gets the status icon opacity: full while filtering, dimmed otherwise.
+    /// </summary>
+    public double FilterIconOpacity => IsFiltering ? 1.0 : 0.4;
+
+    /// <summary>
     /// Gets a value indicating whether the board has any columns.
     /// </summary>
     public bool HasColumns => Columns.Count > 0;
@@ -99,8 +118,8 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <summary>Gets the interaction that opens the move-card dialog.</summary>
     public Interaction<CardViewModel> MoveCard { get; } = new();
 
-    /// <summary>Gets the interaction that runs the current search.</summary>
-    public Interaction<Unit> RunSearch { get; } = new();
+    /// <summary>Gets the interaction that shows the search error dialog, carrying the English parser detail.</summary>
+    public Interaction<string> ShowSearchError { get; } = new();
 
     #endregion
 
@@ -113,16 +132,64 @@ public sealed partial class BoardViewModel : ViewModelBase
     private Task AddNewColumnAsync() => AddColumn.Handle(Unit.Value);
 
     /// <summary>
-    /// Runs the current search (wired up with the search feature).
+    /// Runs the current search. A blank query shows everything; an invalid
+    /// expression opens the error dialog and keeps the previous results and text.
     /// </summary>
     [RelayCommand]
-    private Task SearchAsync() => RunSearch.Handle(Unit.Value);
+    private async Task SearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            ApplyFilter(null);
+            return;
+        }
+
+        try
+        {
+            SearchNode? query = SearchQueryParser.Parse(SearchText);
+            if (query is null)
+            {
+                ApplyFilter(null);
+                return;
+            }
+
+            CompiledSearch compiled = SearchSqlCompiler.Compile(query);
+            ApplyFilter(_repository.GetCardIdsMatching(compiled));
+        }
+        catch (SearchSyntaxException exception)
+        {
+            // The error dialog carries the parser's non-localized English detail.
+            await ShowSearchError.Handle(exception.Message);
+        }
+    }
 
     /// <summary>
-    /// Clears the search box.
+    /// Clears the search box and restores the unfiltered board.
     /// </summary>
     [RelayCommand]
-    private void ClearSearch() => SearchText = string.Empty;
+    private void ClearSearch()
+    {
+        SearchText = string.Empty;
+        ApplyFilter(null);
+    }
+
+    /// <summary>
+    /// Applies a new result filter (null clears it) and rebuilds the board when it changed.
+    /// </summary>
+    /// <param name="matchedIds">The new filter, or <see langword="null"/> for no filter.</param>
+    private void ApplyFilter(IReadOnlyCollection<long>? matchedIds)
+    {
+        if (_matchedCardIds is null && matchedIds is null)
+        {
+            return;
+        }
+
+        _matchedCardIds = matchedIds;
+        OnPropertyChanged(nameof(IsFiltering));
+        OnPropertyChanged(nameof(FilterStatusText));
+        OnPropertyChanged(nameof(FilterIconOpacity));
+        Reload();
+    }
 
     #endregion
 
@@ -181,6 +248,12 @@ public sealed partial class BoardViewModel : ViewModelBase
     {
         IReadOnlyList<ColumnModel> columns = _repository.GetColumns();
         IReadOnlyList<CardModel> cards = _repository.GetCards();
+
+        // An active search hides non-matching cards while every column stays visible.
+        if (_matchedCardIds is not null)
+        {
+            cards = cards.Where(card => _matchedCardIds.Contains(card.Id)).ToList();
+        }
 
         // Group cards by column once so each column can be built independently.
         Dictionary<long, List<CardModel>> cardsByColumn = cards

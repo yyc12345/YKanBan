@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.Input;
 using YKanBan.Services;
 using YKanBan.Storage.Workspace;
 using YKanBan.ViewModels.Board;
+using YKanBan.ViewModels.Tags;
 
 namespace YKanBan.ViewModels;
 
@@ -32,7 +33,10 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         WorkspacePath = session.FolderPath;
         _showSettings = showSettings;
         _showAbout = showAbout;
+
+        // Both tabs share the same repository; tag changes refresh the board.
         Board = new BoardViewModel(services, session);
+        Tags = new TagsViewModel(session.Repository, Board.Reload);
     }
 
     /// <summary>
@@ -56,6 +60,16 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     public BoardViewModel Board { get; }
 
     /// <summary>
+    /// Gets the tags tab view model.
+    /// </summary>
+    public TagsViewModel Tags { get; }
+
+    /// <summary>
+    /// Gets the interaction that runs the export flow.
+    /// </summary>
+    public Interaction<Unit> Export { get; } = new();
+
+    /// <summary>
     /// Opens the settings dialog through the registered interaction.
     /// </summary>
     [RelayCommand]
@@ -68,11 +82,8 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     private async Task OpenAboutAsync() => await _showAbout.Handle(Unit.Value);
 
     /// <summary>
-    /// Raised by the export button; the export flow is wired up with the export
-    /// feature.
+    /// Runs the export flow through the registered interaction.
     /// </summary>
     [RelayCommand]
-    private static void Export()
-    {
-    }
+    private async Task RunExportAsync() => await Export.Handle(Unit.Value);
 }

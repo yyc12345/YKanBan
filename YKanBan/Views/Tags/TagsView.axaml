@@ -1,0 +1,62 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:YKanBan.ViewModels.Tags"
+             xmlns:lang="using:YKanBan"
+             xmlns:icons="using:IconPacks.Avalonia.Lucide"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+             x:Class="YKanBan.Views.Tags.TagsView"
+             x:DataType="vm:TagsViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="8">
+
+        <Button Grid.Row="0" Command="{Binding AddNewTagCommand}"
+                HorizontalAlignment="Right" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                <TextBlock Text="{x:Static lang:Resources.Tags_AddTag}"/>
+            </StackPanel>
+        </Button>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Tags}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TagItemViewModel">
+                        <Border BorderBrush="{DynamicResource CardBorderBrush}"
+                                BorderThickness="0,0,0,1" Padding="8">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                <Border Grid.Column="0" Width="16" Height="16" CornerRadius="4"
+                                        Background="{Binding Badge.Background}"
+                                        VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Description}" IsVisible="{Binding HasDescription}"
+                                               Opacity="0.7" FontSize="12" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding UsageText}" Opacity="0.6" FontSize="12"/>
+                                </StackPanel>
+
+                                <Button Grid.Column="2" Command="{Binding EditCommand}" Padding="4,2" Margin="4,0"
+                                        VerticalAlignment="Center"
+                                        ToolTip.Tip="{x:Static lang:Resources.Common_Edit}">
+                                    <icons:PackIconLucide Kind="Pencil" Width="16" Height="16"/>
+                                </Button>
+                                <Button Grid.Column="3" Command="{Binding DeleteCommand}" Padding="4,2"
+                                        VerticalAlignment="Center"
+                                        ToolTip.Tip="{x:Static lang:Resources.Common_Delete}">
+                                    <icons:PackIconLucide Kind="Trash2" Width="16" Height="16"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="1" Text="{x:Static lang:Resources.Tags_Empty}"
+                   IsVisible="{Binding HasNoTags}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+
+    </Grid>
+</UserControl>

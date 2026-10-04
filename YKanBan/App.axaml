@@ -12,6 +12,7 @@
     <Application.Styles>
         <!-- Semi.Avalonia provides the light and dark palettes; icons need their own theme. -->
         <semi:SemiTheme/>
+        <semi:ColorPickerSemiTheme/>
         <StyleInclude Source="avares://IconPacks.Avalonia.Lucide/Lucide.axaml"/>
     </Application.Styles>
 

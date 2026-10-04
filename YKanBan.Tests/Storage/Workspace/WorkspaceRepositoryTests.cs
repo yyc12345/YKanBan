@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using YKanBan.Models;
+using YKanBan.Search;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
 
@@ -255,6 +256,17 @@ public class WorkspaceRepositoryTests
         using var fixture = new RepositoryFixture();
         Assert.ThrowsExactly<SqliteException>(() =>
             fixture.Repository.AddTag("bug", RgbColor.Parse("#123456"), ""));
+    }
+
+    [TestMethod]
+    public void GetCardIdsMatchingRunsTheCompiledSearch()
+    {
+        using var fixture = new RepositoryFixture();
+        CompiledSearch compiled = SearchSqlCompiler.Compile(new SearchNode.FreeText("T"));
+
+        IReadOnlyCollection<long> ids = fixture.Repository.GetCardIdsMatching(compiled);
+
+        CollectionAssert.AreEquivalent(new[] { fixture.CardId }, ids.ToList());
     }
 
     [TestMethod]

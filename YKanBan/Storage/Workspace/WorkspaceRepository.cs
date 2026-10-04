@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using YKanBan.Models;
+using YKanBan.Search;
 
 namespace YKanBan.Storage.Workspace;
 
@@ -170,6 +171,28 @@ public sealed class WorkspaceRepository : IDisposable
             }
         }
         return cards;
+    }
+
+    /// <summary>
+    /// Returns the ids of the cards matching a compiled search predicate.
+    /// </summary>
+    /// <param name="search">The compiled search predicate and its parameters.</param>
+    /// <returns>The matching card ids.</returns>
+    public IReadOnlyCollection<long> GetCardIdsMatching(CompiledSearch search)
+    {
+        using var command = CreateCommand($"SELECT c.id FROM cards c WHERE {search.Predicate};");
+        foreach ((string name, object value) in search.Parameters)
+        {
+            command.Parameters.AddWithValue(name, value);
+        }
+        using var reader = command.ExecuteReader();
+
+        var ids = new HashSet<long>();
+        while (reader.Read())
+        {
+            ids.Add(reader.GetInt64(0));
+        }
+        return ids;
     }
 
     /// <summary>

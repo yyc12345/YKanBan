@@ -39,7 +39,6 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.6" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.6" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.6" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.6" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.6">
@@ -48,6 +47,7 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="Semi.Avalonia" Version="11.2.1.10" />
+    <PackageReference Include="Semi.Avalonia.ColorPicker" Version="11.2.1.10" />
     <PackageReference Include="IconPacks.Avalonia.Lucide" Version="2.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.20" />
     <PackageReference Include="Pidgin" Version="3.5.1" />

@@ -28,6 +28,9 @@
   <data name="Common_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="Main_Export" xml:space="preserve">
     <value>Export</value>
   </data>
@@ -69,6 +72,18 @@
   </data>
   <data name="Board_NoColumns" xml:space="preserve">
     <value>No columns yet.</value>
+  </data>
+  <data name="Board_FilterActive" xml:space="preserve">
+    <value>Board is filtered</value>
+  </data>
+  <data name="Board_FilterInactive" xml:space="preserve">
+    <value>Board is not filtered</value>
+  </data>
+  <data name="Search_Error_Title" xml:space="preserve">
+    <value>Invalid search</value>
+  </data>
+  <data name="Search_Error_Message" xml:space="preserve">
+    <value>The query expression is invalid. Details: {0}</value>
   </data>
   <data name="Sort_IdAsc" xml:space="preserve">
     <value>ID Ascending</value>
@@ -165,6 +180,39 @@
   </data>
   <data name="TagDialog_NoTargets" xml:space="preserve">
     <value>There are no more tags to add.</value>
+  </data>
+  <data name="Tags_AddTag" xml:space="preserve">
+    <value>Add Tag</value>
+  </data>
+  <data name="Tags_Empty" xml:space="preserve">
+    <value>No tags yet.</value>
+  </data>
+  <data name="Tags_Usage" xml:space="preserve">
+    <value>{0} cards</value>
+  </data>
+  <data name="TagEditor_AddTitle" xml:space="preserve">
+    <value>New Tag</value>
+  </data>
+  <data name="TagEditor_EditTitle" xml:space="preserve">
+    <value>Edit Tag</value>
+  </data>
+  <data name="TagEditor_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TagEditor_Color" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="TagEditor_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="TagEditor_InvalidName" xml:space="preserve">
+    <value>The name is empty or already used.</value>
+  </data>
+  <data name="DeleteTag_Confirm_Title" xml:space="preserve">
+    <value>Delete Tag</value>
+  </data>
+  <data name="DeleteTag_Confirm_Message" xml:space="preserve">
+    <value>Delete tag "{0}"? It will be removed from {1} card(s).</value>
   </data>
   <data name="MoveDialog_Title" xml:space="preserve">
     <value>Move Card</value>
@@ -390,5 +438,11 @@
   </data>
   <data name="Export_TagsTableHeader" xml:space="preserve">
     <value>| Name | Color | Description | Usage |</value>
+  </data>
+  <data name="Export_Done_Title" xml:space="preserve">
+    <value>Export Complete</value>
+  </data>
+  <data name="Export_Done_Message" xml:space="preserve">
+    <value>Exported to: {0}</value>
   </data>
 </root>

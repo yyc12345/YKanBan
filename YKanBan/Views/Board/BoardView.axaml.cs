@@ -27,9 +27,7 @@ public partial class BoardView : UserControl
             board.EditCard.RegisterHandler(card => EditCardAsync(board, null, card));
             board.DeleteCard.RegisterHandler(card => DeleteCardAsync(board, card));
             board.MoveCard.RegisterHandler(card => MoveCardAsync(board, card));
-
-            // The search button is present in the shell; searching arrives with the search feature.
-            board.RunSearch.RegisterHandler(_ => Task.CompletedTask);
+            board.ShowSearchError.RegisterHandler(ShowSearchErrorAsync);
         }
     }
 
@@ -144,5 +142,20 @@ public partial class BoardView : UserControl
             board.Repository.MoveCard(card.Id, targetColumnId);
             board.Reload();
         }
+    }
+
+    /// <summary>Shows the search syntax error dialog.</summary>
+    private async Task ShowSearchErrorAsync(string detail)
+    {
+        if (OwningWindow is not Window owner)
+        {
+            return;
+        }
+
+        var dialog = new SearchErrorDialog
+        {
+            DataContext = new SearchErrorViewModel(detail),
+        };
+        await dialog.ShowDialog(owner);
     }
 }

@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:YKanBan.ViewModels.Dialogs"
+        xmlns:lang="using:YKanBan"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="440" d:DesignHeight="200"
+        x:Class="YKanBan.Views.Dialogs.SearchErrorDialog"
+        x:DataType="vm:SearchErrorViewModel"
+        Title="{x:Static lang:Resources.Search_Error_Title}"
+        Width="440" Height="200" MinWidth="440" MinHeight="200" CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+        <TextBlock Grid.Row="0" Text="{Binding Message}" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Button Grid.Row="1" Content="{x:Static lang:Resources.Common_Ok}"
+                Click="OnOkClick" HorizontalAlignment="Right" MinWidth="90"
+                IsDefault="True" IsCancel="True"/>
+    </Grid>
+</Window>
