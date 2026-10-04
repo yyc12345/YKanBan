@@ -81,8 +81,8 @@ public class MarkdownExporterTests {
     /// <param name="culture">The UI culture.</param>
     /// <returns>The expected Markdown document.</returns>
     private static string BuildExpected(CultureInfo culture) {
-        string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_CardTimePattern, culture);
-        string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_CardTimePattern, culture);
+        string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_TimePattern, culture);
+        string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_TimePattern, culture);
 
         var builder = new StringBuilder();
 
@@ -181,7 +181,64 @@ public class MarkdownExporterTests {
                 [(tag, 0L)],
                 ExportedAt);
 
-            StringAssert.Contains(markdown, "| a\\|b | #112233 | first second | 0 |");
+            StringAssert.Contains(markdown, "| a\\|b | #112233 | first<br>second | 0 |");
+        } finally {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void TagTableCellsEscapeBackslashes() {
+        CultureInfo? original = Resources.Culture;
+        try {
+            Resources.Culture = new CultureInfo("en");
+            var tag = new TagModel(1, "a\\b", RgbColor.Parse("#112233"), "c\\|d");
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [],
+                [(tag, 0L)],
+                ExportedAt);
+
+            StringAssert.Contains(markdown, "| a\\\\b | #112233 | c\\\\\\|d | 0 |");
+        } finally {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void TagNameWithBacktickUsesLongerFence() {
+        CultureInfo? original = Resources.Culture;
+        try {
+            Resources.Culture = new CultureInfo("en");
+            var tag = new TagModel(1, "a`b", RgbColor.Parse("#112233"), string.Empty);
+            string markdown = MarkdownExporter.Export(
+                "W",
+                [new ColumnModel(1, "C", string.Empty, 1, 1)],
+                [new CardModel(1, 1, "T", string.Empty, 1, 1, [tag])],
+                [(tag, 1L)],
+                ExportedAt);
+
+            StringAssert.Contains(markdown, "``a`b``");
+        } finally {
+            Resources.Culture = original;
+        }
+    }
+
+    [TestMethod]
+    public void FileNameDropsInvalidCharactersAndFallsBackToAppName() {
+        CultureInfo? original = Resources.Culture;
+        try {
+            Resources.Culture = new CultureInfo("en");
+
+            // A drive root workspace name "D:\" must not leak ':' or '\' into the file name.
+            string name = MarkdownExporter.BuildFileName("D:\\", ExportedAt);
+            Assert.IsFalse(name.Contains(':'));
+            Assert.IsFalse(name.Contains('\\'));
+
+            // A name made only of invalid characters falls back to the application name.
+            string fallback = MarkdownExporter.BuildFileName("///", ExportedAt);
+            StringAssert.StartsWith(fallback, Resources.App_Name);
         } finally {
             Resources.Culture = original;
         }
