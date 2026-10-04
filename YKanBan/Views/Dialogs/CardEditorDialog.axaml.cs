@@ -35,7 +35,7 @@ public partial class CardEditorDialog : Window {
                 viewModel.Repository,
                 viewModel.AssignedTags.Select(row => row.Tag.Id).ToList()),
         };
-        return await dialog.ShowDialog<TagModel?>(this);
+        return await ModalWindow.ShowAsync<TagModel?>(this, dialog);
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public partial class CardEditorDialog : Window {
     private async Task RequestCloseAsync() {
         if (HasUnsavedChanges && DiscardConfirmEnabled) {
             var dialog = new DiscardEditConfirmDialog { DataContext = new DiscardEditConfirmViewModel() };
-            if (!await dialog.ShowDialog<bool>(this)) {
+            if (!await ModalWindow.ShowAsync<bool>(this, dialog)) {
                 return;
             }
         }

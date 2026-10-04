@@ -44,7 +44,7 @@ public partial class BoardView : UserControl {
         var dialog = new ColumnEditorDialog {
             DataContext = new ColumnEditorViewModel(board.Repository, column?.Model),
         };
-        if (await dialog.ShowDialog<bool>(owner)) {
+        if (await ModalWindow.ShowAsync<bool>(owner, dialog)) {
             board.Reload();
         }
     }
@@ -62,7 +62,7 @@ public partial class BoardView : UserControl {
             var dialog = new DeleteColumnConfirmDialog {
                 DataContext = new DeleteColumnConfirmViewModel(column.Title, column.CardCount),
             };
-            confirmed = await dialog.ShowDialog<bool>(owner);
+            confirmed = await ModalWindow.ShowAsync<bool>(owner, dialog);
         }
 
         if (!confirmed) {
@@ -85,7 +85,7 @@ public partial class BoardView : UserControl {
         var dialog = new CardEditorDialog {
             DataContext = new CardEditorViewModel(board.Repository, columnId, card?.Model),
         };
-        if (await dialog.ShowDialog<bool>(owner)) {
+        if (await ModalWindow.ShowAsync<bool>(owner, dialog)) {
             board.Reload();
         }
     }
@@ -103,7 +103,7 @@ public partial class BoardView : UserControl {
             var dialog = new DeleteCardConfirmDialog {
                 DataContext = new DeleteCardConfirmViewModel(card.Id),
             };
-            confirmed = await dialog.ShowDialog<bool>(owner);
+            confirmed = await ModalWindow.ShowAsync<bool>(owner, dialog);
         }
 
         if (!confirmed) {
@@ -125,7 +125,7 @@ public partial class BoardView : UserControl {
         var dialog = new MoveCardDialog {
             DataContext = new MoveCardViewModel(board.Repository.GetColumns(), card.ColumnId),
         };
-        if (await dialog.ShowDialog<long?>(owner) is long targetColumnId) {
+        if (await ModalWindow.ShowAsync<long?>(owner, dialog) is long targetColumnId) {
             board.Repository.MoveCard(card.Id, targetColumnId);
             board.Reload();
         }
@@ -142,6 +142,6 @@ public partial class BoardView : UserControl {
         var dialog = new SearchErrorDialog {
             DataContext = new SearchErrorViewModel(detail),
         };
-        await dialog.ShowDialog(owner);
+        await ModalWindow.ShowAsync(owner, dialog);
     }
 }

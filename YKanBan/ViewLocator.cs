@@ -20,6 +20,10 @@ public class ViewLocator : IDataTemplate {
             return (Control)Activator.CreateInstance(type)!;
         }
 
+        // YYC MARK: the missing-view placeholder is a programmer error (a view
+        // model without its matching view), not a user-facing message. It must be
+        // caught by the code-behind convention test before release, so it is kept
+        // as a hard-coded English diagnostic and is deliberately not localized.
         return new TextBlock { Text = "Not Found: " + name };
     }
 

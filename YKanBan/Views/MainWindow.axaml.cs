@@ -33,7 +33,7 @@ public partial class MainWindow : Window {
         var dialog = new SettingsDialog {
             DataContext = new SettingsDialogViewModel(App.Services.Config, App.StartupLanguage),
         };
-        await dialog.ShowDialog(this);
+        await ModalWindow.ShowAsync(this, dialog);
     }
 
     /// <summary>
@@ -43,6 +43,6 @@ public partial class MainWindow : Window {
         var dialog = new AboutDialog {
             DataContext = new AboutDialogViewModel(),
         };
-        await dialog.ShowDialog(this);
+        await ModalWindow.ShowAsync(this, dialog);
     }
 }

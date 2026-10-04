@@ -66,7 +66,7 @@ public partial class WorkspaceView : UserControl {
             var dialog = new ExportDoneDialog {
                 DataContext = new ExportDoneViewModel(file.TryGetLocalPath() ?? file.Name),
             };
-            await dialog.ShowDialog(owner);
+            await ModalWindow.ShowAsync(owner, dialog);
         }
     }
 }

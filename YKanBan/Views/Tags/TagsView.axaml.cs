@@ -39,7 +39,7 @@ public partial class TagsView : UserControl {
         var dialog = new TagEditorDialog {
             DataContext = new TagEditorViewModel(tags.Repository, item?.Tag),
         };
-        if (await dialog.ShowDialog<bool>(owner)) {
+        if (await ModalWindow.ShowAsync<bool>(owner, dialog)) {
             tags.RefreshAfterChange();
         }
     }
@@ -57,7 +57,7 @@ public partial class TagsView : UserControl {
             var dialog = new DeleteTagConfirmDialog {
                 DataContext = new DeleteTagConfirmViewModel(item.Name, item.UsageCount),
             };
-            confirmed = await dialog.ShowDialog<bool>(owner);
+            confirmed = await ModalWindow.ShowAsync<bool>(owner, dialog);
         }
 
         if (!confirmed) {
