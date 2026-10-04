@@ -1,3 +1,4 @@
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -8,7 +9,7 @@ namespace YKanBan.Storage.AppData;
 /// Loads and saves app.json with graceful degradation: a missing file yields
 /// defaults; a file that is not a JSON object is backed up to app.json.bak and
 /// then defaults are used; an individual invalid field (unknown enum value or
-/// language, out-of-range width, wrong type) falls back to its own default while
+/// language, out-of-range width, wrong JSON type — no implicit conversion) falls back to its own default while
 /// the other fields are kept; a file that exists but cannot be read (I/O or
 /// permission error) also yields defaults. Saving happens only when this session
 /// changed a setting (<see cref="ConfigSection.IsDirty"/>), and writes the file directly (no atomic replace) —
@@ -29,7 +30,7 @@ public sealed class AppConfigStore
     private static readonly JsonSerializer FieldTolerantSerializer = JsonSerializer.Create(new JsonSerializerSettings
     {
         NullValueHandling = NullValueHandling.Ignore,
-        Converters = { new StringEnumConverter { AllowIntegerValues = false } },
+        Converters = { new StringEnumConverter { AllowIntegerValues = false }, new StrictPrimitiveConverter() },
 
         // The JSON text is already known to be well formed here, so every error is a
         // single member that fails to convert: skip it and keep that member's default.
@@ -209,6 +210,41 @@ public sealed class AppConfigStore
         }
 
         File.WriteAllText(FilePath, json);
+    }
+
+    /// <summary>
+    /// Reads booleans, integers and strings only from JSON tokens of exactly that
+    /// type, so a wrong type is an invalid field (falling back to its default)
+    /// instead of being converted: <c>0</c> or <c>"false"</c> is not a boolean,
+    /// <c>"500"</c> or <c>500.0</c> is not an integer, <c>5</c> is not a string.
+    /// </summary>
+    private sealed class StrictPrimitiveConverter : JsonConverter
+    {
+        /// <inheritdoc/>
+        public override bool CanWrite => false;
+
+        /// <inheritdoc/>
+        public override bool CanConvert(Type objectType) =>
+            objectType == typeof(bool) || objectType == typeof(int) || objectType == typeof(string);
+
+        /// <inheritdoc/>
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            JsonToken expected = objectType == typeof(bool) ? JsonToken.Boolean
+                : objectType == typeof(int) ? JsonToken.Integer
+                : JsonToken.String;
+            if (reader.TokenType != expected)
+            {
+                throw new JsonSerializationException($"Expected a {expected} token for {objectType.Name}, got {reader.TokenType}.");
+            }
+
+            // Integer tokens are read as Int64 (or BigInteger); a value outside the Int32 range is invalid too.
+            return objectType == typeof(int) ? checked((int)Convert.ToInt64(reader.Value, CultureInfo.InvariantCulture)) : reader.Value;
+        }
+
+        /// <inheritdoc/>
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) =>
+            throw new NotSupportedException();
     }
 
     /// <summary>

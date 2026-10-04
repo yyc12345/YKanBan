@@ -44,7 +44,7 @@
 - [ ] 删除 `app.json`，打开设置、不改任何项直接确认后退出 → `app.json` 不被创建；改一项再改回原值后退出 → `app.json` 被写出（脏标记按"改动过"判定）
 - [ ] 处于错误页（例如参数错误页）的实例退出时不写 `app.json`（可先删除 `app.json`，退出后确认文件未被创建）
 - [ ] `app.json` 写成非法 JSON → 启动正常、使用默认值，生成 `app.json.bak`；改一次设置退出后 `app.json` 恢复为合法内容
-- [ ] `app.json` 中单个字段非法（如 `"theme": "pink"`、列宽 `"custom-pixels": 9999`）→ 仅该字段回退默认，其余设置保留，不生成 `.bak`
+- [ ] `app.json` 中单个字段非法（如 `"theme": "pink"`、列宽 `"custom-pixels": 9999`、类型不符如 `"delete-card": 0`、`"custom-pixels": "500"`）→ 仅该字段回退默认，其余设置保留，不生成 `.bak`
 
 ## B. 启动与错误页（M4 / M4R）
 

@@ -222,6 +222,13 @@ public class AppConfigStoreTests
     [DataRow("\"column-width\": { \"custom-pixels\": \"wide\" }")]
     [DataRow("\"confirmations\": { \"delete-card\": \"nope\" }")]
     [DataRow("\"version\": \"one\"")]
+    [DataRow("\"version\": \"1\"")]
+    [DataRow("\"language\": [\"zh-Hans\"]")]
+    [DataRow("\"confirmations\": { \"delete-card\": 0 }")]
+    [DataRow("\"confirmations\": { \"delete-card\": \"false\" }")]
+    [DataRow("\"column-width\": { \"custom-pixels\": \"500\" }")]
+    [DataRow("\"column-width\": { \"custom-pixels\": 500.0 }")]
+    [DataRow("\"column-width\": { \"custom-pixels\": 99999999999 }")]
     public void InvalidFieldFallsBackAloneWithoutBackup(string invalidMember)
     {
         using var directory = new TempDirectory();
