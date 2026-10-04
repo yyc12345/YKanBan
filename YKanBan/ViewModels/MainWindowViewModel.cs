@@ -80,6 +80,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase {
             Content = new NotInitializedPageViewModel(folderPath, InitializeWorkspace);
         } catch (WorkspaceLockException) {
             Content = new LockConflictPageViewModel(folderPath);
+        } catch (Exception exception) {
+            // Newer schema, damaged database, I/O or permission errors, and anything unrecognized.
+            Debug.WriteLine(exception);
+            Content = new OpenFailedPageViewModel(folderPath, exception);
         }
     }
 
@@ -95,7 +99,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase {
     /// <param name="folderPath">The workspace folder.</param>
     /// <param name="session">The opened workspace session.</param>
     private void OpenWorkspace(string folderPath, WorkspaceSession session) {
-        Content = new WorkspaceViewModel(_services, session, ShowSettings, ShowAbout);
+        try {
+            Content = new WorkspaceViewModel(_services, session, ShowSettings, ShowAbout);
+        } catch {
+            // The first board read failed: the caller shows an error page, which holds no workspace.
+            _services.CloseWorkspace();
+            throw;
+        }
+
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
     }
 

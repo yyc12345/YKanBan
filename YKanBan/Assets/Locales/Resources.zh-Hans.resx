@@ -445,4 +445,28 @@
   <data name="Export_Done_Message" xml:space="preserve">
     <value>已导出到：{0}</value>
   </data>
+  <data name="Error_OpenFailed_Title" xml:space="preserve">
+    <value>无法打开工作区</value>
+  </data>
+  <data name="Error_OpenFailed_SchemaTooNew" xml:space="preserve">
+    <value>工作区数据库由更新版本的 YKanBan 创建（schema 版本 {1}，当前版本最高支持 {2}）：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Database" xml:space="preserve">
+    <value>工作区数据库无法打开或已损坏：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_DatabaseMissing" xml:space="preserve">
+    <value>工作区数据库（.ykanban/ykanban.db）不存在。请从备份恢复（连同 -wal、-shm 文件），或删除 .ykanban 文件夹后重新初始化：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_AccessDenied" xml:space="preserve">
+    <value>没有访问该工作区的权限：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Io" xml:space="preserve">
+    <value>打开工作区时发生文件系统错误：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Generic" xml:space="preserve">
+    <value>打开工作区时发生意外错误：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Details" xml:space="preserve">
+    <value>详细信息</value>
+  </data>
 </root>
