@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using Pidgin;
 
 namespace YKanBan.Search;
@@ -14,9 +15,10 @@ namespace YKanBan.Search;
 /// input returns null and means "show everything". Search keywords and
 /// qualifier keys are fixed English grammar and are never localized.
 /// </summary>
-public static class SearchQueryParser
-{
-    /// <summary>The recognized qualifier keys; add new entries here to extend the grammar.</summary>
+public static class SearchQueryParser {
+    /// <summary>
+    /// The recognized qualifier keys; add new entries here to extend the grammar.
+    /// </summary>
     private static readonly (string Key, QualifierKind Kind)[] QualifierTable =
     [
         ("tag", QualifierKind.Tag),
@@ -40,12 +42,16 @@ public static class SearchQueryParser
     private static readonly Parser<SearchToken, SearchToken> CloseParen =
         Parser<SearchToken>.Token(token => token is SearchToken.CloseParen);
 
-    /// <summary>The text of a phrase token.</summary>
+    /// <summary>
+    /// The text of a phrase token.
+    /// </summary>
     private static readonly Parser<SearchToken, string> PhraseText =
         Parser<SearchToken>.Token(token => token is SearchToken.Phrase)
             .Select(token => ((SearchToken.Phrase)token).Text);
 
-    /// <summary>The text of a word token, operator keywords excluded (they never start an operand).</summary>
+    /// <summary>
+    /// The text of a word token, operator keywords excluded (they never start an operand).
+    /// </summary>
     private static readonly Parser<SearchToken, string> NonKeywordWord =
         Parser<SearchToken>.Token(token => token is SearchToken.Word word && word.Text != "AND" && word.Text != "OR")
             .Select(token => ((SearchToken.Word)token).Text);
@@ -90,7 +96,9 @@ public static class SearchQueryParser
     private static readonly Parser<SearchToken, SearchNode> Query =
         OrExpr.Before(Parser<SearchToken>.End);
 
-    /// <summary>Defers the OrExpr field read to parse time (recursion cycle breaker).</summary>
+    /// <summary>
+    /// Defers the OrExpr field read to parse time (recursion cycle breaker).
+    /// </summary>
     /// <returns>The OR-expression parser.</returns>
     private static Parser<SearchToken, SearchNode> OrExprDeferred() => OrExpr;
 
@@ -102,20 +110,15 @@ public static class SearchQueryParser
     /// <param name="text">The raw search text.</param>
     /// <returns>The parsed query, or <see langword="null"/> for blank input (meaning: show everything).</returns>
     /// <exception cref="SearchSyntaxException">The text violates the grammar.</exception>
-    public static SearchNode? Parse(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
+    public static SearchNode? Parse(string text) {
+        if (string.IsNullOrWhiteSpace(text)) {
             return null;
         }
 
-        try
-        {
+        try {
             List<SearchToken> tokens = SearchLexer.Tokenize(text).ToList();
             return Query.ParseOrThrow(tokens);
-        }
-        catch (ParseException exception)
-        {
+        } catch (ParseException exception) {
             throw new SearchSyntaxException(exception.Message, exception);
         }
     }
@@ -128,21 +131,18 @@ public static class SearchQueryParser
     /// </summary>
     /// <param name="word">The word token text.</param>
     /// <returns>The parser producing the operand node.</returns>
-    private static Parser<SearchToken, SearchNode> QualifierFrom(string word)
-    {
+    private static Parser<SearchToken, SearchNode> QualifierFrom(string word) {
         int colonIndex = word.IndexOf(':');
 
         // Only a leading run of letters/digits/underscores before ':' can be a qualifier key.
-        if (colonIndex <= 0 || !IsQualifierKeyCandidate(word.AsSpan(0, colonIndex)))
-        {
+        if (colonIndex <= 0 || !IsQualifierKeyCandidate(word.AsSpan(0, colonIndex))) {
             return Parser<SearchToken>.Return<SearchNode>(new SearchNode.FreeText(word));
         }
 
         string key = word[..colonIndex];
         string value = word[(colonIndex + 1)..];
 
-        if (!TryLookupQualifier(key, out QualifierKind kind))
-        {
+        if (!TryLookupQualifier(key, out QualifierKind kind)) {
             return Parser<SearchToken>.Fail<SearchNode>($"Unknown qualifier key '{key}'.");
         }
 
@@ -169,8 +169,7 @@ public static class SearchQueryParser
     /// <param name="kind">The qualifier kind.</param>
     /// <param name="value">The qualifier value.</param>
     /// <returns>The atom node, or <see langword="null"/> for an invalid id value.</returns>
-    private static SearchNode? AtomFrom(QualifierKind kind, string value) => kind switch
-    {
+    private static SearchNode? AtomFrom(QualifierKind kind, string value) => kind switch {
         QualifierKind.Tag => new SearchNode.TagName(value),
         QualifierKind.Title => new SearchNode.FieldText(SearchField.Title, value),
         QualifierKind.Content => new SearchNode.FieldText(SearchField.Content, value),
@@ -186,12 +185,9 @@ public static class SearchQueryParser
     /// <param name="key">The key text before the colon.</param>
     /// <param name="kind">The matching qualifier kind.</param>
     /// <returns><see langword="true"/> when the key is known.</returns>
-    private static bool TryLookupQualifier(string key, out QualifierKind kind)
-    {
-        foreach ((string candidate, QualifierKind candidateKind) in QualifierTable)
-        {
-            if (string.Equals(candidate, key, StringComparison.Ordinal))
-            {
+    private static bool TryLookupQualifier(string key, out QualifierKind kind) {
+        foreach ((string candidate, QualifierKind candidateKind) in QualifierTable) {
+            if (string.Equals(candidate, key, StringComparison.Ordinal)) {
                 kind = candidateKind;
                 return true;
             }
@@ -207,12 +203,9 @@ public static class SearchQueryParser
     /// </summary>
     /// <param name="text">The candidate key text.</param>
     /// <returns><see langword="true"/> when every character is a word character.</returns>
-    private static bool IsQualifierKeyCandidate(ReadOnlySpan<char> text)
-    {
-        foreach (char character in text)
-        {
-            if (!(char.IsLetterOrDigit(character) || character == '_'))
-            {
+    private static bool IsQualifierKeyCandidate(ReadOnlySpan<char> text) {
+        foreach (char character in text) {
+            if (!(char.IsLetterOrDigit(character) || character == '_')) {
                 return false;
             }
         }
@@ -226,8 +219,7 @@ public static class SearchQueryParser
     /// <param name="first">The first operand.</param>
     /// <param name="rest">The remaining operands.</param>
     /// <returns>The single operand, or an <see cref="SearchNode.And"/> node.</returns>
-    private static SearchNode FoldAnd(SearchNode first, IEnumerable<SearchNode> rest)
-    {
+    private static SearchNode FoldAnd(SearchNode first, IEnumerable<SearchNode> rest) {
         List<SearchNode> terms = [first, .. rest];
         return terms.Count == 1 ? terms[0] : new SearchNode.And(terms);
     }
@@ -237,17 +229,17 @@ public static class SearchQueryParser
     /// </summary>
     /// <param name="terms">The operands.</param>
     /// <returns>The single operand, or a <see cref="SearchNode.Or"/> node.</returns>
-    private static SearchNode FoldOr(IEnumerable<SearchNode> terms)
-    {
+    private static SearchNode FoldOr(IEnumerable<SearchNode> terms) {
         List<SearchNode> list = terms.ToList();
         return list.Count == 1 ? list[0] : new SearchNode.Or(list);
     }
 
     #endregion
 
-    /// <summary>The recognized qualifier kinds.</summary>
-    private enum QualifierKind
-    {
+    /// <summary>
+    /// The recognized qualifier kinds.
+    /// </summary>
+    private enum QualifierKind {
         Tag,
         Title,
         Content,

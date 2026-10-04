@@ -7,8 +7,7 @@ namespace YKanBan.Storage.Workspace;
 /// KEY) so every stored row is valid by construction, and cascading deletes
 /// are covered by the same DDL.
 /// </summary>
-public static class WorkspaceSchema
-{
+public static class WorkspaceSchema {
     /// <summary>
     /// Newest workspace schema version this build understands.
     /// </summary>

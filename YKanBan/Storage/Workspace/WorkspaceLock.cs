@@ -5,8 +5,7 @@ namespace YKanBan.Storage.Workspace;
 /// held until disposal, so crashes and power loss release it automatically. The
 /// lock file is kept empty; only its exclusive OS handle carries meaning.
 /// </summary>
-public sealed class WorkspaceLock : IDisposable
-{
+public sealed class WorkspaceLock : IDisposable {
     private readonly FileStream _stream;
 
     /// <summary>
@@ -14,8 +13,7 @@ public sealed class WorkspaceLock : IDisposable
     /// </summary>
     /// <param name="stream">The exclusively opened lock file stream.</param>
     /// <param name="lockFilePath">Path of the lock file being held.</param>
-    private WorkspaceLock(FileStream stream, string lockFilePath)
-    {
+    private WorkspaceLock(FileStream stream, string lockFilePath) {
         _stream = stream;
         LockFilePath = lockFilePath;
     }
@@ -32,24 +30,18 @@ public sealed class WorkspaceLock : IDisposable
     /// <returns>The held lock; dispose it to release.</returns>
     /// <exception cref="WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
     /// <exception cref="WorkspaceLockException">Another instance already holds the lock.</exception>
-    public static WorkspaceLock Acquire(string folderPath)
-    {
+    public static WorkspaceLock Acquire(string folderPath) {
         string lockFilePath = WorkspacePaths.LockFile(folderPath);
         FileStream stream;
-        try
-        {
+        try {
             // FileShare.None gives the exclusive semantics; FileMode.Create empties any stale file.
             // SAFETY: FileMode.Create truncates a pre-existing file, but the lock
             // file is empty by design and the path always comes from
             // WorkspacePaths.LockFile, so no user data is ever affected.
             stream = new FileStream(lockFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        }
-        catch (DirectoryNotFoundException)
-        {
+        } catch (DirectoryNotFoundException) {
             throw new WorkspaceNotInitializedException(folderPath);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new WorkspaceLockException(lockFilePath, ex);
         }
 

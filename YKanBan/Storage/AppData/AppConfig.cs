@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+
 using Newtonsoft.Json;
 
 namespace YKanBan.Storage.AppData;
@@ -7,37 +8,52 @@ namespace YKanBan.Storage.AppData;
 /// Display ordering options, used for both cards and columns. Except for the id
 /// order, every option falls back to id ascending as the final tie-breaker.
 /// </summary>
-public enum SortOption
-{
-    /// <summary>Primary key ascending.</summary>
+public enum SortOption {
+    /// <summary>
+    /// Primary key ascending.
+    /// </summary>
     [EnumMember(Value = "id-asc")]
     IdAscending,
 
-    /// <summary>Primary key descending.</summary>
+    /// <summary>
+    /// Primary key descending.
+    /// </summary>
     [EnumMember(Value = "id-desc")]
     IdDescending,
 
-    /// <summary>Creation time ascending.</summary>
+    /// <summary>
+    /// Creation time ascending.
+    /// </summary>
     [EnumMember(Value = "created-asc")]
     CreatedAscending,
 
-    /// <summary>Creation time descending.</summary>
+    /// <summary>
+    /// Creation time descending.
+    /// </summary>
     [EnumMember(Value = "created-desc")]
     CreatedDescending,
 
-    /// <summary>Last modification time ascending.</summary>
+    /// <summary>
+    /// Last modification time ascending.
+    /// </summary>
     [EnumMember(Value = "updated-asc")]
     UpdatedAscending,
 
-    /// <summary>Last modification time descending.</summary>
+    /// <summary>
+    /// Last modification time descending.
+    /// </summary>
     [EnumMember(Value = "updated-desc")]
     UpdatedDescending,
 
-    /// <summary>Title by code points (BINARY collation) ascending.</summary>
+    /// <summary>
+    /// Title by code points (BINARY collation) ascending.
+    /// </summary>
     [EnumMember(Value = "title-asc")]
     TitleAscending,
 
-    /// <summary>Title by code points (BINARY collation) descending.</summary>
+    /// <summary>
+    /// Title by code points (BINARY collation) descending.
+    /// </summary>
     [EnumMember(Value = "title-desc")]
     TitleDescending,
 }
@@ -45,21 +61,28 @@ public enum SortOption
 /// <summary>
 /// Column width presets. <see cref="Custom"/> uses a user-defined pixel width.
 /// </summary>
-public enum ColumnWidthPreset
-{
-    /// <summary>Narrow preset.</summary>
+public enum ColumnWidthPreset {
+    /// <summary>
+    /// Narrow preset.
+    /// </summary>
     [EnumMember(Value = "narrow")]
     Narrow,
 
-    /// <summary>Standard preset (320 px, the default).</summary>
+    /// <summary>
+    /// Standard preset (320 px, the default).
+    /// </summary>
     [EnumMember(Value = "standard")]
     Standard,
 
-    /// <summary>Wide preset.</summary>
+    /// <summary>
+    /// Wide preset.
+    /// </summary>
     [EnumMember(Value = "wide")]
     Wide,
 
-    /// <summary>User-defined pixel width (160–720).</summary>
+    /// <summary>
+    /// User-defined pixel width (160–720).
+    /// </summary>
     [EnumMember(Value = "custom")]
     Custom,
 }
@@ -67,17 +90,22 @@ public enum ColumnWidthPreset
 /// <summary>
 /// UI theme selection.
 /// </summary>
-public enum ThemeOption
-{
-    /// <summary>Always light.</summary>
+public enum ThemeOption {
+    /// <summary>
+    /// Always light.
+    /// </summary>
     [EnumMember(Value = "light")]
     Light,
 
-    /// <summary>Always dark.</summary>
+    /// <summary>
+    /// Always dark.
+    /// </summary>
     [EnumMember(Value = "dark")]
     Dark,
 
-    /// <summary>Follow the operating system setting (default).</summary>
+    /// <summary>
+    /// Follow the operating system setting (default).
+    /// </summary>
     [EnumMember(Value = "follow-system")]
     FollowSystem,
 }
@@ -85,8 +113,7 @@ public enum ThemeOption
 /// <summary>
 /// Board column width settings, applied globally.
 /// </summary>
-public sealed class ColumnWidthSettings
-{
+public sealed class ColumnWidthSettings {
     /// <summary>
     /// Gets or sets the active width preset.
     /// </summary>
@@ -105,8 +132,7 @@ public sealed class ColumnWidthSettings
 /// Everything that controls how the board is displayed: the column width and
 /// the card and column ordering.
 /// </summary>
-public sealed class DisplaySettings
-{
+public sealed class DisplaySettings {
     /// <summary>
     /// Gets or sets the board column width settings.
     /// </summary>
@@ -129,8 +155,7 @@ public sealed class DisplaySettings
 /// <summary>
 /// Confirmation-dialog toggles for the destructive actions.
 /// </summary>
-public sealed class ConfirmationSettings
-{
+public sealed class ConfirmationSettings {
     /// <summary>
     /// Gets or sets whether deleting a card asks for confirmation.
     /// </summary>
@@ -162,8 +187,7 @@ public sealed class ConfirmationSettings
 /// <see cref="JsonPropertyAttribute"/> and <see cref="EnumMemberAttribute"/>).
 /// The <c>version</c> field is the migration hook for future format changes.
 /// </summary>
-public sealed class AppConfig
-{
+public sealed class AppConfig {
     /// <summary>
     /// Current configuration format version.
     /// </summary>

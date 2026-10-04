@@ -10,8 +10,7 @@ namespace YKanBan.Models;
 /// always produces the canonical lowercase form (for example "#ff0a00"). It is
 /// not specific to tags and may be reused anywhere a color value is needed.
 /// </summary>
-public readonly record struct RgbColor(byte R, byte G, byte B)
-{
+public readonly record struct RgbColor(byte R, byte G, byte B) {
     /// <summary>
     /// Parses a "#RRGGBB" text with case-insensitive hex digits.
     /// </summary>
@@ -29,17 +28,14 @@ public readonly record struct RgbColor(byte R, byte G, byte B)
     /// <param name="text">The text to parse.</param>
     /// <param name="color">The parsed color on success, otherwise the default value.</param>
     /// <returns><see langword="true"/> when the text is exactly #RRGGBB.</returns>
-    public static bool TryParse(string? text, out RgbColor color)
-    {
+    public static bool TryParse(string? text, out RgbColor color) {
         color = default;
-        if (text is not { Length: 7 } || text[0] != '#')
-        {
+        if (text is not { Length: 7 } || text[0] != '#') {
             return false;
         }
 
         // Two hex digits per component: R, G, B.
-        if (TryHexPair(text, 1, out byte r) && TryHexPair(text, 3, out byte g) && TryHexPair(text, 5, out byte b))
-        {
+        if (TryHexPair(text, 1, out byte r) && TryHexPair(text, 3, out byte g) && TryHexPair(text, 5, out byte b)) {
             color = new RgbColor(r, g, b);
             return true;
         }
@@ -59,13 +55,11 @@ public readonly record struct RgbColor(byte R, byte G, byte B)
     /// <param name="start">Index of the first of the two digits.</param>
     /// <param name="value">The parsed byte value.</param>
     /// <returns><see langword="true"/> when both characters are hex digits.</returns>
-    private static bool TryHexPair(string text, int start, out byte value)
-    {
+    private static bool TryHexPair(string text, int start, out byte value) {
         value = 0;
         int high = HexDigit(text[start]);
         int low = HexDigit(text[start + 1]);
-        if (high < 0 || low < 0)
-        {
+        if (high < 0 || low < 0) {
             return false;
         }
         value = (byte)((high << 4) | low);
@@ -77,8 +71,7 @@ public readonly record struct RgbColor(byte R, byte G, byte B)
     /// </summary>
     /// <param name="character">The character to convert.</param>
     /// <returns>The digit value, or -1 for any other character.</returns>
-    private static int HexDigit(char character) => character switch
-    {
+    private static int HexDigit(char character) => character switch {
         >= '0' and <= '9' => character - '0',
         >= 'a' and <= 'f' => character - 'a' + 10,
         >= 'A' and <= 'F' => character - 'A' + 10,

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using YKanBan.Export;
 using YKanBan.Models;
 
@@ -14,8 +15,7 @@ namespace YKanBan.Tests.Export;
 /// </summary>
 [TestClass]
 [DoNotParallelize]
-public class MarkdownExporterTests
-{
+public class MarkdownExporterTests {
     private static readonly DateTimeOffset ExportedAt = new(2026, 9, 30, 14, 25, 37, TimeSpan.Zero);
 
     /// <summary>
@@ -46,8 +46,7 @@ public class MarkdownExporterTests
     /// Builds the board fixture: one working column with two cards, one empty column and two tags.
     /// </summary>
     /// <returns>The columns, cards and tag/usage tuples.</returns>
-    private static (IReadOnlyList<ColumnModel> Columns, IReadOnlyList<CardModel> Cards, IReadOnlyList<(TagModel, long)> Tags) CreateBoard()
-    {
+    private static (IReadOnlyList<ColumnModel> Columns, IReadOnlyList<CardModel> Cards, IReadOnlyList<(TagModel, long)> Tags) CreateBoard() {
         long created = UnixTimeOf(2026, 9, 1, 10, 0);
         long updated = UnixTimeOf(2026, 9, 28, 18, 30);
 
@@ -71,8 +70,7 @@ public class MarkdownExporterTests
     /// Renders the fixture board with the exporter under the current culture.
     /// </summary>
     /// <returns>The produced Markdown document.</returns>
-    private static string ExportBoard()
-    {
+    private static string ExportBoard() {
         (IReadOnlyList<ColumnModel> columns, IReadOnlyList<CardModel> cards, IReadOnlyList<(TagModel, long)> tags) = CreateBoard();
         return MarkdownExporter.Export("MyRepo", columns, cards, tags, ExportedAt);
     }
@@ -82,8 +80,7 @@ public class MarkdownExporterTests
     /// </summary>
     /// <param name="culture">The UI culture.</param>
     /// <returns>The expected Markdown document.</returns>
-    private static string BuildExpected(CultureInfo culture)
-    {
+    private static string BuildExpected(CultureInfo culture) {
         string created = Local(2026, 9, 1, 10, 0).ToString(Resources.Export_CardTimePattern, culture);
         string updated = Local(2026, 9, 28, 18, 30).ToString(Resources.Export_CardTimePattern, culture);
 
@@ -133,38 +130,30 @@ public class MarkdownExporterTests
     /// Asserts that the exporter output matches the resource-built expected document.
     /// </summary>
     /// <param name="culture">The UI culture to test.</param>
-    private static void AssertOutputMatches(CultureInfo culture)
-    {
+    private static void AssertOutputMatches(CultureInfo culture) {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = culture;
             Assert.AreEqual(Normalize(BuildExpected(culture)), Normalize(ExportBoard()));
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void EnglishOutputMatchesTemplate()
-    {
+    public void EnglishOutputMatchesTemplate() {
         AssertOutputMatches(new CultureInfo("en"));
     }
 
     [TestMethod]
-    public void ChineseOutputMatchesTemplate()
-    {
+    public void ChineseOutputMatchesTemplate() {
         AssertOutputMatches(new CultureInfo("zh-Hans"));
     }
 
     [TestMethod]
-    public void FileNameFollowsLanguage()
-    {
+    public void FileNameFollowsLanguage() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("en");
             Assert.AreEqual(
                 string.Format(Resources.Culture, Resources.Export_FileNamePattern, "MyRepo", ExportedAt),
@@ -174,19 +163,15 @@ public class MarkdownExporterTests
             Assert.AreEqual(
                 string.Format(Resources.Culture, Resources.Export_FileNamePattern, "MyRepo", ExportedAt),
                 MarkdownExporter.BuildFileName("MyRepo", ExportedAt));
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void TagTableCellsEscapePipesAndLineBreaks()
-    {
+    public void TagTableCellsEscapePipesAndLineBreaks() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("en");
             var tag = new TagModel(1, "a|b", RgbColor.Parse("#112233"), "first\nsecond");
             string markdown = MarkdownExporter.Export(
@@ -197,9 +182,7 @@ public class MarkdownExporterTests
                 ExportedAt);
 
             StringAssert.Contains(markdown, "| a\\|b | #112233 | first second | 0 |");
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }

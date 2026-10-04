@@ -10,8 +10,7 @@ namespace YKanBan.Search;
 /// Root of the search query AST. Search keywords are fixed English grammar
 /// and are never localized.
 /// </summary>
-public abstract record SearchNode
-{
+public abstract record SearchNode {
     /// <summary>
     /// Disjunction: matches when any term matches (OR).
     /// </summary>
@@ -59,11 +58,14 @@ public abstract record SearchNode
 /// <summary>
 /// The card fields a <see cref="SearchNode.FieldText"/> atom can scope to.
 /// </summary>
-public enum SearchField
-{
-    /// <summary>The card title.</summary>
+public enum SearchField {
+    /// <summary>
+    /// The card title.
+    /// </summary>
     Title,
 
-    /// <summary>The card content body.</summary>
+    /// <summary>
+    /// The card content body.
+    /// </summary>
     Content,
 }

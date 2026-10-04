@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 
 namespace YKanBan.ViewModels.Board;
@@ -9,8 +11,7 @@ namespace YKanBan.ViewModels.Board;
 /// One board column: a header with its title, card count and actions, plus the
 /// vertically stacked cards.
 /// </summary>
-public sealed partial class ColumnViewModel : ViewModelBase
-{
+public sealed partial class ColumnViewModel : ViewModelBase {
     private readonly BoardViewModel _board;
 
     /// <summary>
@@ -19,8 +20,7 @@ public sealed partial class ColumnViewModel : ViewModelBase
     /// <param name="board">The owning board view model.</param>
     /// <param name="column">The column model.</param>
     /// <param name="cards">The already sorted cards belonging to this column.</param>
-    public ColumnViewModel(BoardViewModel board, ColumnModel column, IEnumerable<CardViewModel> cards)
-    {
+    public ColumnViewModel(BoardViewModel board, ColumnModel column, IEnumerable<CardViewModel> cards) {
         _board = board;
         Model = column;
         Cards = new ObservableCollection<CardViewModel>(cards);

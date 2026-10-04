@@ -8,11 +8,9 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// Tests for exclusive lock acquisition and release.
 /// </summary>
 [TestClass]
-public class WorkspaceLockTests
-{
+public class WorkspaceLockTests {
     [TestMethod]
-    public void AcquireThenDisposeThenAcquireAgainSucceeds()
-    {
+    public void AcquireThenDisposeThenAcquireAgainSucceeds() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
@@ -22,8 +20,7 @@ public class WorkspaceLockTests
     }
 
     [TestMethod]
-    public void SecondAcquireWhileHeldThrows()
-    {
+    public void SecondAcquireWhileHeldThrows() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
@@ -34,21 +31,18 @@ public class WorkspaceLockTests
     }
 
     [TestMethod]
-    public void AcquireWithoutYkanbanThrowsNotInitialized()
-    {
+    public void AcquireWithoutYkanbanThrowsNotInitialized() {
         using var directory = new TempDirectory();
         Assert.ThrowsExactly<WorkspaceNotInitializedException>(
             () => WorkspaceLock.Acquire(directory.FullPath));
     }
 
     [TestMethod]
-    public void LockFileIsEmptyAfterRelease()
-    {
+    public void LockFileIsEmptyAfterRelease() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
-        using (WorkspaceLock.Acquire(directory.FullPath))
-        {
+        using (WorkspaceLock.Acquire(directory.FullPath)) {
         }
 
         // The lock file survives release but carries no content; only the OS handle matters.

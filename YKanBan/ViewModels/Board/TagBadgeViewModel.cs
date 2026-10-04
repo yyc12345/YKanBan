@@ -1,4 +1,5 @@
 using Avalonia.Media;
+
 using YKanBan.Models;
 
 namespace YKanBan.ViewModels.Board;
@@ -8,14 +9,12 @@ namespace YKanBan.ViewModels.Board;
 /// background taken directly from the tag color (user data, never themed) and
 /// an automatically contrasting text color.
 /// </summary>
-public sealed class TagBadgeViewModel
-{
+public sealed class TagBadgeViewModel {
     /// <summary>
     /// Initializes a badge from a tag.
     /// </summary>
     /// <param name="tag">The tag to render.</param>
-    public TagBadgeViewModel(TagModel tag)
-    {
+    public TagBadgeViewModel(TagModel tag) {
         Tag = tag;
         Name = tag.Name;
         Color background = Color.FromRgb(tag.Color.R, tag.Color.G, tag.Color.B);
@@ -54,8 +53,7 @@ public sealed class TagBadgeViewModel
     /// </summary>
     /// <param name="background">The badge background color.</param>
     /// <returns>The contrasting text color.</returns>
-    private static Color ContrastingTextColor(Color background)
-    {
+    private static Color ContrastingTextColor(Color background) {
         double luminance = (0.299 * background.R + 0.587 * background.G + 0.114 * background.B) / 255.0;
         return luminance > 0.6 ? Colors.Black : Colors.White;
     }

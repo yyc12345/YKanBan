@@ -5,8 +5,7 @@ namespace YKanBan.Storage.AppData;
 /// (%APPDATA%/YKanBan on Windows and the equivalent directory on other
 /// platforms).
 /// </summary>
-public static class AppDataPaths
-{
+public static class AppDataPaths {
     /// <summary>
     /// Gets the per-user YKanBan application data folder.
     /// </summary>

@@ -7,8 +7,7 @@ namespace YKanBan.Storage.Workspace;
 /// any database work happens. Disposing releases the repository and then the
 /// lock.
 /// </summary>
-public sealed class WorkspaceSession : IDisposable
-{
+public sealed class WorkspaceSession : IDisposable {
     private readonly WorkspaceLock _workspaceLock;
 
     /// <summary>
@@ -17,8 +16,7 @@ public sealed class WorkspaceSession : IDisposable
     /// <param name="folderPath">The canonical workspace folder path.</param>
     /// <param name="workspaceLock">The exclusive lock held while this session is open.</param>
     /// <param name="repository">The data access object for this workspace.</param>
-    private WorkspaceSession(string folderPath, WorkspaceLock workspaceLock, WorkspaceRepository repository)
-    {
+    private WorkspaceSession(string folderPath, WorkspaceLock workspaceLock, WorkspaceRepository repository) {
         FolderPath = folderPath;
         _workspaceLock = workspaceLock;
         Repository = repository;
@@ -41,16 +39,12 @@ public sealed class WorkspaceSession : IDisposable
     /// <returns>The opened session; dispose it to release the lock and connection.</returns>
     /// <exception cref="WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
     /// <exception cref="WorkspaceLockException">Another instance already holds the lock.</exception>
-    public static WorkspaceSession Open(string folderPath)
-    {
+    public static WorkspaceSession Open(string folderPath) {
         WorkspaceLock workspaceLock = WorkspaceLock.Acquire(folderPath);
-        try
-        {
+        try {
             var repository = new WorkspaceRepository(folderPath);
             return new WorkspaceSession(folderPath, workspaceLock, repository);
-        }
-        catch
-        {
+        } catch {
             workspaceLock.Dispose();
             throw;
         }
@@ -59,8 +53,7 @@ public sealed class WorkspaceSession : IDisposable
     /// <summary>
     /// Releases the repository connection, then the exclusive lock.
     /// </summary>
-    public void Dispose()
-    {
+    public void Dispose() {
         Repository.Dispose();
         _workspaceLock.Dispose();
     }

@@ -4,8 +4,7 @@ namespace YKanBan.Storage.Workspace;
 /// Well-known file and folder names inside a workspace's .ykanban structure,
 /// plus helpers that combine them with a workspace folder path.
 /// </summary>
-public static class WorkspacePaths
-{
+public static class WorkspacePaths {
     /// <summary>
     /// Name of the workspace root folder created inside a managed project.
     /// </summary>

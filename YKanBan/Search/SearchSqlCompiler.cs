@@ -15,15 +15,13 @@ public sealed record CompiledSearch(string Predicate, IReadOnlyList<(string Name
 /// wildcards and the escape character in user text are escaped so they match
 /// literally.
 /// </summary>
-public static class SearchSqlCompiler
-{
+public static class SearchSqlCompiler {
     /// <summary>
     /// Compiles the query into a SQL predicate.
     /// </summary>
     /// <param name="query">The parsed search AST.</param>
     /// <returns>The compiled predicate and its parameters.</returns>
-    public static CompiledSearch Compile(SearchNode query)
-    {
+    public static CompiledSearch Compile(SearchNode query) {
         var parameters = new List<(string Name, object Value)>();
         string predicate = Build(query, parameters);
         return new CompiledSearch(predicate, parameters);
@@ -35,49 +33,42 @@ public static class SearchSqlCompiler
     /// <param name="node">The AST node to compile.</param>
     /// <param name="parameters">The parameter accumulator.</param>
     /// <returns>The SQL boolean expression for the node.</returns>
-    private static string Build(SearchNode node, List<(string Name, object Value)> parameters)
-    {
-        switch (node)
-        {
+    private static string Build(SearchNode node, List<(string Name, object Value)> parameters) {
+        switch (node) {
             case SearchNode.And and:
                 return "(" + string.Join(" AND ", and.Terms.Select(term => Build(term, parameters))) + ")";
 
             case SearchNode.Or or:
                 return "(" + string.Join(" OR ", or.Terms.Select(term => Build(term, parameters))) + ")";
 
-            case SearchNode.FreeText freeText:
-            {
-                // A bare word matches a substring of the title OR the content.
-                string titleParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
-                string contentParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
-                return $"(c.title LIKE {titleParam} ESCAPE '\\' OR c.content LIKE {contentParam} ESCAPE '\\')";
-            }
+            case SearchNode.FreeText freeText: {
+                    // A bare word matches a substring of the title OR the content.
+                    string titleParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
+                    string contentParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
+                    return $"(c.title LIKE {titleParam} ESCAPE '\\' OR c.content LIKE {contentParam} ESCAPE '\\')";
+                }
 
-            case SearchNode.FieldText field:
-            {
-                string column = field.Field == SearchField.Title ? "c.title" : "c.content";
-                string param = AddParameter(parameters, "%" + EscapeLike(field.Text) + "%");
-                return $"{column} LIKE {param} ESCAPE '\\'";
-            }
+            case SearchNode.FieldText field: {
+                    string column = field.Field == SearchField.Title ? "c.title" : "c.content";
+                    string param = AddParameter(parameters, "%" + EscapeLike(field.Text) + "%");
+                    return $"{column} LIKE {param} ESCAPE '\\'";
+                }
 
-            case SearchNode.TagName tag:
-            {
-                string param = AddParameter(parameters, tag.Name);
-                return "EXISTS (SELECT 1 FROM card_tags ct JOIN tags t ON t.id = ct.tag_id " +
-                       $"WHERE ct.card_id = c.id AND t.name COLLATE NOCASE = {param})";
-            }
+            case SearchNode.TagName tag: {
+                    string param = AddParameter(parameters, tag.Name);
+                    return "EXISTS (SELECT 1 FROM card_tags ct JOIN tags t ON t.id = ct.tag_id " +
+                           $"WHERE ct.card_id = c.id AND t.name COLLATE NOCASE = {param})";
+                }
 
-            case SearchNode.ColumnTitle column:
-            {
-                string param = AddParameter(parameters, column.Title);
-                return $"c.column_id IN (SELECT id FROM columns WHERE title COLLATE NOCASE = {param})";
-            }
+            case SearchNode.ColumnTitle column: {
+                    string param = AddParameter(parameters, column.Title);
+                    return $"c.column_id IN (SELECT id FROM columns WHERE title COLLATE NOCASE = {param})";
+                }
 
-            case SearchNode.CardId id:
-            {
-                string param = AddParameter(parameters, id.Id);
-                return $"c.id = {param}";
-            }
+            case SearchNode.CardId id: {
+                    string param = AddParameter(parameters, id.Id);
+                    return $"c.id = {param}";
+                }
 
             default:
                 throw new InvalidOperationException($"Unsupported search node: {node.GetType().Name}");
@@ -90,8 +81,7 @@ public static class SearchSqlCompiler
     /// <param name="parameters">The parameter accumulator.</param>
     /// <param name="value">The value to bind.</param>
     /// <returns>The placeholder text.</returns>
-    private static string AddParameter(List<(string Name, object Value)> parameters, object value)
-    {
+    private static string AddParameter(List<(string Name, object Value)> parameters, object value) {
         string name = "$p" + parameters.Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
         parameters.Add((name, value));
         return name;

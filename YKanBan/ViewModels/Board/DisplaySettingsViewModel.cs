@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+
 using YKanBan.Storage.AppData;
 
 namespace YKanBan.ViewModels.Board;
@@ -8,12 +9,15 @@ namespace YKanBan.ViewModels.Board;
 /// width and the separate card and column orderings. Every change writes to
 /// the configuration and asks the board to refresh immediately.
 /// </summary>
-public sealed partial class DisplaySettingsViewModel : ViewModelBase
-{
-    /// <summary>Smallest accepted manual width.</summary>
+public sealed partial class DisplaySettingsViewModel : ViewModelBase {
+    /// <summary>
+    /// Smallest accepted manual width.
+    /// </summary>
     public const int MinimumPixels = 160;
 
-    /// <summary>Largest accepted manual width.</summary>
+    /// <summary>
+    /// Largest accepted manual width.
+    /// </summary>
     public const int MaximumPixels = 720;
 
     private readonly AppConfig _config;
@@ -24,8 +28,7 @@ public sealed partial class DisplaySettingsViewModel : ViewModelBase
     /// </summary>
     /// <param name="config">The live application configuration.</param>
     /// <param name="refresh">Invoked after every change to refresh the board.</param>
-    public DisplaySettingsViewModel(AppConfig config, Action refresh)
-    {
+    public DisplaySettingsViewModel(AppConfig config, Action refresh) {
         _config = config;
         _refresh = refresh;
 
@@ -88,11 +91,9 @@ public sealed partial class DisplaySettingsViewModel : ViewModelBase
     /// Stores the width preset and refreshes the board.
     /// </summary>
     /// <param name="value">The new selection.</param>
-    partial void OnSelectedPresetChanged(OptionItem? value)
-    {
+    partial void OnSelectedPresetChanged(OptionItem? value) {
         OnPropertyChanged(nameof(IsCustom));
-        if (value is not null)
-        {
+        if (value is not null) {
             _config.Display.ColumnWidth.Preset = (ColumnWidthPreset)value.Value;
             _refresh();
         }
@@ -102,17 +103,14 @@ public sealed partial class DisplaySettingsViewModel : ViewModelBase
     /// Stores the manual width and refreshes the board when the custom preset is active.
     /// </summary>
     /// <param name="value">The new pixel count.</param>
-    partial void OnCustomPixelsChanged(decimal? value)
-    {
-        if (value is null)
-        {
+    partial void OnCustomPixelsChanged(decimal? value) {
+        if (value is null) {
             return;
         }
 
         int pixels = (int)value.Value;
         _config.Display.ColumnWidth.CustomPixels = pixels;
-        if (IsCustom)
-        {
+        if (IsCustom) {
             _refresh();
         }
     }
@@ -121,10 +119,8 @@ public sealed partial class DisplaySettingsViewModel : ViewModelBase
     /// Stores the card order and refreshes the board.
     /// </summary>
     /// <param name="value">The new selection.</param>
-    partial void OnSelectedCardSortChanged(OptionItem? value)
-    {
-        if (value is not null)
-        {
+    partial void OnSelectedCardSortChanged(OptionItem? value) {
+        if (value is not null) {
             _config.Display.CardSort = (SortOption)value.Value;
             _refresh();
         }
@@ -134,10 +130,8 @@ public sealed partial class DisplaySettingsViewModel : ViewModelBase
     /// Stores the column order and refreshes the board.
     /// </summary>
     /// <param name="value">The new selection.</param>
-    partial void OnSelectedColumnSortChanged(OptionItem? value)
-    {
-        if (value is not null)
-        {
+    partial void OnSelectedColumnSortChanged(OptionItem? value) {
+        if (value is not null) {
             _config.Display.ColumnSort = (SortOption)value.Value;
             _refresh();
         }

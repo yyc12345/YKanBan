@@ -10,11 +10,9 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// the whole session and the repository is usable through it.
 /// </summary>
 [TestClass]
-public class WorkspaceSessionTests
-{
+public class WorkspaceSessionTests {
     [TestMethod]
-    public void OpenHoldsLockUntilDisposed()
-    {
+    public void OpenHoldsLockUntilDisposed() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
@@ -25,8 +23,7 @@ public class WorkspaceSessionTests
     }
 
     [TestMethod]
-    public void DisposeReleasesLockForReopen()
-    {
+    public void DisposeReleasesLockForReopen() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
@@ -37,8 +34,7 @@ public class WorkspaceSessionTests
     }
 
     [TestMethod]
-    public void OpenUninitializedFolderThrowsNotInitialized()
-    {
+    public void OpenUninitializedFolderThrowsNotInitialized() {
         using var directory = new TempDirectory();
 
         Assert.ThrowsExactly<WorkspaceNotInitializedException>(
@@ -46,8 +42,7 @@ public class WorkspaceSessionTests
     }
 
     [TestMethod]
-    public void RepositoryIsUsableThroughSession()
-    {
+    public void RepositoryIsUsableThroughSession() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 

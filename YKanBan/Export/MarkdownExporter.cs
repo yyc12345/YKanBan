@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+
 using YKanBan.Models;
 
 namespace YKanBan.Export;
@@ -11,8 +12,7 @@ namespace YKanBan.Export;
 /// timestamps use the shared minute-precision pattern. The output is meant for
 /// reading only — there is no re-import.
 /// </summary>
-public static class MarkdownExporter
-{
+public static class MarkdownExporter {
     /// <summary>
     /// Renders the whole board to Markdown.
     /// </summary>
@@ -27,8 +27,7 @@ public static class MarkdownExporter
         IReadOnlyList<ColumnModel> columns,
         IReadOnlyList<CardModel> cards,
         IReadOnlyList<(TagModel Tag, long UsageCount)> tags,
-        DateTimeOffset exportedAt)
-    {
+        DateTimeOffset exportedAt) {
         CultureInfo culture = Resources.Culture ?? CultureInfo.CurrentUICulture;
 
         var builder = new StringBuilder();
@@ -40,18 +39,15 @@ public static class MarkdownExporter
         builder.AppendLine();
 
         // Board body: every column in id order, empty ones included.
-        foreach (ColumnModel column in columns)
-        {
+        foreach (ColumnModel column in columns) {
             IReadOnlyList<CardModel> cardsInColumn = cards.Where(card => card.ColumnId == column.Id).ToArray();
             builder.AppendLine(string.Format(culture, Resources.Export_ColumnHeading, column.Title, cardsInColumn.Count));
-            if (column.Description.Length > 0)
-            {
+            if (column.Description.Length > 0) {
                 builder.AppendLine(SingleLine(column.Description));
             }
             builder.AppendLine();
 
-            foreach (CardModel card in cardsInColumn)
-            {
+            foreach (CardModel card in cardsInColumn) {
                 AppendCard(builder, card, culture);
             }
         }
@@ -67,8 +63,7 @@ public static class MarkdownExporter
     /// <param name="workspaceName">Workspace display name.</param>
     /// <param name="exportedAt">Export moment.</param>
     /// <returns>The file name.</returns>
-    public static string BuildFileName(string workspaceName, DateTimeOffset exportedAt)
-    {
+    public static string BuildFileName(string workspaceName, DateTimeOffset exportedAt) {
         CultureInfo culture = Resources.Culture ?? CultureInfo.CurrentUICulture;
         return string.Format(culture, Resources.Export_FileNamePattern, workspaceName, exportedAt);
     }
@@ -79,20 +74,17 @@ public static class MarkdownExporter
     /// <param name="builder">The output builder.</param>
     /// <param name="card">The card to render.</param>
     /// <param name="culture">The UI culture.</param>
-    private static void AppendCard(StringBuilder builder, CardModel card, CultureInfo culture)
-    {
+    private static void AppendCard(StringBuilder builder, CardModel card, CultureInfo culture) {
         // Heading: "#id title"; an untitled card shows only the id.
         builder.AppendLine(card.Title.Length == 0
             ? $"### #{card.Id}"
             : $"### #{card.Id} {SingleLine(card.Title)}");
 
-        if (card.Content.Length > 0)
-        {
+        if (card.Content.Length > 0) {
             builder.AppendLine(card.Content);
         }
 
-        if (card.Tags.Count > 0)
-        {
+        if (card.Tags.Count > 0) {
             string names = string.Join(" ", card.Tags.Select(tag => $"`{tag.Name}`"));
             builder.AppendLine(string.Format(culture, Resources.Export_TagsLine, names));
         }
@@ -112,13 +104,11 @@ public static class MarkdownExporter
     private static void AppendTagTable(
         StringBuilder builder,
         IReadOnlyList<(TagModel Tag, long UsageCount)> tags,
-        CultureInfo culture)
-    {
+        CultureInfo culture) {
         builder.AppendLine(Resources.Export_TagsSummaryHeading);
         builder.AppendLine(Resources.Export_TagsTableHeader);
         builder.AppendLine("|---|---|---|---|");
-        foreach ((TagModel tag, long usage) in tags)
-        {
+        foreach ((TagModel tag, long usage) in tags) {
             // '|' and line breaks would break the table row; neutralize them.
             builder.AppendLine($"| {Cell(tag.Name)} | {tag.Color} | {Cell(tag.Description)} | {usage} |");
         }

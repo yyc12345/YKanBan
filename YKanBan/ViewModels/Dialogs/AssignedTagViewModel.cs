@@ -1,5 +1,7 @@
 using Avalonia.Media;
+
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 using YKanBan.ViewModels.Board;
 
@@ -10,8 +12,7 @@ namespace YKanBan.ViewModels.Dialogs;
 /// remove action that only changes the in-memory assignment (the actual write
 /// happens on confirm).
 /// </summary>
-public sealed partial class AssignedTagViewModel
-{
+public sealed partial class AssignedTagViewModel {
     private readonly CardEditorViewModel _editor;
     private readonly TagBadgeViewModel _badge;
 
@@ -20,8 +21,7 @@ public sealed partial class AssignedTagViewModel
     /// </summary>
     /// <param name="editor">The owning card editor.</param>
     /// <param name="tag">The assigned tag.</param>
-    public AssignedTagViewModel(CardEditorViewModel editor, TagModel tag)
-    {
+    public AssignedTagViewModel(CardEditorViewModel editor, TagModel tag) {
         _editor = editor;
         Tag = tag;
         _badge = new TagBadgeViewModel(tag);

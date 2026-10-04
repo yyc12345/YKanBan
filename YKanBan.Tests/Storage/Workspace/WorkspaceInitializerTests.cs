@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
@@ -11,11 +12,9 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// content.
 /// </summary>
 [TestClass]
-public class WorkspaceInitializerTests
-{
+public class WorkspaceInitializerTests {
     [TestMethod]
-    public void IsWorkspaceReflectsInitializationState()
-    {
+    public void IsWorkspaceReflectsInitializationState() {
         using var directory = new TempDirectory();
         Assert.IsFalse(WorkspaceInitializer.IsWorkspace(directory.FullPath));
 
@@ -24,8 +23,7 @@ public class WorkspaceInitializerTests
     }
 
     [TestMethod]
-    public void InitializeCreatesStructureAndMigratedEmptyDatabase()
-    {
+    public void InitializeCreatesStructureAndMigratedEmptyDatabase() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 
@@ -43,8 +41,7 @@ public class WorkspaceInitializerTests
     }
 
     [TestMethod]
-    public void InitializeMissingFolderThrows()
-    {
+    public void InitializeMissingFolderThrows() {
         using var directory = new TempDirectory();
         string missing = Path.Combine(directory.FullPath, "not-created");
 
@@ -54,8 +51,7 @@ public class WorkspaceInitializerTests
     }
 
     [TestMethod]
-    public void InitializeTwiceThrows()
-    {
+    public void InitializeTwiceThrows() {
         using var directory = new TempDirectory();
         WorkspaceInitializer.Initialize(directory.FullPath);
 

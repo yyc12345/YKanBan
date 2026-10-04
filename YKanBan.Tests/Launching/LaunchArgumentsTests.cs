@@ -7,32 +7,27 @@ namespace YKanBan.Tests.Launching;
 /// three branches: no argument, one valid path, and invalid input.
 /// </summary>
 [TestClass]
-public class LaunchArgumentsTests
-{
+public class LaunchArgumentsTests {
     [TestMethod]
-    public void NoArgumentsIsRejected()
-    {
+    public void NoArgumentsIsRejected() {
         Assert.IsFalse(LaunchArguments.TryParse([], out string? path));
         Assert.IsNull(path);
     }
 
     [TestMethod]
-    public void BlankArgumentIsRejected()
-    {
+    public void BlankArgumentIsRejected() {
         Assert.IsFalse(LaunchArguments.TryParse(["   "], out string? path));
         Assert.IsNull(path);
     }
 
     [TestMethod]
-    public void MoreThanOneArgumentIsRejected()
-    {
+    public void MoreThanOneArgumentIsRejected() {
         Assert.IsFalse(LaunchArguments.TryParse(["a", "b"], out string? path));
         Assert.IsNull(path);
     }
 
     [TestMethod]
-    public void SinglePathIsAccepted()
-    {
+    public void SinglePathIsAccepted() {
         bool parsed = LaunchArguments.TryParse([@"C:\Repo\MyProject"], out string? path);
         Assert.IsTrue(parsed);
         Assert.AreEqual(@"C:\Repo\MyProject", path);

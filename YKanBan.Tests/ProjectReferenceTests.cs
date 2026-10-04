@@ -7,15 +7,13 @@ namespace YKanBan.Tests;
 /// application project and that the test runner can discover and execute tests.
 /// </summary>
 [TestClass]
-public class ProjectReferenceTests
-{
+public class ProjectReferenceTests {
     /// <summary>
     /// Verifies that a type defined in the application assembly can be
     /// referenced from the test project.
     /// </summary>
     [TestMethod]
-    public void ApplicationAssemblyIsReferenceable()
-    {
+    public void ApplicationAssemblyIsReferenceable() {
         Assert.IsNotNull(typeof(App));
     }
 }

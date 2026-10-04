@@ -1,5 +1,7 @@
 using System.Diagnostics;
+
 using CommunityToolkit.Mvvm.ComponentModel;
+
 using YKanBan.Launching;
 using YKanBan.Services;
 using YKanBan.Storage;
@@ -13,8 +15,7 @@ namespace YKanBan.ViewModels;
 /// normal workspace view or one of the full-window error pages, and owns the
 /// interactions that the view fulfils by opening dialogs.
 /// </summary>
-public sealed partial class MainWindowViewModel : ViewModelBase
-{
+public sealed partial class MainWindowViewModel : ViewModelBase {
     private readonly AppServices _services;
 
     /// <summary>
@@ -22,8 +23,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     /// <param name="services">The process composition root.</param>
     /// <param name="arguments">The command-line arguments (excluding the executable).</param>
-    public MainWindowViewModel(AppServices services, IReadOnlyList<string> arguments)
-    {
+    public MainWindowViewModel(AppServices services, IReadOnlyList<string> arguments) {
         _services = services;
         ShowSettings = new Interaction<Unit>();
         ShowAbout = new Interaction<Unit>();
@@ -63,30 +63,22 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// Resolves the launch arguments into a content view model.
     /// </summary>
     /// <param name="arguments">The command-line arguments.</param>
-    private void Resolve(IReadOnlyList<string> arguments)
-    {
-        if (!LaunchArguments.TryParse(arguments, out string? folderPath))
-        {
+    private void Resolve(IReadOnlyList<string> arguments) {
+        if (!LaunchArguments.TryParse(arguments, out string? folderPath)) {
             Content = new ArgumentErrorPageViewModel();
             return;
         }
 
-        if (!Directory.Exists(folderPath))
-        {
+        if (!Directory.Exists(folderPath)) {
             Content = new DirectoryMissingPageViewModel(folderPath);
             return;
         }
 
-        try
-        {
+        try {
             OpenWorkspace(folderPath);
-        }
-        catch (WorkspaceNotInitializedException)
-        {
+        } catch (WorkspaceNotInitializedException) {
             Content = new NotInitializedPageViewModel(folderPath, InitializeWorkspace);
-        }
-        catch (WorkspaceLockException)
-        {
+        } catch (WorkspaceLockException) {
             Content = new LockConflictPageViewModel(folderPath);
         }
     }
@@ -95,8 +87,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// Opens the workspace and switches the content to the normal view.
     /// </summary>
     /// <param name="folderPath">The workspace folder to open.</param>
-    private void OpenWorkspace(string folderPath)
-    {
+    private void OpenWorkspace(string folderPath) {
         WorkspaceSession session = _services.OpenWorkspace(folderPath);
         Content = new WorkspaceViewModel(_services, session, ShowSettings, ShowAbout);
         Title = $"{new DirectoryInfo(folderPath).Name} - {Resources.App_Name}";
@@ -107,22 +98,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// columns and opens the resulting workspace.
     /// </summary>
     /// <returns>A completed task once initialization has been attempted.</returns>
-    private Task InitializeCurrentWorkspaceAsync()
-    {
-        if (Content is not NotInitializedPageViewModel page)
-        {
+    private Task InitializeCurrentWorkspaceAsync() {
+        if (Content is not NotInitializedPageViewModel page) {
             return Task.CompletedTask;
         }
 
-        try
-        {
+        try {
             WorkspaceInitializer.Initialize(page.FolderPath);
             WorkspacePreset.AddPresetColumns(page.FolderPath);
             WorkspacePreset.AddPresetTags(page.FolderPath);
             OpenWorkspace(page.FolderPath);
-        }
-        catch (Exception exception) when (exception is YKanBanException or IOException or UnauthorizedAccessException)
-        {
+        } catch (Exception exception) when (exception is YKanBanException or IOException or UnauthorizedAccessException) {
             // Initialization failed; the page remains so the user can retry.
             Debug.WriteLine(exception);
         }

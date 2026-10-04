@@ -1,5 +1,7 @@
 using System.Globalization;
+
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
 
@@ -12,14 +14,11 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// </summary>
 [TestClass]
 [DoNotParallelize]
-public class WorkspacePresetTests
-{
+public class WorkspacePresetTests {
     [TestMethod]
-    public void AddPresetColumnsStoresEnglishTextUnderEnglishCulture()
-    {
+    public void AddPresetColumnsStoresEnglishTextUnderEnglishCulture() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("en");
 
             using var directory = new TempDirectory();
@@ -43,19 +42,15 @@ public class WorkspacePresetTests
                     Resources.PresetColumn_Done_Description,
                 },
                 SqliteTestHelper.GetColumnDescriptions(connection));
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void AddPresetColumnsStoresChineseTextUnderChineseCulture()
-    {
+    public void AddPresetColumnsStoresChineseTextUnderChineseCulture() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("zh-Hans");
 
             using var directory = new TempDirectory();
@@ -74,19 +69,15 @@ public class WorkspacePresetTests
             // Chinese resources must resolve to different text than English.
             Assert.AreEqual("待办", Resources.PresetColumn_Todo);
             Assert.AreEqual("已完成的任务。", Resources.PresetColumn_Done_Description);
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void AddPresetTagsStoresEightTagsUnderEnglishCulture()
-    {
+    public void AddPresetTagsStoresEightTagsUnderEnglishCulture() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("en");
 
             using var directory = new TempDirectory();
@@ -100,19 +91,15 @@ public class WorkspacePresetTests
             Assert.AreEqual(("bug", "#d73a4a", "Something isn't working"), tags[0]);
             Assert.AreEqual(("documentation", "#0075ca", "Improvements or additions to documentation"), tags[1]);
             Assert.AreEqual(("wontfix", "#ffffff", "This will not be worked on"), tags[7]);
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void AddPresetTagsStoresChineseNamesUnderChineseCulture()
-    {
+    public void AddPresetTagsStoresChineseNamesUnderChineseCulture() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("zh-Hans");
 
             using var directory = new TempDirectory();
@@ -125,19 +112,15 @@ public class WorkspacePresetTests
             Assert.AreEqual(8, tags.Count);
             Assert.AreEqual("缺陷", tags[0].Name);
             Assert.AreEqual("功能没有正常工作", tags[0].Description);
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }
 
     [TestMethod]
-    public void PresetContentIsDataAndIgnoresLaterCultureChanges()
-    {
+    public void PresetContentIsDataAndIgnoresLaterCultureChanges() {
         CultureInfo? original = Resources.Culture;
-        try
-        {
+        try {
             Resources.Culture = new CultureInfo("en");
 
             using var directory = new TempDirectory();
@@ -150,9 +133,7 @@ public class WorkspacePresetTests
             using SqliteConnection connection = SqliteTestHelper.OpenWorkspace(directory.FullPath);
             Assert.AreEqual("To Do", SqliteTestHelper.GetColumnTitles(connection)[0]);
             Assert.AreEqual("bug", SqliteTestHelper.GetTags(connection)[0].Name);
-        }
-        finally
-        {
+        } finally {
             Resources.Culture = original;
         }
     }

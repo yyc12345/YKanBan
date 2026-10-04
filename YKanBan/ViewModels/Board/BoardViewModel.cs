@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 using YKanBan.Search;
 using YKanBan.Services;
@@ -15,8 +17,7 @@ namespace YKanBan.ViewModels.Board;
 /// persistence goes through the workspace repository; the board reloads from it
 /// after each change.
 /// </summary>
-public sealed partial class BoardViewModel : ViewModelBase
-{
+public sealed partial class BoardViewModel : ViewModelBase {
     private readonly AppServices _services;
     private readonly WorkspaceRepository _repository;
 
@@ -28,8 +29,7 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// </summary>
     /// <param name="services">The process composition root (configuration access).</param>
     /// <param name="session">The open workspace session.</param>
-    public BoardViewModel(AppServices services, WorkspaceSession session)
-    {
+    public BoardViewModel(AppServices services, WorkspaceSession session) {
         _services = services;
         _repository = session.Repository;
         Display = new DisplaySettingsViewModel(_services.Config, Reload);
@@ -97,28 +97,44 @@ public sealed partial class BoardViewModel : ViewModelBase
 
     #region Interactions
 
-    /// <summary>Gets the interaction that opens the new-column editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the new-column editor.
+    /// </summary>
     public Interaction<Unit> AddColumn { get; } = new();
 
-    /// <summary>Gets the interaction that opens the column editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the column editor.
+    /// </summary>
     public Interaction<ColumnViewModel> EditColumn { get; } = new();
 
-    /// <summary>Gets the interaction that confirms and deletes a column.</summary>
+    /// <summary>
+    /// Gets the interaction that confirms and deletes a column.
+    /// </summary>
     public Interaction<ColumnViewModel> DeleteColumn { get; } = new();
 
-    /// <summary>Gets the interaction that opens the new-card editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the new-card editor.
+    /// </summary>
     public Interaction<ColumnViewModel> AddCard { get; } = new();
 
-    /// <summary>Gets the interaction that opens the card editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the card editor.
+    /// </summary>
     public Interaction<CardViewModel> EditCard { get; } = new();
 
-    /// <summary>Gets the interaction that confirms and deletes a card.</summary>
+    /// <summary>
+    /// Gets the interaction that confirms and deletes a card.
+    /// </summary>
     public Interaction<CardViewModel> DeleteCard { get; } = new();
 
-    /// <summary>Gets the interaction that opens the move-card dialog.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the move-card dialog.
+    /// </summary>
     public Interaction<CardViewModel> MoveCard { get; } = new();
 
-    /// <summary>Gets the interaction that shows the search error dialog, carrying the English parser detail.</summary>
+    /// <summary>
+    /// Gets the interaction that shows the search error dialog, carrying the English parser detail.
+    /// </summary>
     public Interaction<string> ShowSearchError { get; } = new();
 
     #endregion
@@ -136,28 +152,22 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// expression opens the error dialog and keeps the previous results and text.
     /// </summary>
     [RelayCommand]
-    private async Task SearchAsync()
-    {
-        if (string.IsNullOrWhiteSpace(SearchText))
-        {
+    private async Task SearchAsync() {
+        if (string.IsNullOrWhiteSpace(SearchText)) {
             ApplyFilter(null);
             return;
         }
 
-        try
-        {
+        try {
             SearchNode? query = SearchQueryParser.Parse(SearchText);
-            if (query is null)
-            {
+            if (query is null) {
                 ApplyFilter(null);
                 return;
             }
 
             CompiledSearch compiled = SearchSqlCompiler.Compile(query);
             ApplyFilter(_repository.GetCardIdsMatching(compiled));
-        }
-        catch (SearchSyntaxException exception)
-        {
+        } catch (SearchSyntaxException exception) {
             // The error dialog carries the parser's non-localized English detail.
             await ShowSearchError.Handle(exception.Message);
         }
@@ -167,8 +177,7 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// Clears the search box and restores the unfiltered board.
     /// </summary>
     [RelayCommand]
-    private void ClearSearch()
-    {
+    private void ClearSearch() {
         SearchText = string.Empty;
         ApplyFilter(null);
     }
@@ -177,10 +186,8 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// Applies a new result filter (null clears it) and rebuilds the board when it changed.
     /// </summary>
     /// <param name="matchedIds">The new filter, or <see langword="null"/> for no filter.</param>
-    private void ApplyFilter(IReadOnlyCollection<long>? matchedIds)
-    {
-        if (_matchedCardIds is null && matchedIds is null)
-        {
+    private void ApplyFilter(IReadOnlyCollection<long>? matchedIds) {
+        if (_matchedCardIds is null && matchedIds is null) {
             return;
         }
 
@@ -244,14 +251,12 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <summary>
     /// Reloads all columns and cards from the repository and rebuilds the board.
     /// </summary>
-    public void Reload()
-    {
+    public void Reload() {
         IReadOnlyList<ColumnModel> columns = _repository.GetColumns();
         IReadOnlyList<CardModel> cards = _repository.GetCards();
 
         // An active search hides non-matching cards while every column stays visible.
-        if (_matchedCardIds is not null)
-        {
+        if (_matchedCardIds is not null) {
             cards = cards.Where(card => _matchedCardIds.Contains(card.Id)).ToList();
         }
 
@@ -263,8 +268,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         IEnumerable<ColumnModel> orderedColumns = SortColumns(columns, _services.Config.Display.ColumnSort);
 
         Columns.Clear();
-        foreach (ColumnModel column in orderedColumns)
-        {
+        foreach (ColumnModel column in orderedColumns) {
             // Cards are sorted within their column by the selected card order.
             IEnumerable<CardModel> columnCards = cardsByColumn.TryGetValue(column.Id, out List<CardModel>? list)
                 ? SortCards(list, _services.Config.Display.CardSort)
@@ -280,11 +284,9 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <summary>
     /// Recomputes the global column width and pushes it to every column.
     /// </summary>
-    public void ApplyColumnWidth()
-    {
+    public void ApplyColumnWidth() {
         ColumnWidth = ColumnWidthPixels(_services.Config.Display.ColumnWidth);
-        foreach (ColumnViewModel column in Columns)
-        {
+        foreach (ColumnViewModel column in Columns) {
             column.Width = ColumnWidth;
         }
     }
@@ -294,8 +296,7 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// </summary>
     /// <param name="settings">The configured column width.</param>
     /// <returns>The width in pixels.</returns>
-    public static double ColumnWidthPixels(ColumnWidthSettings settings) => settings.Preset switch
-    {
+    public static double ColumnWidthPixels(ColumnWidthSettings settings) => settings.Preset switch {
         ColumnWidthPreset.Narrow => 240,
         ColumnWidthPreset.Wide => 480,
         ColumnWidthPreset.Custom => settings.CustomPixels,
@@ -308,8 +309,7 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <param name="cards">The cards to order.</param>
     /// <param name="option">The selected order.</param>
     /// <returns>The ordered cards.</returns>
-    private static IEnumerable<CardModel> SortCards(IEnumerable<CardModel> cards, SortOption option) => option switch
-    {
+    private static IEnumerable<CardModel> SortCards(IEnumerable<CardModel> cards, SortOption option) => option switch {
         SortOption.IdAscending => cards.OrderBy(card => card.Id),
         SortOption.IdDescending => cards.OrderByDescending(card => card.Id),
         SortOption.CreatedAscending => cards.OrderBy(card => card.CreatedAt).ThenBy(card => card.Id),
@@ -327,8 +327,7 @@ public sealed partial class BoardViewModel : ViewModelBase
     /// <param name="columns">The columns to order.</param>
     /// <param name="option">The selected order.</param>
     /// <returns>The ordered columns.</returns>
-    private static IEnumerable<ColumnModel> SortColumns(IEnumerable<ColumnModel> columns, SortOption option) => option switch
-    {
+    private static IEnumerable<ColumnModel> SortColumns(IEnumerable<ColumnModel> columns, SortOption option) => option switch {
         SortOption.IdAscending => columns.OrderBy(column => column.Id),
         SortOption.IdDescending => columns.OrderByDescending(column => column.Id),
         SortOption.CreatedAscending => columns.OrderBy(column => column.CreatedAt).ThenBy(column => column.Id),

@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 using YKanBan.Storage.Workspace;
 
@@ -10,8 +12,7 @@ namespace YKanBan.ViewModels.Tags;
 /// re-describe and delete), showing each tag's color, name, description and
 /// usage count. Tag changes also refresh the board.
 /// </summary>
-public sealed partial class TagsViewModel : ViewModelBase
-{
+public sealed partial class TagsViewModel : ViewModelBase {
     private readonly WorkspaceRepository _repository;
     private readonly Action _boardChanged;
 
@@ -20,8 +21,7 @@ public sealed partial class TagsViewModel : ViewModelBase
     /// </summary>
     /// <param name="repository">The workspace repository.</param>
     /// <param name="boardChanged">Invoked after a tag change so the board refreshes.</param>
-    public TagsViewModel(WorkspaceRepository repository, Action boardChanged)
-    {
+    public TagsViewModel(WorkspaceRepository repository, Action boardChanged) {
         _repository = repository;
         _boardChanged = boardChanged;
         Reload();
@@ -47,13 +47,19 @@ public sealed partial class TagsViewModel : ViewModelBase
     /// </summary>
     public bool HasNoTags => Tags.Count == 0;
 
-    /// <summary>Gets the interaction that opens the new-tag editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the new-tag editor.
+    /// </summary>
     public Interaction<Unit> AddTag { get; } = new();
 
-    /// <summary>Gets the interaction that opens the tag editor.</summary>
+    /// <summary>
+    /// Gets the interaction that opens the tag editor.
+    /// </summary>
     public Interaction<TagItemViewModel> EditTag { get; } = new();
 
-    /// <summary>Gets the interaction that confirms and deletes a tag.</summary>
+    /// <summary>
+    /// Gets the interaction that confirms and deletes a tag.
+    /// </summary>
     public Interaction<TagItemViewModel> DeleteTag { get; } = new();
 
     /// <summary>
@@ -79,11 +85,9 @@ public sealed partial class TagsViewModel : ViewModelBase
     /// <summary>
     /// Reloads the tag list from the repository.
     /// </summary>
-    public void Reload()
-    {
+    public void Reload() {
         Tags.Clear();
-        foreach ((TagModel tag, long usage) in _repository.GetTagsWithUsage())
-        {
+        foreach ((TagModel tag, long usage) in _repository.GetTagsWithUsage()) {
             Tags.Add(new TagItemViewModel(this, tag, usage));
         }
 
@@ -94,8 +98,7 @@ public sealed partial class TagsViewModel : ViewModelBase
     /// <summary>
     /// Reloads the tags and refreshes the board after a tag change.
     /// </summary>
-    public void RefreshAfterChange()
-    {
+    public void RefreshAfterChange() {
         Reload();
         _boardChanged();
     }

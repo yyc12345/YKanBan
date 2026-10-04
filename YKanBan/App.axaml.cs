@@ -1,20 +1,22 @@
 using System.Globalization;
+
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
+
 using YKanBan.Services;
 using YKanBan.Storage.AppData;
 using YKanBan.ViewModels;
 using YKanBan.Views;
+
 using Resx = YKanBan.Resources;
 
 namespace YKanBan;
 
-public partial class App : Application
-{
+public partial class App : Application {
     /// <summary>
     /// Gets the process-wide composition root, created at startup.
     /// </summary>
@@ -26,15 +28,12 @@ public partial class App : Application
     /// </summary>
     public static string StartupLanguage { get; private set; } = AppConfig.DefaultLanguage;
 
-    public override void Initialize()
-    {
+    public override void Initialize() {
         AvaloniaXamlLoader.Load(this);
     }
 
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
+    public override void OnFrameworkInitializationCompleted() {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             DisableAvaloniaDataAnnotationValidation();
 
             // Startup order: apply the configured culture, its RTL flow direction
@@ -46,8 +45,7 @@ public partial class App : Application
             ApplyTheme(Services.Config.Theme);
 
             var viewModel = new MainWindowViewModel(Services, desktop.Args ?? []);
-            desktop.MainWindow = new MainWindow
-            {
+            desktop.MainWindow = new MainWindow {
                 DataContext = viewModel,
 
                 // RTL detection drives the whole window flow direction; the two
@@ -67,14 +65,10 @@ public partial class App : Application
     /// </summary>
     /// <param name="language">The language code from app.json.</param>
     /// <returns>The resolved culture.</returns>
-    public static CultureInfo ResolveCulture(string language)
-    {
-        try
-        {
+    public static CultureInfo ResolveCulture(string language) {
+        try {
             return new CultureInfo(language);
-        }
-        catch (CultureNotFoundException)
-        {
+        } catch (CultureNotFoundException) {
             return new CultureInfo(AppConfig.DefaultLanguage);
         }
     }
@@ -84,28 +78,23 @@ public partial class App : Application
     /// inherits the operating system preference.
     /// </summary>
     /// <param name="option">The theme selection.</param>
-    public static void ApplyTheme(ThemeOption option)
-    {
-        if (Current is null)
-        {
+    public static void ApplyTheme(ThemeOption option) {
+        if (Current is null) {
             return;
         }
 
-        Current.RequestedThemeVariant = option switch
-        {
+        Current.RequestedThemeVariant = option switch {
             ThemeOption.Light => ThemeVariant.Light,
             ThemeOption.Dark => ThemeVariant.Dark,
             _ => ThemeVariant.Default,
         };
     }
 
-    private static void DisableAvaloniaDataAnnotationValidation()
-    {
+    private static void DisableAvaloniaDataAnnotationValidation() {
         var dataValidationPluginsToRemove =
             BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
 
-        foreach (var plugin in dataValidationPluginsToRemove)
-        {
+        foreach (var plugin in dataValidationPluginsToRemove) {
             BindingPlugins.DataValidators.Remove(plugin);
         }
     }

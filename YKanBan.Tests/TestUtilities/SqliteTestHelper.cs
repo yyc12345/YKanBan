@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
 
@@ -8,8 +9,7 @@ namespace YKanBan.Tests.TestUtilities;
 /// Shared helpers for the storage tests: small SQL conveniences plus opening a
 /// workspace database with the real migration list.
 /// </summary>
-public static class SqliteTestHelper
-{
+public static class SqliteTestHelper {
     /// <summary>
     /// Executes a non-query SQL statement and returns the affected row count.
     /// </summary>
@@ -17,12 +17,10 @@ public static class SqliteTestHelper
     /// <param name="sql">The statement to execute.</param>
     /// <param name="parameters">Name/value pairs bound as SQL parameters.</param>
     /// <returns>The number of affected rows.</returns>
-    public static int Exec(SqliteConnection connection, string sql, params (string Name, object? Value)[] parameters)
-    {
+    public static int Exec(SqliteConnection connection, string sql, params (string Name, object? Value)[] parameters) {
         using var command = connection.CreateCommand();
         command.CommandText = sql;
-        foreach ((string name, object? value) in parameters)
-        {
+        foreach ((string name, object? value) in parameters) {
             command.Parameters.AddWithValue(name, value);
         }
         return command.ExecuteNonQuery();
@@ -34,8 +32,7 @@ public static class SqliteTestHelper
     /// <param name="connection">An open database connection.</param>
     /// <param name="sql">The query to execute.</param>
     /// <returns>The scalar result cast to a string.</returns>
-    public static string ScalarString(SqliteConnection connection, string sql)
-    {
+    public static string ScalarString(SqliteConnection connection, string sql) {
         using var command = connection.CreateCommand();
         command.CommandText = sql;
         return (string)command.ExecuteScalar()!;
@@ -47,8 +44,7 @@ public static class SqliteTestHelper
     /// <param name="connection">An open database connection.</param>
     /// <param name="sql">The query to execute.</param>
     /// <returns>The scalar result cast to a long.</returns>
-    public static long ScalarLong(SqliteConnection connection, string sql)
-    {
+    public static long ScalarLong(SqliteConnection connection, string sql) {
         using var command = connection.CreateCommand();
         command.CommandText = sql;
         return (long)command.ExecuteScalar()!;
@@ -60,8 +56,7 @@ public static class SqliteTestHelper
     /// <param name="connection">An open database connection.</param>
     /// <param name="tableName">The table name to look for.</param>
     /// <returns><see langword="true"/> when the table exists.</returns>
-    public static bool TableExists(SqliteConnection connection, string tableName)
-    {
+    public static bool TableExists(SqliteConnection connection, string tableName) {
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=$name;";
         command.Parameters.AddWithValue("$name", tableName);
@@ -73,15 +68,13 @@ public static class SqliteTestHelper
     /// </summary>
     /// <param name="connection">An open database connection.</param>
     /// <returns>The column titles in id order.</returns>
-    public static List<string> GetColumnTitles(SqliteConnection connection)
-    {
+    public static List<string> GetColumnTitles(SqliteConnection connection) {
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT title FROM columns ORDER BY id ASC;";
         using var reader = command.ExecuteReader();
 
         var titles = new List<string>();
-        while (reader.Read())
-        {
+        while (reader.Read()) {
             titles.Add(reader.GetString(0));
         }
         return titles;
@@ -92,15 +85,13 @@ public static class SqliteTestHelper
     /// </summary>
     /// <param name="connection">An open database connection.</param>
     /// <returns>The column descriptions in id order.</returns>
-    public static List<string> GetColumnDescriptions(SqliteConnection connection)
-    {
+    public static List<string> GetColumnDescriptions(SqliteConnection connection) {
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT description FROM columns ORDER BY id ASC;";
         using var reader = command.ExecuteReader();
 
         var descriptions = new List<string>();
-        while (reader.Read())
-        {
+        while (reader.Read()) {
             descriptions.Add(reader.GetString(0));
         }
         return descriptions;
@@ -111,15 +102,13 @@ public static class SqliteTestHelper
     /// </summary>
     /// <param name="connection">An open database connection.</param>
     /// <returns>The tags in id order.</returns>
-    public static List<(string Name, string Color, string Description)> GetTags(SqliteConnection connection)
-    {
+    public static List<(string Name, string Color, string Description)> GetTags(SqliteConnection connection) {
         using var command = connection.CreateCommand();
         command.CommandText = "SELECT name, color, description FROM tags ORDER BY id ASC;";
         using var reader = command.ExecuteReader();
 
         var tags = new List<(string, string, string)>();
-        while (reader.Read())
-        {
+        while (reader.Read()) {
             tags.Add((reader.GetString(0), reader.GetString(1), reader.GetString(2)));
         }
         return tags;
@@ -130,8 +119,7 @@ public static class SqliteTestHelper
     /// </summary>
     /// <param name="folderPath">The workspace folder path.</param>
     /// <returns>An open, migrated connection.</returns>
-    public static SqliteConnection OpenWorkspace(string folderPath)
-    {
+    public static SqliteConnection OpenWorkspace(string folderPath) {
         return SqliteDatabase.Open(WorkspacePaths.Database(folderPath), WorkspaceSchema.Migrations);
     }
 }

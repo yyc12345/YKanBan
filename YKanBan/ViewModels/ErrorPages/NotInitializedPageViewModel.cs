@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using CommunityToolkit.Mvvm.Input;
 
 namespace YKanBan.ViewModels.ErrorPages;
@@ -8,8 +9,7 @@ namespace YKanBan.ViewModels.ErrorPages;
 /// structure. It is the only error page with an operation: initializing the
 /// workspace.
 /// </summary>
-public sealed partial class NotInitializedPageViewModel : ViewModelBase
-{
+public sealed partial class NotInitializedPageViewModel : ViewModelBase {
     private readonly Interaction<Unit> _initializeWorkspace;
 
     /// <summary>
@@ -17,8 +17,7 @@ public sealed partial class NotInitializedPageViewModel : ViewModelBase
     /// </summary>
     /// <param name="folderPath">The uninitialized folder path.</param>
     /// <param name="initializeWorkspace">The interaction that performs initialization.</param>
-    public NotInitializedPageViewModel(string folderPath, Interaction<Unit> initializeWorkspace)
-    {
+    public NotInitializedPageViewModel(string folderPath, Interaction<Unit> initializeWorkspace) {
         FolderPath = folderPath;
         _initializeWorkspace = initializeWorkspace;
         Message = string.Format(

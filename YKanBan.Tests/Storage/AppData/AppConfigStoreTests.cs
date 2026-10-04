@@ -8,11 +8,9 @@ namespace YKanBan.Tests.Storage.AppData;
 /// degradation on a missing or corrupt file.
 /// </summary>
 [TestClass]
-public class AppConfigStoreTests
-{
+public class AppConfigStoreTests {
     [TestMethod]
-    public void LoadMissingFileReturnsDefaults()
-    {
+    public void LoadMissingFileReturnsDefaults() {
         using var directory = new TempDirectory();
         var store = new AppConfigStore(Path.Combine(directory.FullPath, "app.json"));
 
@@ -32,8 +30,7 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void LoadCorruptFileBacksUpAndReturnsDefaults()
-    {
+    public void LoadCorruptFileBacksUpAndReturnsDefaults() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         File.WriteAllText(path, "{ this is not valid json");
@@ -47,8 +44,7 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void LoadJsonNullReturnsDefaults()
-    {
+    public void LoadJsonNullReturnsDefaults() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         File.WriteAllText(path, "null");
@@ -58,8 +54,7 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void LoadReadsKebabCaseKeysAndEnumValues()
-    {
+    public void LoadReadsKebabCaseKeysAndEnumValues() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         File.WriteAllText(path, $$"""
@@ -97,8 +92,7 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void LoadMissingSectionsFillsDefaults()
-    {
+    public void LoadMissingSectionsFillsDefaults() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         File.WriteAllText(path, $$"""{ "version": {{AppConfig.CurrentFormatVersion}} }""");
@@ -113,17 +107,14 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void SaveWritesKebabCaseKeysAndEnumValues()
-    {
+    public void SaveWritesKebabCaseKeysAndEnumValues() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         var store = new AppConfigStore(path);
 
-        var config = new AppConfig
-        {
+        var config = new AppConfig {
             Theme = ThemeOption.FollowSystem,
-            Display = new DisplaySettings
-            {
+            Display = new DisplaySettings {
                 CardSort = SortOption.UpdatedDescending,
                 ColumnSort = SortOption.CreatedAscending,
                 ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Custom, CustomPixels = 500 },
@@ -147,18 +138,15 @@ public class AppConfigStoreTests
     }
 
     [TestMethod]
-    public void SaveThenLoadRoundTrips()
-    {
+    public void SaveThenLoadRoundTrips() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
         var store = new AppConfigStore(path);
 
-        var config = new AppConfig
-        {
+        var config = new AppConfig {
             Language = "zh-Hans",
             Theme = ThemeOption.Light,
-            Display = new DisplaySettings
-            {
+            Display = new DisplaySettings {
                 CardSort = SortOption.CreatedDescending,
                 ColumnSort = SortOption.TitleAscending,
                 ColumnWidth = new ColumnWidthSettings { Preset = ColumnWidthPreset.Wide },

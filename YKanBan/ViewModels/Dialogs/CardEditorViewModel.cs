@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Models;
 using YKanBan.Storage.Workspace;
 
@@ -14,8 +17,7 @@ namespace YKanBan.ViewModels.Dialogs;
 /// card and its tag assignment as one unit; a confirm with no effective change
 /// writes nothing; cancelling never writes.
 /// </summary>
-public sealed partial class CardEditorViewModel : ViewModelBase
-{
+public sealed partial class CardEditorViewModel : ViewModelBase {
     private readonly WorkspaceRepository _repository;
     private readonly long _columnId;
     private readonly CardModel? _existing;
@@ -26,8 +28,7 @@ public sealed partial class CardEditorViewModel : ViewModelBase
     /// <param name="repository">The workspace repository.</param>
     /// <param name="columnId">The owning column (used when adding).</param>
     /// <param name="existing">The card to edit, or <see langword="null"/> to add one.</param>
-    public CardEditorViewModel(WorkspaceRepository repository, long columnId, CardModel? existing)
-    {
+    public CardEditorViewModel(WorkspaceRepository repository, long columnId, CardModel? existing) {
         _repository = repository;
         _columnId = columnId;
         _existing = existing;
@@ -36,8 +37,7 @@ public sealed partial class CardEditorViewModel : ViewModelBase
         AssignedTags = new ObservableCollection<AssignedTagViewModel>(
             (existing?.Tags ?? []).Select(tag => new AssignedTagViewModel(this, tag)));
 
-        if (existing is not null)
-        {
+        if (existing is not null) {
             IdLine = string.Format(Culture, Resources.CardDialog_Id, $"#{existing.Id}");
             CreatedLine = string.Format(Culture, Resources.CardDialog_Created, FormatTime(existing.CreatedAt));
             ModifiedLine = string.Format(Culture, Resources.CardDialog_Modified, FormatTime(existing.UpdatedAt));
@@ -105,12 +105,9 @@ public sealed partial class CardEditorViewModel : ViewModelBase
     /// <summary>
     /// Gets a value indicating whether there are unsaved effective changes.
     /// </summary>
-    public bool HasChanges
-    {
-        get
-        {
-            if (_existing is null)
-            {
+    public bool HasChanges {
+        get {
+            if (_existing is null) {
                 return Title.Length > 0 || Content.Length > 0 || AssignedTags.Count > 0;
             }
 
@@ -124,11 +121,9 @@ public sealed partial class CardEditorViewModel : ViewModelBase
     /// Opens the nested tag picker and adds the chosen tag when it is new to the card.
     /// </summary>
     [RelayCommand]
-    private async Task AddTagAsync()
-    {
+    private async Task AddTagAsync() {
         TagModel? tag = await ShowTagPicker.Handle(Unit.Value);
-        if (tag is not null && AssignedTags.All(row => row.Tag.Id != tag.Id))
-        {
+        if (tag is not null && AssignedTags.All(row => row.Tag.Id != tag.Id)) {
             AssignedTags.Add(new AssignedTagViewModel(this, tag));
         }
     }
@@ -137,11 +132,9 @@ public sealed partial class CardEditorViewModel : ViewModelBase
     /// Removes a tag from the in-memory assignment.
     /// </summary>
     /// <param name="tag">The tag to remove.</param>
-    public void RemoveTag(TagModel tag)
-    {
+    public void RemoveTag(TagModel tag) {
         AssignedTagViewModel? row = AssignedTags.FirstOrDefault(item => item.Tag.Id == tag.Id);
-        if (row is not null)
-        {
+        if (row is not null) {
             AssignedTags.Remove(row);
         }
     }
@@ -150,32 +143,24 @@ public sealed partial class CardEditorViewModel : ViewModelBase
     /// Writes the card and its tags when there is an effective change.
     /// </summary>
     /// <returns><see langword="true"/> when the dialog may close.</returns>
-    public bool TryAccept()
-    {
+    public bool TryAccept() {
         ErrorMessage = null;
 
         // A confirm with no effective change writes nothing and just closes.
-        if (!HasChanges)
-        {
+        if (!HasChanges) {
             return true;
         }
 
-        try
-        {
+        try {
             IReadOnlyCollection<long> tagIds = AssignedTags.Select(row => row.Tag.Id).ToList();
-            if (_existing is null)
-            {
+            if (_existing is null) {
                 _repository.AddCard(_columnId, Title, Content, tagIds);
-            }
-            else
-            {
+            } else {
                 _repository.UpdateCard(_existing.Id, Title, Content, tagIds);
             }
 
             return true;
-        }
-        catch (SqliteException)
-        {
+        } catch (SqliteException) {
             ErrorMessage = Resources.CardDialog_Error;
             return false;
         }

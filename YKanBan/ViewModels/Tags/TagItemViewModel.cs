@@ -1,5 +1,7 @@
 using System.Globalization;
+
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 using YKanBan.ViewModels.Board;
 
@@ -9,8 +11,7 @@ namespace YKanBan.ViewModels.Tags;
 /// One row of the tag manager: a color swatch, the name, the description and the
 /// usage count, plus edit and delete actions.
 /// </summary>
-public sealed partial class TagItemViewModel
-{
+public sealed partial class TagItemViewModel {
     private readonly TagsViewModel _owner;
 
     /// <summary>
@@ -19,8 +20,7 @@ public sealed partial class TagItemViewModel
     /// <param name="owner">The owning tag manager.</param>
     /// <param name="tag">The tag model.</param>
     /// <param name="usageCount">The number of cards using the tag.</param>
-    public TagItemViewModel(TagsViewModel owner, TagModel tag, long usageCount)
-    {
+    public TagItemViewModel(TagsViewModel owner, TagModel tag, long usageCount) {
         _owner = owner;
         Tag = tag;
         Badge = new TagBadgeViewModel(tag);

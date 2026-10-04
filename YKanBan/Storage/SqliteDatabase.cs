@@ -7,8 +7,7 @@ namespace YKanBan.Storage;
 /// the mandated PRAGMA configuration (WAL journal, NORMAL synchronous mode,
 /// foreign keys on) and applies incremental <c>user_version</c> migrations.
 /// </summary>
-public static class SqliteDatabase
-{
+public static class SqliteDatabase {
     /// <summary>
     /// Opens (creating if needed) a database file, applies the mandatory
     /// PRAGMAs and runs any pending migrations.
@@ -16,10 +15,8 @@ public static class SqliteDatabase
     /// <param name="databasePath">Path of the SQLite database file.</param>
     /// <param name="migrations">Contiguous migration list ordered by version, starting at 1.</param>
     /// <returns>An open connection with all PRAGMAs applied and the schema migrated.</returns>
-    public static SqliteConnection Open(string databasePath, IReadOnlyList<SchemaMigration> migrations)
-    {
-        var connection = new SqliteConnection(new SqliteConnectionStringBuilder
-        {
+    public static SqliteConnection Open(string databasePath, IReadOnlyList<SchemaMigration> migrations) {
+        var connection = new SqliteConnection(new SqliteConnectionStringBuilder {
             DataSource = databasePath,
             Mode = SqliteOpenMode.ReadWriteCreate,
 
@@ -28,14 +25,11 @@ public static class SqliteDatabase
         }.ToString());
 
         connection.Open();
-        try
-        {
+        try {
             ApplyPragmas(connection);
             ApplyMigrations(connection, migrations);
             return connection;
-        }
-        catch
-        {
+        } catch {
             connection.Dispose();
             throw;
         }
@@ -46,8 +40,7 @@ public static class SqliteDatabase
     /// </summary>
     /// <param name="connection">An open database connection.</param>
     /// <returns>The stored schema version.</returns>
-    public static long ReadUserVersion(SqliteConnection connection)
-    {
+    public static long ReadUserVersion(SqliteConnection connection) {
         using var command = connection.CreateCommand();
         command.CommandText = "PRAGMA user_version;";
         return (long)command.ExecuteScalar()!;
@@ -59,8 +52,7 @@ public static class SqliteDatabase
     /// enabled on every connection or the DDL cascades never fire.
     /// </summary>
     /// <param name="connection">An open database connection.</param>
-    internal static void ApplyPragmas(SqliteConnection connection)
-    {
+    internal static void ApplyPragmas(SqliteConnection connection) {
         // WAL plus NORMAL synchronous is the chosen durability/performance trade-off.
         Execute(connection, "PRAGMA journal_mode=WAL;");
         Execute(connection, "PRAGMA synchronous=NORMAL;");
@@ -75,13 +67,10 @@ public static class SqliteDatabase
     /// <param name="migrations">Contiguous migration list ordered by version, starting at 1.</param>
     /// <exception cref="ArgumentException">The migration list is not contiguous from version 1.</exception>
     /// <exception cref="SchemaVersionException">The database was written by a newer build.</exception>
-    internal static void ApplyMigrations(SqliteConnection connection, IReadOnlyList<SchemaMigration> migrations)
-    {
+    internal static void ApplyMigrations(SqliteConnection connection, IReadOnlyList<SchemaMigration> migrations) {
         // Contract check: the list must be ordered, contiguous and start at version 1.
-        for (int index = 0; index < migrations.Count; index++)
-        {
-            if (migrations[index].Version != index + 1)
-            {
+        for (int index = 0; index < migrations.Count; index++) {
+            if (migrations[index].Version != index + 1) {
                 throw new ArgumentException("Migrations must be contiguous and start at version 1.", nameof(migrations));
             }
         }
@@ -90,16 +79,13 @@ public static class SqliteDatabase
         int latest = migrations.Count;
 
         // A database written by a newer build cannot be managed by this one; refuse loudly.
-        if (current > latest)
-        {
+        if (current > latest) {
             throw new SchemaVersionException(current, latest);
         }
 
         // Apply each pending migration atomically so a crash never leaves a half-migrated database.
-        foreach (SchemaMigration migration in migrations)
-        {
-            if (migration.Version <= current)
-            {
+        foreach (SchemaMigration migration in migrations) {
+            if (migration.Version <= current) {
                 continue;
             }
 
@@ -116,8 +102,7 @@ public static class SqliteDatabase
     /// <param name="connection">An open database connection.</param>
     /// <param name="commandText">The SQL script to execute.</param>
     /// <param name="transaction">The transaction to enlist in, when any.</param>
-    private static void Execute(SqliteConnection connection, string commandText, SqliteTransaction? transaction = null)
-    {
+    private static void Execute(SqliteConnection connection, string commandText, SqliteTransaction? transaction = null) {
         using var command = connection.CreateCommand();
         command.Transaction = transaction;
         command.CommandText = commandText;

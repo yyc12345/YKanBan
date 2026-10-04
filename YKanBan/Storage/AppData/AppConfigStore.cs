@@ -9,10 +9,8 @@ namespace YKanBan.Storage.AppData;
 /// used. Saving writes the file directly (no atomic replace) — losing the last
 /// session's settings to a crash is an accepted trade-off.
 /// </summary>
-public sealed class AppConfigStore
-{
-    private static readonly JsonSerializerSettings SerializerSettings = new()
-    {
+public sealed class AppConfigStore {
+    private static readonly JsonSerializerSettings SerializerSettings = new() {
         Formatting = Formatting.Indented,
         NullValueHandling = NullValueHandling.Ignore,
 
@@ -37,21 +35,17 @@ public sealed class AppConfigStore
     /// </summary>
     /// <returns>The loaded configuration, or defaults when none could be read.</returns>
     /// <exception cref="IOException">The file exists but cannot be read.</exception>
-    public AppConfig Load()
-    {
+    public AppConfig Load() {
         // Missing file is a normal first-run state: run with defaults.
-        if (!File.Exists(FilePath))
-        {
+        if (!File.Exists(FilePath)) {
             return new AppConfig();
         }
 
         string json = File.ReadAllText(FilePath);
-        try
-        {
+        try {
             // A JSON null literal deserializes to null; treat it like defaults.
             AppConfig? config = JsonConvert.DeserializeObject<AppConfig>(json, SerializerSettings);
-            if (config is null)
-            {
+            if (config is null) {
                 return new AppConfig();
             }
 
@@ -59,9 +53,7 @@ public sealed class AppConfigStore
             config.Display ??= new DisplaySettings();
             config.Confirmations ??= new ConfirmationSettings();
             return config;
-        }
-        catch (JsonException)
-        {
+        } catch (JsonException) {
             // Corrupt: keep a copy for inspection, then continue with defaults.
             File.Copy(FilePath, FilePath + ".bak", overwrite: true);
             return new AppConfig();
@@ -72,12 +64,10 @@ public sealed class AppConfigStore
     /// Writes the configuration directly to disk (no atomic replace).
     /// </summary>
     /// <param name="config">The configuration to serialize.</param>
-    public void Save(AppConfig config)
-    {
+    public void Save(AppConfig config) {
         // Create the parent folder on demand; normally it already exists.
         string? directory = Path.GetDirectoryName(FilePath);
-        if (!string.IsNullOrEmpty(directory))
-        {
+        if (!string.IsNullOrEmpty(directory)) {
             Directory.CreateDirectory(directory);
         }
 

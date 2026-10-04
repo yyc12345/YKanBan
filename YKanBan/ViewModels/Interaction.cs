@@ -3,8 +3,7 @@ namespace YKanBan.ViewModels;
 /// <summary>
 /// Input placeholder for interactions that carry no meaningful payload.
 /// </summary>
-public readonly record struct Unit
-{
+public readonly record struct Unit {
     /// <summary>
     /// Gets the single unit value.
     /// </summary>
@@ -18,8 +17,7 @@ public readonly record struct Unit
 /// The view model never holds a reference to a view.
 /// </summary>
 /// <typeparam name="TInput">The request payload.</typeparam>
-public sealed class Interaction<TInput>
-{
+public sealed class Interaction<TInput> {
     private Func<TInput, Task>? _handler;
 
     /// <summary>
@@ -46,8 +44,7 @@ public sealed class Interaction<TInput>
 /// </summary>
 /// <typeparam name="TInput">The request payload.</typeparam>
 /// <typeparam name="TOutput">The handler's answer.</typeparam>
-public sealed class Interaction<TInput, TOutput>
-{
+public sealed class Interaction<TInput, TOutput> {
     private Func<TInput, Task<TOutput>>? _handler;
 
     /// <summary>

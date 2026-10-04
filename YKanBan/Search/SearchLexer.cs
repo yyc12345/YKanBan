@@ -5,8 +5,7 @@ namespace YKanBan.Search;
 /// <summary>
 /// Lexical tokens of the search syntax.
 /// </summary>
-public abstract record SearchToken
-{
+public abstract record SearchToken {
     /// <summary>
     /// A bare word; qualifier detection happens later from the text.
     /// </summary>
@@ -39,14 +38,17 @@ public abstract record SearchToken
 /// unterminated phrase is rejected. Any input not covered by the token rules
 /// is rejected rather than silently ignored.
 /// </summary>
-public static class SearchLexer
-{
-    /// <summary>A valid phrase escape sequence: <c>\"</c> or <c>\\</c>.</summary>
+public static class SearchLexer {
+    /// <summary>
+    /// A valid phrase escape sequence: <c>\"</c> or <c>\\</c>.
+    /// </summary>
     private static readonly Parser<char, char> PhraseEscape =
         Parser.Try(Parser.String("\\\"").Select(_ => '"'))
             .Or(Parser.String("\\\\").Select(_ => '\\'));
 
-    /// <summary>One phrase character: an escape or any character except a quote or backslash.</summary>
+    /// <summary>
+    /// One phrase character: an escape or any character except a quote or backslash.
+    /// </summary>
     private static readonly Parser<char, char> PhraseCharacter =
         PhraseEscape.Or(Parser<char>.Token(character => character != '"' && character != '\\'));
 
@@ -90,14 +92,10 @@ public static class SearchLexer
     /// <param name="input">The raw search text.</param>
     /// <returns>The token stream.</returns>
     /// <exception cref="SearchSyntaxException">The text contains an invalid escape or an unterminated phrase.</exception>
-    public static IReadOnlyList<SearchToken> Tokenize(string input)
-    {
-        try
-        {
+    public static IReadOnlyList<SearchToken> Tokenize(string input) {
+        try {
             return Lexer.ParseOrThrow(input);
-        }
-        catch (ParseException exception)
-        {
+        } catch (ParseException exception) {
             throw new SearchSyntaxException(exception.Message, exception);
         }
     }

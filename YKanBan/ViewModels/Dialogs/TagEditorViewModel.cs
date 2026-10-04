@@ -1,6 +1,9 @@
 using Avalonia.Media;
+
 using CommunityToolkit.Mvvm.ComponentModel;
+
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Models;
 using YKanBan.Storage.Workspace;
 
@@ -11,8 +14,7 @@ namespace YKanBan.ViewModels.Dialogs;
 /// optional description. The write happens when the dialog is accepted; a
 /// duplicate or empty name keeps the dialog open with an inline error.
 /// </summary>
-public sealed partial class TagEditorViewModel : ViewModelBase
-{
+public sealed partial class TagEditorViewModel : ViewModelBase {
     private readonly WorkspaceRepository _repository;
     private readonly TagModel? _existing;
 
@@ -21,8 +23,7 @@ public sealed partial class TagEditorViewModel : ViewModelBase
     /// </summary>
     /// <param name="repository">The workspace repository.</param>
     /// <param name="existing">The tag to edit, or <see langword="null"/> to add one.</param>
-    public TagEditorViewModel(WorkspaceRepository repository, TagModel? existing)
-    {
+    public TagEditorViewModel(WorkspaceRepository repository, TagModel? existing) {
         _repository = repository;
         _existing = existing;
         name = existing?.Name ?? string.Empty;
@@ -70,26 +71,19 @@ public sealed partial class TagEditorViewModel : ViewModelBase
     /// Writes the tag when accepted.
     /// </summary>
     /// <returns><see langword="true"/> when the dialog may close.</returns>
-    public bool TryAccept()
-    {
+    public bool TryAccept() {
         ErrorMessage = null;
         var rgb = new RgbColor(Color.R, Color.G, Color.B);
 
-        try
-        {
-            if (_existing is null)
-            {
+        try {
+            if (_existing is null) {
                 _repository.AddTag(Name, rgb, Description);
-            }
-            else
-            {
+            } else {
                 _repository.UpdateTag(_existing.Id, Name, rgb, Description);
             }
 
             return true;
-        }
-        catch (SqliteException)
-        {
+        } catch (SqliteException) {
             ErrorMessage = Resources.TagEditor_InvalidName;
             return false;
         }

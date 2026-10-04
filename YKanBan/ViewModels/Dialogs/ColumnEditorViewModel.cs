@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Models;
 using YKanBan.Storage.Workspace;
 
@@ -10,8 +12,7 @@ namespace YKanBan.ViewModels.Dialogs;
 /// The write happens when the dialog is accepted; a duplicate or empty title
 /// keeps the dialog open with an inline error.
 /// </summary>
-public sealed partial class ColumnEditorViewModel : ViewModelBase
-{
+public sealed partial class ColumnEditorViewModel : ViewModelBase {
     private readonly WorkspaceRepository _repository;
     private readonly ColumnModel? _existing;
 
@@ -20,8 +21,7 @@ public sealed partial class ColumnEditorViewModel : ViewModelBase
     /// </summary>
     /// <param name="repository">The workspace repository.</param>
     /// <param name="existing">The column to edit, or <see langword="null"/> to add one.</param>
-    public ColumnEditorViewModel(WorkspaceRepository repository, ColumnModel? existing)
-    {
+    public ColumnEditorViewModel(WorkspaceRepository repository, ColumnModel? existing) {
         _repository = repository;
         _existing = existing;
         title = existing?.Title ?? string.Empty;
@@ -60,24 +60,17 @@ public sealed partial class ColumnEditorViewModel : ViewModelBase
     /// Writes the column when accepted.
     /// </summary>
     /// <returns><see langword="true"/> when the dialog may close.</returns>
-    public bool TryAccept()
-    {
+    public bool TryAccept() {
         ErrorMessage = null;
-        try
-        {
-            if (_existing is null)
-            {
+        try {
+            if (_existing is null) {
                 _repository.AddColumn(Title, Description);
-            }
-            else
-            {
+            } else {
                 _repository.UpdateColumn(_existing.Id, Title, Description);
             }
 
             return true;
-        }
-        catch (SqliteException)
-        {
+        } catch (SqliteException) {
             ErrorMessage = Resources.ColumnDialog_InvalidTitle;
             return false;
         }

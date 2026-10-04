@@ -7,8 +7,7 @@ namespace YKanBan.Tests.Search;
 /// records compare by reference for their Terms collections by design (see the
 /// YYC MARK note in SearchNodes.cs), so tests provide equality explicitly.
 /// </summary>
-public sealed class SearchNodeComparer : IEqualityComparer<SearchNode>
-{
+public sealed class SearchNodeComparer : IEqualityComparer<SearchNode> {
     /// <summary>
     /// Gets the shared comparer instance.
     /// </summary>
@@ -20,19 +19,15 @@ public sealed class SearchNodeComparer : IEqualityComparer<SearchNode>
     /// <param name="x">The first node.</param>
     /// <param name="y">The second node.</param>
     /// <returns><see langword="true"/> when the nodes are structurally equal.</returns>
-    public bool Equals(SearchNode? x, SearchNode? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
+    public bool Equals(SearchNode? x, SearchNode? y) {
+        if (ReferenceEquals(x, y)) {
             return true;
         }
-        if (x is null || y is null || x.GetType() != y.GetType())
-        {
+        if (x is null || y is null || x.GetType() != y.GetType()) {
             return false;
         }
 
-        return (x, y) switch
-        {
+        return (x, y) switch {
             (SearchNode.Or a, SearchNode.Or b) => SequencesEqual(a.Terms, b.Terms),
             (SearchNode.And a, SearchNode.And b) => SequencesEqual(a.Terms, b.Terms),
             (SearchNode.FreeText a, SearchNode.FreeText b) => a.Text == b.Text,
@@ -58,10 +53,8 @@ public sealed class SearchNodeComparer : IEqualityComparer<SearchNode>
     /// <param name="x">The first sequence.</param>
     /// <param name="y">The second sequence.</param>
     /// <returns><see langword="true"/> when both sequences match element-wise.</returns>
-    private static bool SequencesEqual(IReadOnlyList<SearchNode> x, IReadOnlyList<SearchNode> y)
-    {
-        if (x.Count != y.Count)
-        {
+    private static bool SequencesEqual(IReadOnlyList<SearchNode> x, IReadOnlyList<SearchNode> y) {
+        if (x.Count != y.Count) {
             return false;
         }
         return x.Zip(y).All(pair => Instance.Equals(pair.First, pair.Second));

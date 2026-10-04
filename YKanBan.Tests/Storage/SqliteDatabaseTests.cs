@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
@@ -10,11 +11,9 @@ namespace YKanBan.Tests.Storage;
 /// user_version-driven migration runner.
 /// </summary>
 [TestClass]
-public class SqliteDatabaseTests
-{
+public class SqliteDatabaseTests {
     [TestMethod]
-    public void OpenAppliesMandatoryPragmas()
-    {
+    public void OpenAppliesMandatoryPragmas() {
         using var directory = new TempDirectory();
         string databasePath = Path.Combine(directory.FullPath, "pragmas.db");
 
@@ -25,8 +24,7 @@ public class SqliteDatabaseTests
     }
 
     [TestMethod]
-    public void OpenSetsUserVersionToLatestMigration()
-    {
+    public void OpenSetsUserVersionToLatestMigration() {
         using var directory = new TempDirectory();
         string databasePath = Path.Combine(directory.FullPath, "version.db");
 
@@ -35,13 +33,11 @@ public class SqliteDatabaseTests
     }
 
     [TestMethod]
-    public void ReopenKeepsWalJournalMode()
-    {
+    public void ReopenKeepsWalJournalMode() {
         using var directory = new TempDirectory();
         string databasePath = Path.Combine(directory.FullPath, "wal.db");
 
-        using (SqliteConnection connection = SqliteDatabase.Open(databasePath, WorkspaceSchema.Migrations))
-        {
+        using (SqliteConnection connection = SqliteDatabase.Open(databasePath, WorkspaceSchema.Migrations)) {
         }
 
         // WAL mode is stored in the database header, so a fresh connection keeps it.
@@ -50,14 +46,12 @@ public class SqliteDatabaseTests
     }
 
     [TestMethod]
-    public void OpenRejectsNewerStoredSchemaVersion()
-    {
+    public void OpenRejectsNewerStoredSchemaVersion() {
         using var directory = new TempDirectory();
         string databasePath = Path.Combine(directory.FullPath, "newer.db");
 
         long newerVersion = WorkspaceSchema.CurrentVersion + 1;
-        using (SqliteConnection connection = SqliteDatabase.Open(databasePath, WorkspaceSchema.Migrations))
-        {
+        using (SqliteConnection connection = SqliteDatabase.Open(databasePath, WorkspaceSchema.Migrations)) {
             SqliteTestHelper.Exec(connection, $"PRAGMA user_version={newerVersion};");
         }
 
@@ -68,8 +62,7 @@ public class SqliteDatabaseTests
     }
 
     [TestMethod]
-    public void OpenRejectsNonContiguousMigrationList()
-    {
+    public void OpenRejectsNonContiguousMigrationList() {
         using var directory = new TempDirectory();
         string databasePath = Path.Combine(directory.FullPath, "gap.db");
 

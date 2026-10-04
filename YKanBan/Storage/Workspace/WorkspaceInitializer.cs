@@ -8,8 +8,7 @@ namespace YKanBan.Storage.Workspace;
 /// separate concern handled by <see cref="WorkspacePreset"/>, so the
 /// database can be created without any rows.
 /// </summary>
-public static class WorkspaceInitializer
-{
+public static class WorkspaceInitializer {
     /// <summary>
     /// Returns whether the folder contains a .ykanban structure. Only the
     /// passed folder is checked; parent folders are never searched.
@@ -25,16 +24,13 @@ public static class WorkspaceInitializer
     /// <param name="folderPath">The existing folder to initialize.</param>
     /// <exception cref="WorkspaceDirectoryMissingException">The folder does not exist on disk.</exception>
     /// <exception cref="InvalidOperationException">The workspace database already exists.</exception>
-    public static void Initialize(string folderPath)
-    {
-        if (!Directory.Exists(folderPath))
-        {
+    public static void Initialize(string folderPath) {
+        if (!Directory.Exists(folderPath)) {
             throw new WorkspaceDirectoryMissingException(folderPath);
         }
 
         string databasePath = WorkspacePaths.Database(folderPath);
-        if (File.Exists(databasePath))
-        {
+        if (File.Exists(databasePath)) {
             throw new InvalidOperationException($"The workspace database already exists: {databasePath}");
         }
 

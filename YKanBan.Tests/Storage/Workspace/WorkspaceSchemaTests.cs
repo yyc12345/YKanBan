@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Storage;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
@@ -10,19 +11,16 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// and that the cascading delete chains work as specified.
 /// </summary>
 [TestClass]
-public class WorkspaceSchemaTests
-{
+public class WorkspaceSchemaTests {
     /// <summary>
     /// Owns a temp directory plus a fresh workspace-schema database for a single test.
     /// </summary>
-    private sealed class FreshDatabase : IDisposable
-    {
+    private sealed class FreshDatabase : IDisposable {
         public TempDirectory Directory { get; } = new();
 
         public SqliteConnection Connection { get; }
 
-        public FreshDatabase()
-        {
+        public FreshDatabase() {
             Connection = SqliteDatabase.Open(
                 Path.Combine(Directory.FullPath, "ws.db"), WorkspaceSchema.Migrations);
         }
@@ -30,24 +28,21 @@ public class WorkspaceSchemaTests
         /// <summary>
         /// Closes the connection before removing the temporary directory.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Connection.Dispose();
             Directory.Dispose();
         }
     }
 
     [TestMethod]
-    public void EmptyColumnTitleIsRejected()
-    {
+    public void EmptyColumnTitleIsRejected() {
         using var db = new FreshDatabase();
         Assert.ThrowsExactly<SqliteException>(() =>
             SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('', 1, 1);"));
     }
 
     [TestMethod]
-    public void WhitespaceColumnTitleIsAccepted()
-    {
+    public void WhitespaceColumnTitleIsAccepted() {
         using var db = new FreshDatabase();
         // No trimming: a single space is a non-empty title as far as the DDL is concerned.
         int affected = SqliteTestHelper.Exec(
@@ -56,8 +51,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void DuplicateColumnTitleIsRejected()
-    {
+    public void DuplicateColumnTitleIsRejected() {
         using var db = new FreshDatabase();
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
         Assert.ThrowsExactly<SqliteException>(() =>
@@ -65,8 +59,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void ColumnTitlesCompareCaseSensitively()
-    {
+    public void ColumnTitlesCompareCaseSensitively() {
         using var db = new FreshDatabase();
         // BINARY collation: 'Foo' and 'foo' are distinct titles.
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('Foo', 1, 1);");
@@ -75,28 +68,24 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void EmptyTagNameIsRejected()
-    {
+    public void EmptyTagNameIsRejected() {
         using var db = new FreshDatabase();
         Assert.ThrowsExactly<SqliteException>(() =>
             SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('', '#112233');"));
     }
 
     [TestMethod]
-    public void TagNamesAcceptSpacesEmojiAndReservedWords()
-    {
+    public void TagNamesAcceptSpacesEmojiAndReservedWords() {
         using var db = new FreshDatabase();
         // Tag names are fully open: no charset or length rules, no trimming.
-        foreach (string name in new[] { " ", "a b", "🏷️", "AND", "tag:with:colons" })
-        {
+        foreach (string name in new[] { " ", "a b", "🏷️", "AND", "tag:with:colons" }) {
             SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ($n, '#112233');", ("$n", name));
         }
         Assert.AreEqual(5L, SqliteTestHelper.ScalarLong(db.Connection, "SELECT COUNT(*) FROM tags;"));
     }
 
     [TestMethod]
-    public void DuplicateTagNameIsRejected()
-    {
+    public void DuplicateTagNameIsRejected() {
         using var db = new FreshDatabase();
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");
         Assert.ThrowsExactly<SqliteException>(() =>
@@ -107,8 +96,7 @@ public class WorkspaceSchemaTests
     [DataRow("#000000")]
     [DataRow("#FFFFFF")]
     [DataRow("#a1B2c3")]
-    public void ValidTagColorsAreAccepted(string color)
-    {
+    public void ValidTagColorsAreAccepted(string color) {
         using var db = new FreshDatabase();
         int affected = SqliteTestHelper.Exec(
             db.Connection, "INSERT INTO tags (name, color) VALUES ('x', $c);", ("$c", color));
@@ -124,16 +112,14 @@ public class WorkspaceSchemaTests
     [DataRow(" #112233")]
     [DataRow("#112233 ")]
     [DataRow("")]
-    public void InvalidTagColorsAreRejected(string color)
-    {
+    public void InvalidTagColorsAreRejected(string color) {
         using var db = new FreshDatabase();
         Assert.ThrowsExactly<SqliteException>(() =>
             SqliteTestHelper.Exec(db.Connection, "INSERT INTO tags (name, color) VALUES ('x', $c);", ("$c", color)));
     }
 
     [TestMethod]
-    public void CardRequiresExistingColumn()
-    {
+    public void CardRequiresExistingColumn() {
         using var db = new FreshDatabase();
         // foreign_keys=ON makes the FK enforceable; this is the DDL contract behind the cascades.
         Assert.ThrowsExactly<SqliteException>(() =>
@@ -141,8 +127,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void CardDefaultsToEmptyTitleAndContent()
-    {
+    public void CardDefaultsToEmptyTitleAndContent() {
         using var db = new FreshDatabase();
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('c', 1, 1);");
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (1, 1, 1);");
@@ -153,8 +138,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void CardTagDuplicateAssignmentIsRejected()
-    {
+    public void CardTagDuplicateAssignmentIsRejected() {
         using var db = new FreshDatabase();
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('c', 1, 1);");
         SqliteTestHelper.Exec(db.Connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (1, 1, 1);");
@@ -167,8 +151,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void DeletingColumnCascadesToCardsAndCardTags()
-    {
+    public void DeletingColumnCascadesToCardsAndCardTags() {
         using var db = new FreshDatabase();
         InsertBoardRow(db.Connection);
 
@@ -182,8 +165,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void DeletingCardCascadesToCardTagsOnly()
-    {
+    public void DeletingCardCascadesToCardTagsOnly() {
         using var db = new FreshDatabase();
         InsertBoardRow(db.Connection);
 
@@ -196,8 +178,7 @@ public class WorkspaceSchemaTests
     }
 
     [TestMethod]
-    public void DeletingTagRemovesAssignmentsButKeepsCards()
-    {
+    public void DeletingTagRemovesAssignmentsButKeepsCards() {
         using var db = new FreshDatabase();
         InsertBoardRow(db.Connection);
 
@@ -214,8 +195,7 @@ public class WorkspaceSchemaTests
     /// Inserts one column, one card, one tag and their assignment, ready for a cascade test.
     /// </summary>
     /// <param name="connection">An open workspace-schema connection.</param>
-    private static void InsertBoardRow(SqliteConnection connection)
-    {
+    private static void InsertBoardRow(SqliteConnection connection) {
         SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, created_at, updated_at) VALUES ('c', 1, 1);");
         SqliteTestHelper.Exec(connection, "INSERT INTO cards (column_id, created_at, updated_at) VALUES (1, 1, 1);");
         SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color) VALUES ('bug', '#112233');");

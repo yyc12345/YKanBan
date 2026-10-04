@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+
 using YKanBan.Storage.AppData;
 
 namespace YKanBan.ViewModels.Dialogs;
@@ -8,8 +9,7 @@ namespace YKanBan.ViewModels.Dialogs;
 /// confirmation-dialog toggles. Nothing is applied until the user accepts;
 /// cancelling or closing the window discards the changes.
 /// </summary>
-public sealed partial class SettingsDialogViewModel : ViewModelBase
-{
+public sealed partial class SettingsDialogViewModel : ViewModelBase {
     private readonly AppConfig _config;
     private readonly string _startupLanguage;
 
@@ -18,8 +18,7 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase
     /// </summary>
     /// <param name="config">The live application configuration.</param>
     /// <param name="startupLanguage">The language applied at startup, for the restart notice.</param>
-    public SettingsDialogViewModel(AppConfig config, string startupLanguage)
-    {
+    public SettingsDialogViewModel(AppConfig config, string startupLanguage) {
         _config = config;
         _startupLanguage = startupLanguage;
 
@@ -101,14 +100,11 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase
     /// <summary>
     /// Commits the working values into the live configuration.
     /// </summary>
-    public void Accept()
-    {
-        if (SelectedLanguage is not null)
-        {
+    public void Accept() {
+        if (SelectedLanguage is not null) {
             _config.Language = (string)SelectedLanguage.Value;
         }
-        if (SelectedTheme is not null)
-        {
+        if (SelectedTheme is not null) {
             _config.Theme = (ThemeOption)SelectedTheme.Value;
             App.ApplyTheme(_config.Theme);
         }

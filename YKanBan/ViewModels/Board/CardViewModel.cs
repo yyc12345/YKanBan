@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Models;
 
 namespace YKanBan.ViewModels.Board;
@@ -9,9 +10,10 @@ namespace YKanBan.ViewModels.Board;
 /// truncated content preview and the colored tag badges; timestamps are not
 /// shown on the board.
 /// </summary>
-public sealed partial class CardViewModel : ViewModelBase
-{
-    /// <summary>Maximum number of content characters shown in the card preview.</summary>
+public sealed partial class CardViewModel : ViewModelBase {
+    /// <summary>
+    /// Maximum number of content characters shown in the card preview.
+    /// </summary>
     private const int PreviewLength = 200;
 
     private readonly BoardViewModel _board;
@@ -21,8 +23,7 @@ public sealed partial class CardViewModel : ViewModelBase
     /// </summary>
     /// <param name="board">The owning board view model.</param>
     /// <param name="card">The card model to display.</param>
-    public CardViewModel(BoardViewModel board, CardModel card)
-    {
+    public CardViewModel(BoardViewModel board, CardModel card) {
         _board = board;
         Model = card;
         TagBadges = card.Tags.Select(tag => new TagBadgeViewModel(tag)).ToList();
@@ -71,10 +72,8 @@ public sealed partial class CardViewModel : ViewModelBase
     /// <summary>
     /// Gets the content preview, collapsed to one line and truncated.
     /// </summary>
-    public string PreviewContent
-    {
-        get
-        {
+    public string PreviewContent {
+        get {
             string singleLine = Model.Content.Replace("\r", " ").Replace("\n", " ");
             return singleLine.Length <= PreviewLength ? singleLine : singleLine[..PreviewLength] + "…";
         }

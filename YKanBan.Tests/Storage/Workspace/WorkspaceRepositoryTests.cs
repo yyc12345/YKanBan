@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Models;
 using YKanBan.Search;
 using YKanBan.Storage.Workspace;
@@ -11,16 +12,14 @@ namespace YKanBan.Tests.Storage.Workspace;
 /// transaction atomicity and the timestamp refresh rules.
 /// </summary>
 [TestClass]
-public class WorkspaceRepositoryTests
-{
+public class WorkspaceRepositoryTests {
     /// <summary>
     /// Owns a workspace with fixed-timestamp fixture data (one column, one
     /// card, two tags linked to the card) plus the repository under test.
     /// Fixture timestamps are small literal values so that any real write,
     /// which stamps the current Unix time, is observable.
     /// </summary>
-    private sealed class RepositoryFixture : IDisposable
-    {
+    private sealed class RepositoryFixture : IDisposable {
         public TempDirectory Directory { get; } = new();
 
         public WorkspaceRepository Repository { get; }
@@ -33,12 +32,10 @@ public class WorkspaceRepositoryTests
 
         public long UiTagId { get; } = 2;
 
-        public RepositoryFixture()
-        {
+        public RepositoryFixture() {
             WorkspaceInitializer.Initialize(Directory.FullPath);
 
-            using (SqliteConnection connection = SqliteTestHelper.OpenWorkspace(Directory.FullPath))
-            {
+            using (SqliteConnection connection = SqliteTestHelper.OpenWorkspace(Directory.FullPath)) {
                 SqliteTestHelper.Exec(connection, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('Col', '', 100, 100);");
                 SqliteTestHelper.Exec(connection, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (1, 'T', 'C', 100, 100);");
                 SqliteTestHelper.Exec(connection, "INSERT INTO tags (name, color, description) VALUES ('bug', '#ff0000', '');");
@@ -50,16 +47,14 @@ public class WorkspaceRepositoryTests
             Repository = new WorkspaceRepository(Directory.FullPath);
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Repository.Dispose();
             Directory.Dispose();
         }
     }
 
     [TestMethod]
-    public void GetColumnsReturnsTheSeededColumn()
-    {
+    public void GetColumnsReturnsTheSeededColumn() {
         using var fixture = new RepositoryFixture();
         ColumnModel column = fixture.Repository.GetColumn(fixture.ColumnId)!;
         Assert.AreEqual("Col", column.Title);
@@ -67,8 +62,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void AddColumnSetsEqualTimestamps()
-    {
+    public void AddColumnSetsEqualTimestamps() {
         using var fixture = new RepositoryFixture();
         ColumnModel column = fixture.Repository.AddColumn("New", "desc");
         Assert.IsTrue(column.CreatedAt > 0L);
@@ -76,8 +70,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateColumnWithoutChangeWritesNothing()
-    {
+    public void UpdateColumnWithoutChangeWritesNothing() {
         using var fixture = new RepositoryFixture();
 
         ColumnModel result = fixture.Repository.UpdateColumn(fixture.ColumnId, "Col", "");
@@ -87,8 +80,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateColumnChangeRefreshesTimestamp()
-    {
+    public void UpdateColumnChangeRefreshesTimestamp() {
         using var fixture = new RepositoryFixture();
 
         ColumnModel updated = fixture.Repository.UpdateColumn(fixture.ColumnId, "Col2", "desc");
@@ -98,8 +90,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void DeleteColumnCascadesToCardsAndTagLinks()
-    {
+    public void DeleteColumnCascadesToCardsAndTagLinks() {
         using var fixture = new RepositoryFixture();
 
         Assert.IsTrue(fixture.Repository.DeleteColumn(fixture.ColumnId));
@@ -112,8 +103,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void DeleteCardRemovesTagLinksButKeepsTags()
-    {
+    public void DeleteCardRemovesTagLinksButKeepsTags() {
         using var fixture = new RepositoryFixture();
 
         Assert.IsTrue(fixture.Repository.DeleteCard(fixture.CardId));
@@ -125,8 +115,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void DeleteTagDetachesFromCardsButKeepsCards()
-    {
+    public void DeleteTagDetachesFromCardsButKeepsCards() {
         using var fixture = new RepositoryFixture();
 
         Assert.IsTrue(fixture.Repository.DeleteTag(fixture.BugTagId));
@@ -138,8 +127,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateCardWithoutEffectiveChangeWritesNothing()
-    {
+    public void UpdateCardWithoutEffectiveChangeWritesNothing() {
         using var fixture = new RepositoryFixture();
 
         CardModel result = fixture.Repository.UpdateCard(
@@ -149,8 +137,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateCardTitleChangeRefreshesTimestamp()
-    {
+    public void UpdateCardTitleChangeRefreshesTimestamp() {
         using var fixture = new RepositoryFixture();
 
         CardModel updated = fixture.Repository.UpdateCard(
@@ -161,8 +148,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateCardTagSetOnlyChangeStillRefreshesTimestamp()
-    {
+    public void UpdateCardTagSetOnlyChangeStillRefreshesTimestamp() {
         using var fixture = new RepositoryFixture();
 
         CardModel updated = fixture.Repository.UpdateCard(fixture.CardId, "T", "C", [fixture.BugTagId]);
@@ -172,8 +158,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateCardWithUnknownTagRollsBackAtomically()
-    {
+    public void UpdateCardWithUnknownTagRollsBackAtomically() {
         using var fixture = new RepositoryFixture();
 
         // Tag 999 does not exist: the FK fires mid-transaction and the whole edit must roll back.
@@ -188,8 +173,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void MoveCardUpdatesColumnWithoutRefreshingTimestamp()
-    {
+    public void MoveCardUpdatesColumnWithoutRefreshingTimestamp() {
         using var fixture = new RepositoryFixture();
         long target = fixture.Repository.AddColumn("Target", "").Id;
 
@@ -202,8 +186,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void MoveCardToCurrentColumnIsNoOp()
-    {
+    public void MoveCardToCurrentColumnIsNoOp() {
         using var fixture = new RepositoryFixture();
 
         Assert.IsFalse(fixture.Repository.MoveCard(fixture.CardId, fixture.ColumnId));
@@ -212,8 +195,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void AddCardCreatesWithEqualTimestampsAndLinkedTags()
-    {
+    public void AddCardCreatesWithEqualTimestampsAndLinkedTags() {
         using var fixture = new RepositoryFixture();
 
         CardModel card = fixture.Repository.AddCard(fixture.ColumnId, "N", "body", [fixture.UiTagId]);
@@ -225,8 +207,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateTagWithoutChangeWritesNothing()
-    {
+    public void UpdateTagWithoutChangeWritesNothing() {
         using var fixture = new RepositoryFixture();
 
         TagModel result = fixture.Repository.UpdateTag(
@@ -237,8 +218,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void UpdateTagChangeWrites()
-    {
+    public void UpdateTagChangeWrites() {
         using var fixture = new RepositoryFixture();
 
         TagModel updated = fixture.Repository.UpdateTag(
@@ -251,16 +231,14 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void AddTagWithDuplicateNameIsRejected()
-    {
+    public void AddTagWithDuplicateNameIsRejected() {
         using var fixture = new RepositoryFixture();
         Assert.ThrowsExactly<SqliteException>(() =>
             fixture.Repository.AddTag("bug", RgbColor.Parse("#123456"), ""));
     }
 
     [TestMethod]
-    public void GetCardIdsMatchingRunsTheCompiledSearch()
-    {
+    public void GetCardIdsMatchingRunsTheCompiledSearch() {
         using var fixture = new RepositoryFixture();
         CompiledSearch compiled = SearchSqlCompiler.Compile(new SearchNode.FreeText("T"));
 
@@ -270,8 +248,7 @@ public class WorkspaceRepositoryTests
     }
 
     [TestMethod]
-    public void GetTagsWithUsageCountsAssignments()
-    {
+    public void GetTagsWithUsageCountsAssignments() {
         using var fixture = new RepositoryFixture();
 
         IReadOnlyList<(TagModel Tag, long UsageCount)> before = fixture.Repository.GetTagsWithUsage();

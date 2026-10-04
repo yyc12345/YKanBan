@@ -8,13 +8,11 @@ namespace YKanBan.Services;
 /// the single open workspace session. The configuration is persisted once at
 /// shutdown; the session (lock plus connection) lives until disposal.
 /// </summary>
-public sealed class AppServices : IDisposable
-{
+public sealed class AppServices : IDisposable {
     /// <summary>
     /// Loads the configuration and prepares the service graph.
     /// </summary>
-    public AppServices()
-    {
+    public AppServices() {
         ConfigStore = new AppConfigStore(AppDataPaths.AppConfigJsonPath);
         Config = ConfigStore.Load();
     }
@@ -42,8 +40,7 @@ public sealed class AppServices : IDisposable
     /// <returns>The open session.</returns>
     /// <exception cref="YKanBan.Storage.WorkspaceNotInitializedException">The folder has no .ykanban structure.</exception>
     /// <exception cref="YKanBan.Storage.WorkspaceLockException">Another instance already holds the lock.</exception>
-    public WorkspaceSession OpenWorkspace(string folderPath)
-    {
+    public WorkspaceSession OpenWorkspace(string folderPath) {
         Session = WorkspaceSession.Open(folderPath);
         return Session;
     }

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+
 using YKanBan.Services;
 using YKanBan.Storage.Workspace;
 using YKanBan.ViewModels.Board;
@@ -10,8 +11,7 @@ namespace YKanBan.ViewModels;
 /// The normal workspace view: the top display area (name, path and the export,
 /// settings and about buttons) plus the board and tags tabs.
 /// </summary>
-public sealed partial class WorkspaceViewModel : ViewModelBase
-{
+public sealed partial class WorkspaceViewModel : ViewModelBase {
     private readonly Interaction<Unit> _showSettings;
     private readonly Interaction<Unit> _showAbout;
 
@@ -26,8 +26,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         AppServices services,
         WorkspaceSession session,
         Interaction<Unit> showSettings,
-        Interaction<Unit> showAbout)
-    {
+        Interaction<Unit> showAbout) {
         Session = session;
         WorkspaceName = new DirectoryInfo(session.FolderPath).Name;
         WorkspacePath = session.FolderPath;

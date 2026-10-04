@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+
 using YKanBan.Search;
 using YKanBan.Storage.Workspace;
 using YKanBan.Tests.TestUtilities;
@@ -10,22 +11,18 @@ namespace YKanBan.Tests.Search;
 /// workspace database.
 /// </summary>
 [TestClass]
-public class SearchSqlCompilerTests
-{
+public class SearchSqlCompilerTests {
     /// <summary>
     /// Owns a workspace with a fixed card/tag fixture.
     /// </summary>
-    private sealed class SearchFixture : IDisposable
-    {
+    private sealed class SearchFixture : IDisposable {
         public TempDirectory Directory { get; } = new();
 
         public SqliteConnection Connection { get; }
 
-        public SearchFixture()
-        {
+        public SearchFixture() {
             WorkspaceInitializer.Initialize(Directory.FullPath);
-            using (SqliteConnection setup = SqliteTestHelper.OpenWorkspace(Directory.FullPath))
-            {
+            using (SqliteConnection setup = SqliteTestHelper.OpenWorkspace(Directory.FullPath)) {
                 // Columns: 1 "To Do", 2 "In Progress".
                 SqliteTestHelper.Exec(setup, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('To Do', '', 1, 1);");
                 SqliteTestHelper.Exec(setup, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('In Progress', '', 1, 1);");
@@ -54,38 +51,33 @@ public class SearchSqlCompilerTests
         /// </summary>
         /// <param name="queryText">The search text.</param>
         /// <returns>The matching card ids in id order.</returns>
-        public List<long> Search(string queryText)
-        {
+        public List<long> Search(string queryText) {
             SearchNode? query = SearchQueryParser.Parse(queryText);
             Assert.IsNotNull(query, "Blank fixture queries are not expected here.");
             CompiledSearch compiled = SearchSqlCompiler.Compile(query);
 
             using var command = Connection.CreateCommand();
             command.CommandText = $"SELECT c.id FROM cards c WHERE {compiled.Predicate} ORDER BY c.id ASC;";
-            foreach ((string name, object value) in compiled.Parameters)
-            {
+            foreach ((string name, object value) in compiled.Parameters) {
                 command.Parameters.AddWithValue(name, value);
             }
             using var reader = command.ExecuteReader();
 
             var ids = new List<long>();
-            while (reader.Read())
-            {
+            while (reader.Read()) {
                 ids.Add(reader.GetInt64(0));
             }
             return ids;
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Connection.Dispose();
             Directory.Dispose();
         }
     }
 
     [TestMethod]
-    public void FreeTextMatchesTitleOrContentCaseInsensitively()
-    {
+    public void FreeTextMatchesTitleOrContentCaseInsensitively() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 2L }, fixture.Search("apple"));
         CollectionAssert.AreEqual(new[] { 1L }, fixture.Search("login"));
@@ -94,8 +86,7 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void FieldQualifiersScopeToTheirField()
-    {
+    public void FieldQualifiersScopeToTheirField() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 2L }, fixture.Search("title:apple"));
         CollectionAssert.AreEqual(new[] { 3L }, fixture.Search("content:banana"));
@@ -103,8 +94,7 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void TagQualifierMatchesExactlyAndCaseInsensitively()
-    {
+    public void TagQualifierMatchesExactlyAndCaseInsensitively() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 1L }, fixture.Search("tag:bug"));
         CollectionAssert.AreEqual(new[] { 2L, 3L }, fixture.Search("tag:ui"));
@@ -116,8 +106,7 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void ColumnQualifierMatchesColumnTitleExactly()
-    {
+    public void ColumnQualifierMatchesColumnTitleExactly() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 1L, 4L }, fixture.Search("column:\"to do\""));
         CollectionAssert.AreEqual(new[] { 2L, 3L }, fixture.Search("column:\"in progress\""));
@@ -128,16 +117,14 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void IdQualifierMatchesExactly()
-    {
+    public void IdQualifierMatchesExactly() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 3L }, fixture.Search("id:3"));
         Assert.AreEqual(0, fixture.Search("id:99").Count);
     }
 
     [TestMethod]
-    public void AndOrCombination()
-    {
+    public void AndOrCombination() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 2L, 3L }, fixture.Search("apple OR banana"));
         CollectionAssert.AreEqual(new[] { 2L }, fixture.Search("apple AND id:2"));
@@ -145,8 +132,7 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void ParenthesizedGrouping()
-    {
+    public void ParenthesizedGrouping() {
         using var fixture = new SearchFixture();
 
         // (apple OR banana) hits cards 2,3; intersected with column "In Progress" (2,3).
@@ -157,16 +143,14 @@ public class SearchSqlCompilerTests
     }
 
     [TestMethod]
-    public void LikeWildcardsInUserTextMatchLiterally()
-    {
+    public void LikeWildcardsInUserTextMatchLiterally() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 4L }, fixture.Search("100%"));
         CollectionAssert.AreEqual(new[] { 4L }, fixture.Search("a_b"));
     }
 
     [TestMethod]
-    public void CompiledPredicateUsesNamedParameters()
-    {
+    public void CompiledPredicateUsesNamedParameters() {
         CompiledSearch compiled = SearchSqlCompiler.Compile(new SearchNode.FreeText("x"));
 
         StringAssert.Contains(compiled.Predicate, "$p0");

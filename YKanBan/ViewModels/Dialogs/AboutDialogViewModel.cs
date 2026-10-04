@@ -5,13 +5,11 @@ namespace YKanBan.ViewModels.Dialogs;
 /// <summary>
 /// The about dialog: application name, version, repository link and license.
 /// </summary>
-public sealed class AboutDialogViewModel : ViewModelBase
-{
+public sealed class AboutDialogViewModel : ViewModelBase {
     /// <summary>
     /// Initializes the view model, reading the version from the assembly.
     /// </summary>
-    public AboutDialogViewModel()
-    {
+    public AboutDialogViewModel() {
         string version = typeof(AboutDialogViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
         Version = string.Format(
             Resources.Culture ?? CultureInfo.CurrentCulture, Resources.About_Version, version);
