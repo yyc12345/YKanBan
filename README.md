@@ -28,4 +28,4 @@ by the manually triggered workflow in `.github/workflows/build.yml`;
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
