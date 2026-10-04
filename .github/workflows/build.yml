@@ -1,0 +1,56 @@
+name: Build
+
+# Manual trigger only. There is no push/pull_request trigger on purpose:
+# the project must not depend on push-triggered CI.
+on:
+  workflow_dispatch:
+
+# Least privilege: the workflow only reads the repository and uploads artifacts.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # One failing RID must not cancel the others.
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: osx-arm64
+            os: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore YKanBan.slnx
+
+      - name: Build
+        run: dotnet build YKanBan.slnx -c Release --no-restore
+
+      # A failing test fails the job, so the publish and upload steps below are
+      # skipped and this RID produces no artifact.
+      - name: Test
+        run: dotnet test YKanBan.slnx -c Release --no-build --no-restore
+
+      - name: Publish
+        run: dotnet publish YKanBan/YKanBan.csproj -c Release -r ${{ matrix.rid }} --self-contained true -o publish/${{ matrix.rid }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YKanBan-${{ matrix.rid }}
+          path: publish/${{ matrix.rid }}
+          if-no-files-found: error
