@@ -457,6 +457,13 @@ public class BoardViewModelTests
     }
 
     [TestMethod]
+    public void TagBadgeShowsNoTooltipForAnEmptyDescription()
+    {
+        Assert.IsNull(new TagBadgeViewModel(new TagModel(1, "bug", new RgbColor(1, 2, 3), "")).ToolTip);
+        Assert.AreEqual("why", new TagBadgeViewModel(new TagModel(1, "bug", new RgbColor(1, 2, 3), "why")).ToolTip);
+    }
+
+    [TestMethod]
     public void TagPickerHidesAssignedTagsAndFiltersCaseInsensitively()
     {
         using var fixture = new Fixture();

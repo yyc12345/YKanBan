@@ -45,7 +45,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="board:TagBadgeViewModel">
                         <Border Background="{Binding Background}" CornerRadius="10" Padding="8,2,4,2"
-                                Margin="0,0,6,6" ToolTip.Tip="{Binding Description}">
+                                Margin="0,0,6,6" ToolTip.Tip="{Binding ToolTip}">
                             <StackPanel Orientation="Horizontal" Spacing="2">
                                 <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}"
                                            VerticalAlignment="Center" FontSize="12"/>

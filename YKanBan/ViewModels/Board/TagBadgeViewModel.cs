@@ -38,6 +38,12 @@ public sealed class TagBadgeViewModel : ViewModelBase
     public string Description => Tag.Description;
 
     /// <summary>
+    /// Gets the badge tooltip: the description, or <see langword="null"/> (no
+    /// tooltip at all) when the description is empty.
+    /// </summary>
+    public string? ToolTip => Tag.Description.Length > 0 ? Tag.Description : null;
+
+    /// <summary>
     /// Gets the badge fill: the tag's own color.
     /// </summary>
     public IBrush Background { get; }
