@@ -45,8 +45,9 @@ case "$rid" in
     ;;
   osx-*)
     app="$staging/YKanBan.app"
-    mkdir -p "$app/Contents/MacOS"
+    mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
     cp -R "$publish_dir/." "$app/Contents/MacOS/"
+    cp "$script_dir/macos/ykanban.icns" "$app/Contents/Resources/"
     chmod +x "$app/Contents/MacOS/YKanBan"
     sed "s/@VERSION@/${version}/g" "$script_dir/macos/Info.plist" > "$app/Contents/Info.plist"
     if command -v codesign > /dev/null 2>&1; then
