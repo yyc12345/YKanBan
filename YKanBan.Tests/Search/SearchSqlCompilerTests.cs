@@ -26,12 +26,14 @@ public class SearchSqlCompilerTests {
                 // Columns: 1 "To Do", 2 "In Progress".
                 SqliteTestHelper.Exec(setup, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('To Do', '', 1, 1);");
                 SqliteTestHelper.Exec(setup, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('In Progress', '', 1, 1);");
+                SqliteTestHelper.Exec(setup, "INSERT INTO columns (title, description, created_at, updated_at) VALUES ('Archive', '', 1, 1);");
 
                 // Cards: 1 titled, 2 title-or-content matches, 3 untitled, 4 wildcard chars.
                 SqliteTestHelper.Exec(setup, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (1, 'Fix login', 'Cannot sign in', 1, 1);");
                 SqliteTestHelper.Exec(setup, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (2, 'Green apple', 'the apple pie', 1, 1);");
                 SqliteTestHelper.Exec(setup, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (2, '', 'banana split', 1, 1);");
                 SqliteTestHelper.Exec(setup, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (1, '100% done', 'a_b test', 1, 1);");
+                SqliteTestHelper.Exec(setup, "INSERT INTO cards (column_id, title, content, created_at, updated_at) VALUES (3, 'ÄÖÜ Straße', '', 1, 1);");
 
                 // Tags: mixed case names plus one containing spaces.
                 SqliteTestHelper.Exec(setup, "INSERT INTO tags (name, color, description) VALUES ('Bug', '#ff0000', '');");
@@ -143,10 +145,19 @@ public class SearchSqlCompilerTests {
     }
 
     [TestMethod]
-    public void LikeWildcardsInUserTextMatchLiterally() {
+    public void PercentAndUnderscoreInUserTextMatchLiterally() {
         using var fixture = new SearchFixture();
         CollectionAssert.AreEqual(new[] { 4L }, fixture.Search("100%"));
         CollectionAssert.AreEqual(new[] { 4L }, fixture.Search("a_b"));
+    }
+
+    [TestMethod]
+    public void UnicodeCaseFoldingMatchesNonAscii() {
+        using var fixture = new SearchFixture();
+
+        // SQLite's LIKE would only fold ASCII; the ykb_fold function folds these too.
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("äöü"));
+        CollectionAssert.AreEqual(new[] { 5L }, fixture.Search("straße"));
     }
 
     [TestMethod]
@@ -154,9 +165,7 @@ public class SearchSqlCompilerTests {
         CompiledSearch compiled = SearchSqlCompiler.Compile(new SearchNode.FreeText("x"));
 
         StringAssert.Contains(compiled.Predicate, "$p0");
-        StringAssert.Contains(compiled.Predicate, "$p1");
-        Assert.AreEqual(2, compiled.Parameters.Count);
-        Assert.AreEqual("%x%", compiled.Parameters[0].Value);
-        Assert.AreEqual("%x%", compiled.Parameters[1].Value);
+        Assert.AreEqual(1, compiled.Parameters.Count);
+        Assert.AreEqual("x", compiled.Parameters[0].Value);
     }
 }

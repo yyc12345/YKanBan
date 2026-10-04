@@ -1,3 +1,5 @@
+using YKanBan.Storage;
+
 namespace YKanBan.Search;
 
 /// <summary>
@@ -10,10 +12,11 @@ public sealed record CompiledSearch(string Predicate, IReadOnlyList<(string Name
 
 /// <summary>
 /// Compiles a parsed search AST into a parameterized SQL predicate. Matching is
-/// case-insensitive with SQLite's built-in semantics: LIKE's default case
-/// folding for substring matches plus COLLATE NOCASE for exact matches. LIKE
-/// wildcards and the escape character in user text are escaped so they match
-/// literally.
+/// Unicode case-insensitive: both sides are folded with
+/// <see cref="SqliteDatabase.Fold"/> (the column side through the per-connection
+/// <see cref="SqliteDatabase.FoldFunctionName"/> function) and then compared
+/// ordinally — <c>instr</c> for substrings, <c>=</c> for exact matches. LIKE is
+/// deliberately not used, so <c>%</c> and <c>_</c> carry no wildcard meaning.
 /// </summary>
 public static class SearchSqlCompiler {
     /// <summary>
@@ -43,26 +46,25 @@ public static class SearchSqlCompiler {
 
             case SearchNode.FreeText freeText: {
                     // A bare word matches a substring of the title OR the content.
-                    string titleParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
-                    string contentParam = AddParameter(parameters, "%" + EscapeLike(freeText.Text) + "%");
-                    return $"(c.title LIKE {titleParam} ESCAPE '\\' OR c.content LIKE {contentParam} ESCAPE '\\')";
+                    string param = AddParameter(parameters, SqliteDatabase.Fold(freeText.Text));
+                    return $"({Contains("c.title", param)} OR {Contains("c.content", param)})";
                 }
 
             case SearchNode.FieldText field: {
                     string column = field.Field == SearchField.Title ? "c.title" : "c.content";
-                    string param = AddParameter(parameters, "%" + EscapeLike(field.Text) + "%");
-                    return $"{column} LIKE {param} ESCAPE '\\'";
+                    string param = AddParameter(parameters, SqliteDatabase.Fold(field.Text));
+                    return Contains(column, param);
                 }
 
             case SearchNode.TagName tag: {
-                    string param = AddParameter(parameters, tag.Name);
+                    string param = AddParameter(parameters, SqliteDatabase.Fold(tag.Name));
                     return "EXISTS (SELECT 1 FROM card_tags ct JOIN tags t ON t.id = ct.tag_id " +
-                           $"WHERE ct.card_id = c.id AND t.name COLLATE NOCASE = {param})";
+                           $"WHERE ct.card_id = c.id AND {Folded("t.name")} = {param})";
                 }
 
             case SearchNode.ColumnTitle column: {
-                    string param = AddParameter(parameters, column.Title);
-                    return $"c.column_id IN (SELECT id FROM columns WHERE title COLLATE NOCASE = {param})";
+                    string param = AddParameter(parameters, SqliteDatabase.Fold(column.Title));
+                    return $"c.column_id IN (SELECT id FROM columns WHERE {Folded("title")} = {param})";
                 }
 
             case SearchNode.CardId id: {
@@ -88,10 +90,17 @@ public static class SearchSqlCompiler {
     }
 
     /// <summary>
-    /// Escapes LIKE wildcards and the escape character inside user text.
+    /// Wraps a column expression in the case-folding SQL function.
     /// </summary>
-    /// <param name="text">The raw user text.</param>
-    /// <returns>The text with <c>\</c>, <c>%</c> and <c>_</c> escaped.</returns>
-    private static string EscapeLike(string text) =>
-        text.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+    /// <param name="column">The column expression.</param>
+    /// <returns>The folded column expression.</returns>
+    private static string Folded(string column) => $"{SqliteDatabase.FoldFunctionName}({column})";
+
+    /// <summary>
+    /// Builds an ordinal substring test of a folded column against an already folded parameter.
+    /// </summary>
+    /// <param name="column">The column expression.</param>
+    /// <param name="param">The placeholder of the folded search text.</param>
+    /// <returns>The SQL boolean expression.</returns>
+    private static string Contains(string column, string param) => $"instr({Folded(column)}, {param}) > 0";
 }

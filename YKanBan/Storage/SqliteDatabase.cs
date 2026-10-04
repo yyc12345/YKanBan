@@ -9,6 +9,20 @@ namespace YKanBan.Storage;
 /// </summary>
 public static class SqliteDatabase {
     /// <summary>
+    /// Name of the per-connection SQL function that applies <see cref="Fold"/>;
+    /// search uses it for Unicode case-insensitive matching.
+    /// </summary>
+    public const string FoldFunctionName = "ykb_fold";
+
+    /// <summary>
+    /// Unicode case folding shared by the SQL function and the search
+    /// parameters it is compared against; comparisons after folding are ordinal.
+    /// </summary>
+    /// <param name="text">The text to fold.</param>
+    /// <returns>The invariant lowercase form.</returns>
+    public static string Fold(string text) => text.ToLowerInvariant();
+
+    /// <summary>
     /// Opens (creating if needed) a database file, applies the mandatory
     /// PRAGMAs and runs any pending migrations.
     /// </summary>
@@ -27,6 +41,7 @@ public static class SqliteDatabase {
         connection.Open();
         try {
             ApplyPragmas(connection);
+            RegisterFunctions(connection);
             ApplyMigrations(connection, migrations);
             return connection;
         } catch {
@@ -57,6 +72,17 @@ public static class SqliteDatabase {
         Execute(connection, "PRAGMA journal_mode=WAL;");
         Execute(connection, "PRAGMA synchronous=NORMAL;");
         Execute(connection, "PRAGMA foreign_keys=ON;");
+    }
+
+    /// <summary>
+    /// Registers the custom SQL functions; like the PRAGMAs they live on the
+    /// connection and must be registered on every one.
+    /// </summary>
+    /// <param name="connection">An open database connection.</param>
+    internal static void RegisterFunctions(SqliteConnection connection) {
+        // NULL never reaches it from the NOT NULL text columns, but stays NULL-safe regardless.
+        connection.CreateFunction<string?, string?>(
+            FoldFunctionName, text => text is null ? null : Fold(text), isDeterministic: true);
     }
 
     /// <summary>

@@ -130,8 +130,9 @@ public class SearchQueryParserTests {
     }
 
     [TestMethod]
-    public void QualifierValueMayContainColons() {
-        AssertParsesTo(new SearchNode.TagName("a:b"), "tag:a:b");
+    public void QuotedQualifierValueMayContainColonsAndOperators() {
+        AssertParsesTo(new SearchNode.TagName("a:b"), "tag:\"a:b\"");
+        AssertParsesTo(new SearchNode.TagName("AND"), "tag:\"AND\"");
     }
 
     [TestMethod]
@@ -148,12 +149,18 @@ public class SearchQueryParserTests {
     [TestMethod]
     public void IdQualifierParsesNumber() {
         AssertParsesTo(new SearchNode.CardId(42), "id:42");
-        AssertParsesTo(new SearchNode.CardId(12), "id:\"12\"");
+        AssertParsesTo(new SearchNode.CardId(61), "id:#61");
     }
 
     [TestMethod]
-    public void ColonWithoutKeyPrefixIsFreeText() {
-        AssertParsesTo(new SearchNode.FreeText(":foo"), ":foo");
+    public void QuotedTextWithColonIsFreeText() {
+        AssertParsesTo(new SearchNode.FreeText("http://x"), "\"http://x\"");
+    }
+
+    [TestMethod]
+    public void WordMayContainHashAndPunctuation() {
+        AssertParsesTo(new SearchNode.FreeText("#61"), "#61");
+        AssertParsesTo(new SearchNode.FreeText("c#/.net"), "c#/.net");
     }
 
     #endregion
@@ -227,8 +234,84 @@ public class SearchQueryParserTests {
     }
 
     [TestMethod]
-    public void NonNumericIdIsAnError() {
-        AssertSyntaxError("id:12x");
+    [DataRow("tag: \"x\"")]
+    [DataRow("title:  \"a b\"")]
+    public void SpacedQualifierPhraseValueIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    [DataRow("a\"b\"")]
+    [DataRow("\"a\"b")]
+    [DataRow("\"a\"\"b\"")]
+    [DataRow("tag:\"x\"y")]
+    [DataRow("tag:\"x\"\"y\"")]
+    public void PhraseGluedToOtherTextIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    [DataRow("\"\"")]
+    [DataRow("a \"\"")]
+    [DataRow("tag:\"\"")]
+    public void EmptyPhraseIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    public void PhraseMayTouchParentheses() {
+        AssertParsesTo(
+            new SearchNode.And([new SearchNode.FreeText("a b"), new SearchNode.FreeText("c")]),
+            "(\"a b\")(c)");
+    }
+
+    [TestMethod]
+    [DataRow("id:12x")]
+    [DataRow("id:abc")]
+    [DataRow("id:0")]
+    [DataRow("id:-1")]
+    [DataRow("id:+1")]
+    [DataRow("id:#")]
+    [DataRow("id:##1")]
+    [DataRow("id:1.5")]
+    [DataRow("id:٣")]
+    [DataRow("id:99999999999999999999")]
+    public void InvalidIdValueIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    public void QuotedIdValueIsAnError() {
+        AssertSyntaxError("id:\"61\"");
+    }
+
+    [TestMethod]
+    [DataRow("tag:AND")]
+    [DataRow("tag:OR")]
+    [DataRow("title:AND")]
+    public void BareOperatorAsQualifierValueIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    public void UnquotedQualifierValueWithColonIsAnError() {
+        AssertSyntaxError("tag:a:b");
+    }
+
+    [TestMethod]
+    [DataRow(":foo")]
+    [DataRow("http://x")]
+    [DataRow("a:")]
+    public void ColonAfterNonKeyIsAnError(string text) {
+        AssertSyntaxError(text);
+    }
+
+    [TestMethod]
+    [DataRow("a\\b")]
+    [DataRow("\\")]
+    [DataRow("tag:a\\b")]
+    public void BackslashInBareWordIsAnError(string text) {
+        AssertSyntaxError(text);
     }
 
     [TestMethod]
