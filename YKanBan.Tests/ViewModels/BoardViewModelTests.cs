@@ -205,6 +205,66 @@ public class BoardViewModelTests
     }
 
     [TestMethod]
+    public async Task EditorThatWroteNothingLeavesTheColumnsAlone()
+    {
+        using var fixture = new Fixture();
+        ColumnModel column = fixture.Repository.AddColumn("A", "");
+        fixture.Repository.AddCard(column.Id, "t", "", []);
+        BoardViewModel board = fixture.CreateBoard();
+        ColumnViewModel shown = board.Columns.Single();
+        int writes = 0;
+        board.DataWritten += (_, _) => writes++;
+
+        // Cancel a new card, confirm an unchanged existing card, confirm an empty new card.
+        fixture.Dialogs.Script = dialog => dialog is CardEditorDialogViewModel editor
+            ? editor.RequestCancelAsync()
+            : Task.CompletedTask;
+        await shown.AddCardCommand.ExecuteAsync(null);
+        fixture.Dialogs.Script = dialog =>
+        {
+            (dialog as CardEditorDialogViewModel)?.ConfirmCommand.Execute(null);
+            return Task.CompletedTask;
+        };
+        await shown.Cards.Single().EditCommand.ExecuteAsync(null);
+        await shown.AddCardCommand.ExecuteAsync(null);
+
+        Assert.AreSame(shown, board.Columns.Single());
+        Assert.AreEqual(0, writes);
+    }
+
+    [TestMethod]
+    public async Task TagCreatedInACancelledEditRefreshesTheBoard()
+    {
+        using var fixture = new Fixture();
+        fixture.Repository.AddColumn("A", "");
+        BoardViewModel board = fixture.CreateBoard();
+        ColumnViewModel shown = board.Columns.Single();
+        int writes = 0;
+        board.DataWritten += (_, _) => writes++;
+        fixture.Dialogs.Script = async dialog =>
+        {
+            switch (dialog)
+            {
+                case CardEditorDialogViewModel editor:
+                    await editor.AddTagCommand.ExecuteAsync(null);
+                    editor.Tags.Clear();
+                    await editor.RequestCancelAsync();
+                    break;
+                case TagPickerDialogViewModel picker:
+                    picker.NewName = "fresh";
+                    picker.NewColor = "#123456";
+                    picker.CreateCommand.Execute(null);
+                    break;
+            }
+        };
+
+        await shown.AddCardCommand.ExecuteAsync(null);
+
+        Assert.AreNotSame(shown, board.Columns.Single());
+        Assert.AreEqual(1, writes);
+    }
+
+    [TestMethod]
     public void UnchangedEditConfirmationWritesNothing()
     {
         using var fixture = new Fixture();

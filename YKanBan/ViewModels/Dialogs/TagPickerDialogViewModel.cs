@@ -49,6 +49,11 @@ public sealed partial class TagPickerDialogViewModel : DialogViewModelBase
     public TagModel? PickedTag { get; private set; }
 
     /// <summary>
+    /// Gets whether <see cref="PickedTag"/> was newly created, i.e. written to the workspace.
+    /// </summary>
+    public bool CreatedTag { get; private set; }
+
+    /// <summary>
     /// Gets the available tags matching <see cref="FilterText"/>.
     /// </summary>
     public ObservableCollection<TagBadgeViewModel> FilteredTags { get; }
@@ -127,6 +132,7 @@ public sealed partial class TagPickerDialogViewModel : DialogViewModelBase
         try
         {
             PickedTag = _repository.AddTag(NewName, color, NewDescription);
+            CreatedTag = true;
         }
         catch (Exception exception)
         {

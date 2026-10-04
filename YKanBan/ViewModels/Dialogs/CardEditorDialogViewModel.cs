@@ -119,6 +119,12 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
     public CardModel? SavedCard { get; private set; }
 
     /// <summary>
+    /// Gets whether this edit session wrote anything: the card on confirmation,
+    /// or a tag created in the nested picker (kept even when the edit is cancelled).
+    /// </summary>
+    public bool WroteToWorkspace { get; private set; }
+
+    /// <summary>
     /// Gets or sets the card title; the empty string means "no title".
     /// </summary>
     [ObservableProperty]
@@ -169,9 +175,11 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
             return;
         }
 
-        if (await _dialogs.ShowAsync(picker) && picker.PickedTag is { } picked)
+        bool picked = await _dialogs.ShowAsync(picker);
+        WroteToWorkspace |= picker.CreatedTag;
+        if (picked && picker.PickedTag is { } tag)
         {
-            Tags.Add(new TagBadgeViewModel(picked));
+            Tags.Add(new TagBadgeViewModel(tag));
         }
     }
 
@@ -202,6 +210,7 @@ public sealed partial class CardEditorDialogViewModel : DialogViewModelBase
             SavedCard = _existing is null
                 ? _repository.AddCard(_columnId, CardTitle, Content, tagIds)
                 : _repository.UpdateCard(_existing.Id, CardTitle, Content, tagIds);
+            WroteToWorkspace = true;
         }
         catch (Exception exception)
         {

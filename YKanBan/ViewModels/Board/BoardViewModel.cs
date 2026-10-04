@@ -274,9 +274,7 @@ public sealed partial class BoardViewModel : ViewModelBase
         var editor = CardEditorDialogViewModel.ForNewCard(
             _repository, _dialogs, columnId, _config.Confirmations.DiscardEdit);
         await _dialogs.ShowAsync(editor);
-
-        // Refresh even after a cancel: the nested picker may have created tags.
-        await RefreshAfterWriteAsync();
+        await RefreshAfterEditorAsync(editor);
     }
 
     /// <summary>
@@ -306,8 +304,19 @@ public sealed partial class BoardViewModel : ViewModelBase
         var editor = CardEditorDialogViewModel.ForExistingCard(
             _repository, _dialogs, card, _config.Confirmations.DiscardEdit);
         await _dialogs.ShowAsync(editor);
-        await RefreshAfterWriteAsync();
+        await RefreshAfterEditorAsync(editor);
     }
+
+    /// <summary>
+    /// Refreshes after the card editor closes, but only when it wrote something:
+    /// a saved card, or a tag created in the nested picker even if the edit was
+    /// cancelled. An editor that wrote nothing leaves the columns, and so their
+    /// scroll positions, untouched.
+    /// </summary>
+    /// <param name="editor">The closed editor.</param>
+    /// <returns>A task completing after the refresh, if any.</returns>
+    private Task RefreshAfterEditorAsync(CardEditorDialogViewModel editor) =>
+        editor.WroteToWorkspace ? RefreshAfterWriteAsync() : Task.CompletedTask;
 
     /// <summary>
     /// Deletes a card, asking first when that confirmation is enabled.
