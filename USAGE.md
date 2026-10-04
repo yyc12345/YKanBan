@@ -14,9 +14,8 @@ YKanBan is a local/offline kanban board. It works like Git in one respect: all d
 ykanban <path>
 ```
 
-- `<path>` is the workspace folder to open.
-- Starting without arguments, or with invalid arguments, shows the argument error page.
-- If the path does not exist, the folder-missing page is shown.
+- `<path>` is the workspace folder to open. A relative path is resolved against the current working directory.
+- Exactly one argument is required. Starting without arguments, with more than one argument, with a blank argument, with an argument starting with `-` (any option form, `--help` included), or with a path that does not exist or is not a folder shows the argument error page.
 - If the folder exists but has no `.ykanban`, the not-initialized page is shown with an **Initialize Workspace** button. Initializing creates the database and seeds the preset columns and tags in the current interface language.
 
 ## 2. Do not commit `.ykanban` to Git
@@ -67,8 +66,8 @@ phrase    := '"' any text '"'                // escapes: \" to literal quote and
 - `tag:NAME` matches a tag by its **exact** name.
 - `column:TITLE` matches a column by its **exact** title.
 - `title:TEXT` matches a substring of the card title, and `content:TEXT` matches a substring of the card content.
-- `id:N` matches a card by its **exact** numeric id.
-- All matching is case-insensitive (SQLite ASCII semantics).
+- `id:N` matches a card by its **exact** positive integer id; an optional leading `#` is allowed (`id:#61`).
+- All matching is Unicode case-insensitive (both sides are case-folded before comparing).
 - Quotes allow values with spaces, for example `tag:"release notes"` or `column:"In Progress"`.
 - Inside a phrase, `\"` produces a literal quote and `\\` a literal backslash.
 
@@ -82,9 +81,15 @@ The following are invalid:
 - a dangling operator, for example `bug AND`;
 - consecutive operators, for example `a AND OR b`;
 - a qualifier without a value, for example `tag:`;
+- a qualifier phrase separated from its key by whitespace, for example `tag: "x"` (write `tag:"x"` instead);
 - an unterminated phrase, for example `"abc`;
+- an empty phrase, for example `""`;
+- a phrase glued to other text, for example `a"b"`;
 - an invalid escape inside a phrase (a backslash not followed by `"` or `\`), for example `tag:"a\x"`;
-- an unknown qualifier key. Only `tag`, `title`, `content`, `id` and `column` are valid, and the key is case-sensitive, so `Tag:x` is an error. A word whose colon is not preceded by an identifier (for example `:foo`) is treated as plain text.
+- a bare backslash in a word, for example `a\b`;
+- an unquoted qualifier value containing `:` or equal to `AND`/`OR`, for example `tag:a:b` (quote the value instead);
+- an id value that is not an unquoted positive integer with an optional `#`, for example `id:0`, `id:-1` or `id:"1"`;
+- an unknown qualifier key. Only `tag`, `title`, `content`, `id` and `column` are valid, and the key is case-sensitive, so `Tag:x` is an error. A colon not preceded by a valid key (for example `:foo` or `http://x`) is an error; quote such text to search for it literally.
 
 ## 5. Export
 

@@ -69,11 +69,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase {
             return;
         }
 
-        if (!Directory.Exists(folderPath)) {
-            Content = new DirectoryMissingPageViewModel(folderPath);
-            return;
-        }
-
         try {
             OpenWorkspace(folderPath);
         } catch (WorkspaceNotInitializedException) {

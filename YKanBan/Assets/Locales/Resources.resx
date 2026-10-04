@@ -265,12 +265,6 @@
   <data name="Error_Argument_Usage" xml:space="preserve">
     <value>Usage: ykanban &lt;path&gt;</value>
   </data>
-  <data name="Error_DirectoryMissing_Title" xml:space="preserve">
-    <value>Folder not found</value>
-  </data>
-  <data name="Error_DirectoryMissing_Message" xml:space="preserve">
-    <value>The folder does not exist: {0}</value>
-  </data>
   <data name="Error_NotInitialized_Title" xml:space="preserve">
     <value>No workspace here</value>
   </data>
