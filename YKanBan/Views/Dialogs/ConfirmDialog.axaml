@@ -11,11 +11,12 @@
 
     <StackPanel Margin="20" Spacing="16">
         <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        <!-- Every confirmation guards a destructive action, so Enter answers with the safe choice. -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Content="{Binding ConfirmLabel}" Command="{Binding ConfirmCommand}"
-                    Classes="Danger" MinWidth="90" IsDefault="True"/>
+                    Classes="Danger" MinWidth="90"/>
             <Button Content="{x:Static lang:Resources.Common_Cancel}" Command="{Binding CancelCommand}"
-                    MinWidth="90" IsCancel="True"/>
+                    MinWidth="90" IsDefault="True" IsCancel="True"/>
         </StackPanel>
     </StackPanel>
 </dialogs:DialogWindow>
