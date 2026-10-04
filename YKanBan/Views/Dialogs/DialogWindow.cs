@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -84,6 +85,12 @@ public class DialogWindow : Window
         try
         {
             await _viewModel.RequestCancelAsync();
+        }
+        catch (Exception exception)
+        {
+            // An async void handler must not let a failure escape and end the
+            // process; the dialog simply stays open.
+            Debug.WriteLine(exception);
         }
         finally
         {
