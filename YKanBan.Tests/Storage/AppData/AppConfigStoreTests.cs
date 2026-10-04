@@ -54,6 +54,39 @@ public class AppConfigStoreTests {
     }
 
     [TestMethod]
+    public void LoadNumericEnumValueIsRejectedAndBackedUp() {
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+
+        // Integer enum values are not accepted; the file is treated like corrupt.
+        File.WriteAllText(path, """{ "theme": 1 }""");
+        var store = new AppConfigStore(path);
+
+        AppConfig config = store.Load();
+
+        Assert.AreEqual(ThemeOption.FollowSystem, config.Theme);
+        Assert.IsTrue(File.Exists(path + ".bak"));
+    }
+
+    [TestMethod]
+    public void LoadUnreadableFileReturnsDefaults() {
+        // File sharing is only reliably enforced on Windows, so this branch is exercised there.
+        if (!OperatingSystem.IsWindows()) {
+            return;
+        }
+
+        using var directory = new TempDirectory();
+        string path = Path.Combine(directory.FullPath, "app.json");
+        File.WriteAllText(path, """{ "version": 1 }""");
+
+        // Hold the file exclusively so the store's read fails with an I/O error.
+        using FileStream hold = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None);
+        var store = new AppConfigStore(path);
+
+        Assert.AreEqual(AppConfig.CurrentFormatVersion, store.Load().Version);
+    }
+
+    [TestMethod]
     public void LoadReadsKebabCaseKeysAndEnumValues() {
         using var directory = new TempDirectory();
         string path = Path.Combine(directory.FullPath, "app.json");
