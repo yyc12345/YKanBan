@@ -22,8 +22,7 @@
                 <TextBox Text="{Binding Title}"/>
 
                 <TextBlock Text="{x:Static lang:Resources.CardDialog_Content}" Margin="0,6,0,0"/>
-                <TextBox Text="{Binding Content}" AcceptsReturn="True" TextWrapping="Wrap"
-                         VerticalContentAlignment="Top" Height="160"/>
+                <TextBox Text="{Binding Content}" Classes="TextArea" Height="160"/>
 
                 <TextBlock Text="{x:Static lang:Resources.CardDialog_Tags}" Margin="0,6,0,0"/>
                 <ItemsControl ItemsSource="{Binding AssignedTags}">

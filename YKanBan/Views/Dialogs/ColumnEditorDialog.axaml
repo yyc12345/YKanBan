@@ -19,8 +19,7 @@
             <TextBox Text="{Binding Title}"/>
 
             <TextBlock Text="{x:Static lang:Resources.ColumnDialog_Description}" Margin="0,6,0,0"/>
-            <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap"
-                     VerticalContentAlignment="Top" Height="80"/>
+            <TextBox Text="{Binding Description}" Classes="TextArea"/>
 
             <TextBlock Text="{Binding ErrorMessage}"
                        IsVisible="{Binding ErrorMessage, Converter={x:Static conv:ObjectConverters.IsNotNull}}"
