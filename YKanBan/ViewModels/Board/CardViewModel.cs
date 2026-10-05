@@ -16,6 +16,11 @@ public sealed partial class CardViewModel : ViewModelBase {
     /// </summary>
     private const int PreviewLength = 200;
 
+    /// <summary>
+    /// Maximum number of explicit content lines shown in the card preview.
+    /// </summary>
+    private const int PreviewMaxLines = 10;
+
     private readonly BoardViewModel _board;
 
     /// <summary>
@@ -70,12 +75,29 @@ public sealed partial class CardViewModel : ViewModelBase {
     public bool HasContent => Model.Content.Length > 0;
 
     /// <summary>
-    /// Gets the content preview, collapsed to one line and truncated.
+    /// Gets the content preview, truncated to at most 200 characters and
+    /// 10 explicit lines, with an ellipsis when anything was cut.
     /// </summary>
+    // YYC MARK: the preview is truncated here instead of in the view because
+    // both a character cap and an explicit-line cap are needed, and because
+    // Avalonia 11.3.x renders no ellipsis when MaxLines clips wrapped text
+    // (fixed upstream in 12.1.2, PR #22017, never backported). Revisit after
+    // upgrading Avalonia.
     public string PreviewContent {
         get {
-            string singleLine = Model.Content.Replace("\r", " ").Replace("\n", " ");
-            return singleLine.Length <= PreviewLength ? singleLine : singleLine[..PreviewLength] + "…";
+            string content = Model.Content;
+
+            // Cut at whichever boundary comes first: 200 characters or the 10th line break.
+            int limit = content.Length;
+            int breaks = 0;
+            for (int i = 0; i < content.Length; i++) {
+                if (i == PreviewLength || (content[i] == '\n' && ++breaks == PreviewMaxLines)) {
+                    limit = i;
+                    break;
+                }
+            }
+
+            return limit < content.Length ? content[..limit] + "…" : content;
         }
     }
 
