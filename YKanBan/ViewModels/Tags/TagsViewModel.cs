@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 
 using CommunityToolkit.Mvvm.Input;
 
@@ -48,6 +49,12 @@ public sealed partial class TagsViewModel : ViewModelBase {
     public bool HasNoTags => Tags.Count == 0;
 
     /// <summary>
+    /// Gets the localized total number of tags shown next to the add button.
+    /// </summary>
+    public string TagCountText => string.Format(
+        Resources.Culture ?? CultureInfo.CurrentCulture, Resources.Tags_Count, Tags.Count);
+
+    /// <summary>
     /// Gets the interaction that opens the new-tag editor.
     /// </summary>
     public Interaction<Unit> AddTag { get; } = new();
@@ -93,6 +100,7 @@ public sealed partial class TagsViewModel : ViewModelBase {
 
         OnPropertyChanged(nameof(HasTags));
         OnPropertyChanged(nameof(HasNoTags));
+        OnPropertyChanged(nameof(TagCountText));
     }
 
     /// <summary>

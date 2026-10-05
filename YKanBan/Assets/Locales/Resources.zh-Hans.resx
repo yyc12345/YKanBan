@@ -184,6 +184,9 @@
   <data name="Tags_AddTag" xml:space="preserve">
     <value>添加标签</value>
   </data>
+  <data name="Tags_Count" xml:space="preserve">
+    <value>{0} 个标签</value>
+  </data>
   <data name="Tags_Empty" xml:space="preserve">
     <value>还没有标签。</value>
   </data>

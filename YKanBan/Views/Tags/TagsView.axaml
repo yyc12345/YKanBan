@@ -11,13 +11,16 @@
 
     <Grid RowDefinitions="Auto,*" Margin="8">
 
-        <Button Grid.Row="0" Command="{Binding AddNewTagCommand}"
-                HorizontalAlignment="Right" Margin="0,0,0,8">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-                <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
-                <TextBlock Text="{x:Static lang:Resources.Tags_AddTag}"/>
-            </StackPanel>
-        </Button>
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0" Text="{Binding TagCountText}"
+                       VerticalAlignment="Center" Opacity="0.6" FontSize="13"/>
+            <Button Grid.Column="1" Command="{Binding AddNewTagCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
+                    <TextBlock Text="{x:Static lang:Resources.Tags_AddTag}"/>
+                </StackPanel>
+            </Button>
+        </Grid>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Tags}">

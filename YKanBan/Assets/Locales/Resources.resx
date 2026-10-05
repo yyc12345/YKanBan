@@ -184,6 +184,9 @@
   <data name="Tags_AddTag" xml:space="preserve">
     <value>Add Tag</value>
   </data>
+  <data name="Tags_Count" xml:space="preserve">
+    <value>{0} tags</value>
+  </data>
   <data name="Tags_Empty" xml:space="preserve">
     <value>No tags yet.</value>
   </data>
