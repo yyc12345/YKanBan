@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using YKanBan.Storage.AppData;
@@ -24,9 +26,9 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase {
 
         Languages =
         [
-            new OptionItem(AppConfig.DefaultLanguage, Resources.Settings_LanguageEnglish),
-            new OptionItem("zh-Hans", Resources.Settings_LanguageChinese),
-            new OptionItem("ja", Resources.Settings_LanguageJapanese),
+            LanguageOption(AppConfig.DefaultLanguage),
+            LanguageOption("zh-Hans"),
+            LanguageOption("ja"),
         ];
         selectedLanguage = Languages.FirstOrDefault(option => (string)option.Value == _config.Language)
             ?? Languages[0];
@@ -127,4 +129,11 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase {
     /// </summary>
     private void RefreshRestartNotice() =>
         RestartNoticeVisible = SelectedLanguage is not null && (string)SelectedLanguage.Value != _startupLanguage;
+
+    /// <summary>
+    /// Builds a language option whose label is the culture's native name, so the
+    /// language designates itself identically under every UI culture.
+    /// </summary>
+    /// <param name="code">The language code stored in app.json.</param>
+    private static OptionItem LanguageOption(string code) => new(code, new CultureInfo(code).NativeName);
 }
