@@ -13,7 +13,7 @@
 
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBlock Grid.Column="0" Text="{Binding TagCountText}"
-                       VerticalAlignment="Center" Opacity="0.6" FontSize="13"/>
+                       VerticalAlignment="Center" Classes="Secondary" FontSize="13"/>
             <Button Grid.Column="1" Command="{Binding AddNewTagCommand}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <icons:PackIconLucide Kind="Plus" Width="16" Height="16"/>
@@ -36,8 +36,8 @@
                                 <StackPanel Grid.Column="1" Spacing="2">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
                                     <TextBlock Text="{Binding Description}" IsVisible="{Binding HasDescription}"
-                                               Opacity="0.7" FontSize="12" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding UsageText}" Opacity="0.6" FontSize="12"/>
+                                               Classes="Secondary" FontSize="12" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding UsageText}" Classes="Secondary" FontSize="12"/>
                                 </StackPanel>
 
                                 <Button Grid.Column="2" Command="{Binding EditCommand}" Padding="4,2" Margin="4,0"
@@ -58,8 +58,8 @@
         </ScrollViewer>
 
         <TextBlock Grid.Row="1" Text="{x:Static lang:Resources.Tags_Empty}"
-                   IsVisible="{Binding HasNoTags}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+                   IsVisible="{Binding HasNoTags}" Classes="Secondary"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
     </Grid>
 </UserControl>

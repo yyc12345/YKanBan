@@ -23,7 +23,7 @@
                 <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding WorkspaceName}" FontSize="18" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding WorkspacePath}" FontSize="12" Opacity="0.65"
+                    <TextBlock Text="{Binding WorkspacePath}" FontSize="12" Classes="Secondary"
                                TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
 

@@ -119,8 +119,8 @@
         </ScrollViewer>
 
         <TextBlock Grid.Row="1" Text="{x:Static lang:Resources.Board_NoColumns}"
-                   IsVisible="{Binding HasNoColumns}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
+                   IsVisible="{Binding HasNoColumns}" Classes="Secondary"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
     </Grid>
 </UserControl>

@@ -28,7 +28,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <TextBlock Text="{x:Static lang:Resources.TagDialog_NoTargets}"
-                       IsVisible="{Binding !CanAdd}" Opacity="0.7" TextWrapping="Wrap"/>
+                       IsVisible="{Binding !CanAdd}" Classes="Secondary" TextWrapping="Wrap"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"

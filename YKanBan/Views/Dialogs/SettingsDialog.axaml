@@ -29,7 +29,7 @@
                 </ComboBox>
                 <TextBlock Text="{x:Static lang:Resources.Settings_Language_RestartNotice}"
                            IsVisible="{Binding RestartNoticeVisible}"
-                           FontStyle="Italic" Opacity="0.7"/>
+                           FontStyle="Italic" Classes="Secondary"/>
             </StackPanel>
 
             <StackPanel Spacing="4">

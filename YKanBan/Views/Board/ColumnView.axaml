@@ -20,7 +20,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding ToolTipText}"/>
-                    <TextBlock Text="{Binding CardCount}" Opacity="0.6" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding CardCount}" Classes="Secondary" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <Button Grid.Column="1" Margin="4,0,0,0" Padding="4,2"

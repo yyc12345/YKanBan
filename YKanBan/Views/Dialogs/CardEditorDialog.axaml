@@ -52,10 +52,10 @@
                 <Button Content="{x:Static lang:Resources.CardDialog_AddTag}"
                         Command="{Binding AddTagCommand}" HorizontalAlignment="Left"/>
 
-                <StackPanel Spacing="2" IsVisible="{Binding !IsNew}" Opacity="0.7" Margin="0,8,0,0">
-                    <TextBlock Text="{Binding IdLine}"/>
-                    <TextBlock Text="{Binding CreatedLine}"/>
-                    <TextBlock Text="{Binding ModifiedLine}"/>
+                <StackPanel Spacing="2" IsVisible="{Binding !IsNew}" Margin="0,8,0,0">
+                    <TextBlock Text="{Binding IdLine}" Classes="Secondary"/>
+                    <TextBlock Text="{Binding CreatedLine}" Classes="Secondary"/>
+                    <TextBlock Text="{Binding ModifiedLine}" Classes="Secondary"/>
                 </StackPanel>
 
                 <TextBlock Text="{Binding ErrorMessage}"
