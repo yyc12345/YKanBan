@@ -7,7 +7,7 @@
     <key>CFBundleDisplayName</key>
     <string>YKanBan</string>
     <key>CFBundleIdentifier</key>
-    <string>cn.blumia.code.yyc12345.ykanban</string>
+    <string>moe.yyc12345.ykanban</string>
     <key>CFBundleIconFile</key>
     <string>ykanban.icns</string>
     <key>CFBundleExecutable</key>
