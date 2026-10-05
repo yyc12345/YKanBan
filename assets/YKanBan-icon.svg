@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%">
+  <defs>
+    <!-- 背景渐变：从左上到右下，亮蓝到深蓝，中点为 #1e90ff -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ba8ff" />
+      <stop offset="50%" stop-color="#1e90ff" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+
+    <!-- 第 1 列渐变 - 青色（原第 3 列） -->
+    <linearGradient id="col1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+
+    <!-- 第 2 列渐变 - 紫色 -->
+    <linearGradient id="col2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c4b5fd" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+
+    <!-- 第 3 列渐变 - 浅蓝（原第 1 列） -->
+    <linearGradient id="col3Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- 列顶部高光渐变 -->
+    <linearGradient id="highlightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- 背景阴影 -->
+    <filter id="bgShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+
+    <!-- 列阴影 -->
+    <filter id="colShadow" x="-20%" y="-10%" width="140%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- 基础背景框 -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bgGrad)" filter="url(#bgShadow)" />
+
+  <!-- 第 1 列：3 个子框，最高，底部对齐 y=820，青色 -->
+  <g>
+    <rect x="187" y="200" width="170" height="620" rx="36" fill="url(#col1Grad)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2" filter="url(#colShadow)" />
+    <rect x="187" y="200" width="170" height="200" rx="36" fill="url(#highlightGrad)" />
+    <!-- 子框：水平居中，从顶部往下排列 -->
+    <rect x="217" y="220" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+    <rect x="217" y="310" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+    <rect x="217" y="400" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+  </g>
+
+  <!-- 第 2 列：2 个子框，中等高度，底部对齐 y=820，紫色 -->
+  <g>
+    <rect x="427" y="340" width="170" height="480" rx="36" fill="url(#col2Grad)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2" filter="url(#colShadow)" />
+    <rect x="427" y="340" width="170" height="180" rx="36" fill="url(#highlightGrad)" />
+    <!-- 子框：水平居中，从顶部往下排列 -->
+    <rect x="457" y="360" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+    <rect x="457" y="450" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+  </g>
+
+  <!-- 第 3 列：1 个子框，最矮，底部对齐 y=820，浅蓝 -->
+  <g>
+    <rect x="667" y="480" width="170" height="340" rx="36" fill="url(#col3Grad)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2" filter="url(#colShadow)" />
+    <rect x="667" y="480" width="170" height="140" rx="36" fill="url(#highlightGrad)" />
+    <!-- 子框：水平居中，从顶部往下排列 -->
+    <rect x="697" y="500" width="110" height="60" rx="16" fill="#ffffff" fill-opacity="0.3" />
+  </g>
+
+  <!-- 内部边框提亮（Fluent 细节） -->
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2" />
+</svg>
