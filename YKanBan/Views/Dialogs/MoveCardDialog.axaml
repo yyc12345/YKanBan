@@ -31,7 +31,8 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
                     Spacing="8" Margin="0,16,0,0">
             <Button Content="{x:Static lang:Resources.Common_Ok}" Click="OnOkClick"
-                    MinWidth="90" IsDefault="True" IsEnabled="{Binding CanMove}"/>
+                    MinWidth="90" IsDefault="True" IsEnabled="{Binding CanMove}"
+                    Theme="{DynamicResource SolidButton}" Classes="Primary"/>
             <Button Content="{x:Static lang:Resources.Common_Cancel}" Click="OnCancelClick"
                     MinWidth="90" IsCancel="True"/>
         </StackPanel>
