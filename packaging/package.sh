@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Packs one published RID into a release archive.
+# Packs one published RID into a release artifact.
 #
 #   packaging/package.sh <rid> <publish-dir> <output-dir> <version>
 #
-# win-x64   -> YKanBan-<version>-win-x64.zip     (folder YKanBan-<version>-win-x64/)
+# win-x64   -> YKanBan-<version>-win-x64-setup.exe  (Inno Setup installer)
 # linux-x64 -> YKanBan-<version>-linux-x64.tar.gz (folder YKanBan-<version>-linux-x64/)
 # osx-*     -> YKanBan-<version>-<rid>.tar.gz     (YKanBan.app bundle, ad-hoc signed when possible)
 #
@@ -27,16 +27,14 @@ trap 'rm -rf "$staging"' EXIT
 
 case "$rid" in
   win-*)
-    cp -R "$publish_dir" "$staging/$name"
-    rm -f "$output_dir/$name.zip"
-    # 7-Zip ships on the Windows runners and writes '/' entry separators;
-    # Windows PowerShell 5.1's Compress-Archive writes '\', which breaks
-    # extraction outside Windows.
-    if ! command -v 7z > /dev/null 2>&1; then
-      echo "7z not found" >&2
-      exit 1
-    fi
-    (cd "$staging" && 7z a -tzip -bso0 -bsp0 "$output_dir/$name.zip" "$name")
+    # The Windows runners ship Inno Setup with ISCC on PATH. Git Bash rewrites
+    # arguments that start with "/" into POSIX paths, so disable the conversion
+    # and hand ISCC native Windows paths via cygpath.
+    MSYS_NO_PATHCONV=1 iscc \
+      "/DMyAppVersion=${version}" \
+      "/DPublishDir=$(cygpath -w "${publish_dir}")" \
+      "/DOutputDir=$(cygpath -w "${output_dir}")" \
+      "$(cygpath -w "${script_dir}/windows/ykanban.iss")"
     ;;
   linux-*)
     cp -R "$publish_dir" "$staging/$name"

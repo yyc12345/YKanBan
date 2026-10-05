@@ -1,6 +1,7 @@
 # Manual-only release build (PLAN §7.2): no push or pull_request trigger.
 # Each RID job runs build -> test -> publish/pack -> upload; a failing step
 # skips the rest of that job, so a RID whose tests fail produces no artifact.
+# win-x64 packs an Inno Setup installer; the other RIDs keep zip/tar.gz archives.
 # No GitHub Release is created.
 name: Build
 
