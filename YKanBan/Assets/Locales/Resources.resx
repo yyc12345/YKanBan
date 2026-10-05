@@ -298,6 +298,9 @@
   <data name="Settings_LanguageChinese" xml:space="preserve">
     <value>简体中文</value>
   </data>
+  <data name="Settings_LanguageJapanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
   <data name="Settings_Theme" xml:space="preserve">
     <value>Theme</value>
   </data>

@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Japanese (ja) satellite resources.
+    This file is embedded beside the neutral resources; see YKanBan.csproj.
+  -->
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Name" xml:space="preserve">
+    <value>YKanBan</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="Main_Export" xml:space="preserve">
+    <value>エクスポート</value>
+  </data>
+  <data name="Main_Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Main_About" xml:space="preserve">
+    <value>このアプリについて</value>
+  </data>
+  <data name="Tab_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="Tab_Board" xml:space="preserve">
+    <value>ボード</value>
+  </data>
+  <data name="Board_SearchPlaceholder" xml:space="preserve">
+    <value>検索…</value>
+  </data>
+  <data name="Board_Search" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="Board_ClearSearch" xml:space="preserve">
+    <value>クリア</value>
+  </data>
+  <data name="Board_AddColumn" xml:space="preserve">
+    <value>列を追加</value>
+  </data>
+  <data name="Board_ColumnWidth" xml:space="preserve">
+    <value>列の幅</value>
+  </data>
+  <data name="Board_SortCard" xml:space="preserve">
+    <value>カードの並べ替え</value>
+  </data>
+  <data name="Board_SortColumn" xml:space="preserve">
+    <value>列の並べ替え</value>
+  </data>
+  <data name="Board_Display" xml:space="preserve">
+    <value>表示</value>
+  </data>
+  <data name="Board_NoColumns" xml:space="preserve">
+    <value>列がまだありません。</value>
+  </data>
+  <data name="Board_FilterActive" xml:space="preserve">
+    <value>ボードにフィルターが適用されています</value>
+  </data>
+  <data name="Board_FilterInactive" xml:space="preserve">
+    <value>ボードにフィルターは適用されていません</value>
+  </data>
+  <data name="Search_Error_Title" xml:space="preserve">
+    <value>無効な検索式</value>
+  </data>
+  <data name="Search_Error_Message" xml:space="preserve">
+    <value>検索式が正しくありません。詳細： {0}</value>
+  </data>
+  <data name="Sort_IdAsc" xml:space="preserve">
+    <value>ID 昇順</value>
+  </data>
+  <data name="Sort_IdDesc" xml:space="preserve">
+    <value>ID 降順</value>
+  </data>
+  <data name="Sort_CreatedAsc" xml:space="preserve">
+    <value>作成日時 昇順</value>
+  </data>
+  <data name="Sort_CreatedDesc" xml:space="preserve">
+    <value>作成日時 降順</value>
+  </data>
+  <data name="Sort_UpdatedAsc" xml:space="preserve">
+    <value>更新日時 昇順</value>
+  </data>
+  <data name="Sort_UpdatedDesc" xml:space="preserve">
+    <value>更新日時 降順</value>
+  </data>
+  <data name="Sort_TitleAsc" xml:space="preserve">
+    <value>タイトル 昇順</value>
+  </data>
+  <data name="Sort_TitleDesc" xml:space="preserve">
+    <value>タイトル 降順</value>
+  </data>
+  <data name="Column_AddCard" xml:space="preserve">
+    <value>カードを追加</value>
+  </data>
+  <data name="Column_Edit" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="Column_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Card_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Card_Move" xml:space="preserve">
+    <value>列へ移動…</value>
+  </data>
+  <data name="ColumnDialog_AddTitle" xml:space="preserve">
+    <value>新しい列</value>
+  </data>
+  <data name="ColumnDialog_EditTitle" xml:space="preserve">
+    <value>列を編集</value>
+  </data>
+  <data name="ColumnDialog_Title" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="ColumnDialog_Description" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="ColumnDialog_InvalidTitle" xml:space="preserve">
+    <value>タイトルが空であるか、すでに使用されています。</value>
+  </data>
+  <data name="CardDialog_AddTitle" xml:space="preserve">
+    <value>新しいカード</value>
+  </data>
+  <data name="CardDialog_EditTitle" xml:space="preserve">
+    <value>カードを編集</value>
+  </data>
+  <data name="CardDialog_Title" xml:space="preserve">
+    <value>タイトル</value>
+  </data>
+  <data name="CardDialog_Content" xml:space="preserve">
+    <value>内容</value>
+  </data>
+  <data name="CardDialog_Tags" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="CardDialog_AddTag" xml:space="preserve">
+    <value>タグを追加</value>
+  </data>
+  <data name="CardDialog_Id" xml:space="preserve">
+    <value>ID: {0}</value>
+  </data>
+  <data name="CardDialog_Created" xml:space="preserve">
+    <value>作成日時： {0}</value>
+  </data>
+  <data name="CardDialog_Modified" xml:space="preserve">
+    <value>更新日時： {0}</value>
+  </data>
+  <data name="CardDialog_TimePattern" xml:space="preserve">
+    <value>yyyy年M月d日 HH:mm</value>
+  </data>
+  <data name="CardDialog_Error" xml:space="preserve">
+    <value>カードを保存できませんでした。</value>
+  </data>
+  <data name="TagDialog_Title" xml:space="preserve">
+    <value>タグの追加</value>
+  </data>
+  <data name="TagDialog_Target" xml:space="preserve">
+    <value>タグ</value>
+  </data>
+  <data name="TagDialog_NoTargets" xml:space="preserve">
+    <value>追加できるタグがありません。</value>
+  </data>
+  <data name="Tags_AddTag" xml:space="preserve">
+    <value>タグを追加</value>
+  </data>
+  <data name="Tags_Count" xml:space="preserve">
+    <value>{0} 個のタグ</value>
+  </data>
+  <data name="Tags_Empty" xml:space="preserve">
+    <value>タグがまだありません。</value>
+  </data>
+  <data name="Tags_Usage" xml:space="preserve">
+    <value>{0} 枚のカード</value>
+  </data>
+  <data name="TagEditor_AddTitle" xml:space="preserve">
+    <value>新しいタグ</value>
+  </data>
+  <data name="TagEditor_EditTitle" xml:space="preserve">
+    <value>タグを編集</value>
+  </data>
+  <data name="TagEditor_Name" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="TagEditor_Color" xml:space="preserve">
+    <value>色</value>
+  </data>
+  <data name="TagEditor_Description" xml:space="preserve">
+    <value>説明</value>
+  </data>
+  <data name="TagEditor_InvalidName" xml:space="preserve">
+    <value>名前が空であるか、すでに使用されています。</value>
+  </data>
+  <data name="DeleteTag_Confirm_Title" xml:space="preserve">
+    <value>タグの削除</value>
+  </data>
+  <data name="DeleteTag_Confirm_Message" xml:space="preserve">
+    <value>タグ「{0}」を削除しますか？{1} 枚のカードから削除されます。</value>
+  </data>
+  <data name="MoveDialog_Title" xml:space="preserve">
+    <value>カードの移動</value>
+  </data>
+  <data name="MoveDialog_Target" xml:space="preserve">
+    <value>移動先の列</value>
+  </data>
+  <data name="MoveDialog_NoTargets" xml:space="preserve">
+    <value>カードの移動先がありません。</value>
+  </data>
+  <data name="WidthPreset_Narrow" xml:space="preserve">
+    <value>狭い</value>
+  </data>
+  <data name="WidthPreset_Standard" xml:space="preserve">
+    <value>標準</value>
+  </data>
+  <data name="WidthPreset_Wide" xml:space="preserve">
+    <value>広い</value>
+  </data>
+  <data name="WidthPreset_Custom" xml:space="preserve">
+    <value>カスタム</value>
+  </data>
+  <data name="WidthDialog_Pixels" xml:space="preserve">
+    <value>ピクセル（160–720）</value>
+  </data>
+  <data name="Confirm_DeleteColumn_Title" xml:space="preserve">
+    <value>列の削除</value>
+  </data>
+  <data name="Confirm_DeleteColumn_Message" xml:space="preserve">
+    <value>列「{0}」とその {1} 枚のカードを削除しますか？</value>
+  </data>
+  <data name="Confirm_DeleteCard_Title" xml:space="preserve">
+    <value>カードの削除</value>
+  </data>
+  <data name="Confirm_DeleteCard_Message" xml:space="preserve">
+    <value>カード #{0} を削除しますか？</value>
+  </data>
+  <data name="Confirm_Discard_Title" xml:space="preserve">
+    <value>変更の破棄</value>
+  </data>
+  <data name="Confirm_Discard_Message" xml:space="preserve">
+    <value>未保存の変更を破棄しますか？</value>
+  </data>
+  <data name="Error_Argument_Title" xml:space="preserve">
+    <value>無効な引数</value>
+  </data>
+  <data name="Error_Argument_Message" xml:space="preserve">
+    <value>YKanBan の起動引数が無効です。</value>
+  </data>
+  <data name="Error_Argument_Usage" xml:space="preserve">
+    <value>使用法： ykanban &lt;パス&gt;</value>
+  </data>
+  <data name="Error_NotInitialized_Title" xml:space="preserve">
+    <value>ワークスペースがありません</value>
+  </data>
+  <data name="Error_NotInitialized_Message" xml:space="preserve">
+    <value>このフォルダーには .ykanban ワークスペースがありません：{0}</value>
+  </data>
+  <data name="Error_NotInitialized_Initialize" xml:space="preserve">
+    <value>ワークスペースを初期化</value>
+  </data>
+  <data name="Error_LockConflict_Title" xml:space="preserve">
+    <value>ワークスペースはロックされています</value>
+  </data>
+  <data name="Error_LockConflict_Message" xml:space="preserve">
+    <value>このワークスペースは別のインスタンスで開かれています：{0}</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Settings_Language_RestartNotice" xml:space="preserve">
+    <value>再起動後に有効になります</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings_LanguageJapanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>テーマ</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <data name="Settings_ThemeFollowSystem" xml:space="preserve">
+    <value>システムに従う</value>
+  </data>
+  <data name="Settings_Confirmations" xml:space="preserve">
+    <value>確認ダイアログ</value>
+  </data>
+  <data name="Settings_ConfirmDeleteCard" xml:space="preserve">
+    <value>カードを削除する前に確認する</value>
+  </data>
+  <data name="Settings_ConfirmDeleteColumn" xml:space="preserve">
+    <value>列を削除する前に確認する</value>
+  </data>
+  <data name="Settings_ConfirmDeleteTag" xml:space="preserve">
+    <value>タグを削除する前に確認する</value>
+  </data>
+  <data name="Settings_ConfirmDiscardEdit" xml:space="preserve">
+    <value>カードの編集を破棄する前に確認する</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>このアプリについて</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>バージョン {0}</value>
+  </data>
+  <data name="About_Repository" xml:space="preserve">
+    <value>リポジトリ</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>ライセンス</value>
+  </data>
+  <data name="About_LicenseValue" xml:space="preserve">
+    <value>MIT</value>
+  </data>
+  <data name="PresetColumn_Todo" xml:space="preserve">
+    <value>未着手</value>
+  </data>
+  <data name="PresetColumn_Todo_Description" xml:space="preserve">
+    <value>計画済みで、まだ開始していないタスクです。</value>
+  </data>
+  <data name="PresetColumn_InProgress" xml:space="preserve">
+    <value>進行中</value>
+  </data>
+  <data name="PresetColumn_InProgress_Description" xml:space="preserve">
+    <value>現在取り組んでいるタスクです。</value>
+  </data>
+  <data name="PresetColumn_Done" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="PresetColumn_Done_Description" xml:space="preserve">
+    <value>完了したタスクです。</value>
+  </data>
+  <data name="PresetTag_Bug_Name" xml:space="preserve">
+    <value>バグ</value>
+  </data>
+  <data name="PresetTag_Bug_Description" xml:space="preserve">
+    <value>機能が正しく動作していません。</value>
+  </data>
+  <data name="PresetTag_Documentation_Name" xml:space="preserve">
+    <value>ドキュメント</value>
+  </data>
+  <data name="PresetTag_Documentation_Description" xml:space="preserve">
+    <value>ドキュメントの改善または追加。</value>
+  </data>
+  <data name="PresetTag_Duplicate_Name" xml:space="preserve">
+    <value>重複</value>
+  </data>
+  <data name="PresetTag_Duplicate_Description" xml:space="preserve">
+    <value>この課題またはプルリクエストはすでに存在します。</value>
+  </data>
+  <data name="PresetTag_Enhancement_Name" xml:space="preserve">
+    <value>機能追加</value>
+  </data>
+  <data name="PresetTag_Enhancement_Description" xml:space="preserve">
+    <value>新しい機能やリクエスト。</value>
+  </data>
+  <data name="PresetTag_HelpWanted_Name" xml:space="preserve">
+    <value>ヘルプ募集</value>
+  </data>
+  <data name="PresetTag_HelpWanted_Description" xml:space="preserve">
+    <value>特別な注意が必要です。</value>
+  </data>
+  <data name="PresetTag_Invalid_Name" xml:space="preserve">
+    <value>無効</value>
+  </data>
+  <data name="PresetTag_Invalid_Description" xml:space="preserve">
+    <value>正しくないようです。</value>
+  </data>
+  <data name="PresetTag_Question_Name" xml:space="preserve">
+    <value>質問</value>
+  </data>
+  <data name="PresetTag_Question_Description" xml:space="preserve">
+    <value>さらなる情報が必要です。</value>
+  </data>
+  <data name="PresetTag_Wontfix_Name" xml:space="preserve">
+    <value>対応予定なし</value>
+  </data>
+  <data name="PresetTag_Wontfix_Description" xml:space="preserve">
+    <value>対応する予定はありません。</value>
+  </data>
+  <data name="Export_FileNamePattern" xml:space="preserve">
+    <value>{0}-エクスポート-{1:yyyyMMdd-HHmmss}.md</value>
+  </data>
+  <data name="Export_TimePattern" xml:space="preserve">
+    <value>yyyy年M月d日 HH:mm:ss</value>
+  </data>
+  <data name="Export_WorkspaceHeading" xml:space="preserve">
+    <value># {0}</value>
+  </data>
+  <data name="Export_ExportedAtLine" xml:space="preserve">
+    <value>&gt; エクスポート日時：{0}</value>
+  </data>
+  <data name="Export_ColumnHeading" xml:space="preserve">
+    <value>## 列：{0}（{1}）</value>
+  </data>
+  <data name="Export_TagsLine" xml:space="preserve">
+    <value>- タグ：{0}</value>
+  </data>
+  <data name="Export_CreatedModifiedLine" xml:space="preserve">
+    <value>- 作成日時：{0}　更新日時：{1}</value>
+  </data>
+  <data name="Export_TagsSummaryHeading" xml:space="preserve">
+    <value>## タグ一覧</value>
+  </data>
+  <data name="Export_TagsTableHeader" xml:space="preserve">
+    <value>| 名前 | 色 | 説明 | 使用数 |</value>
+  </data>
+  <data name="Export_Done_Title" xml:space="preserve">
+    <value>エクスポート完了</value>
+  </data>
+  <data name="Export_Done_Message" xml:space="preserve">
+    <value>エクスポート先：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Title" xml:space="preserve">
+    <value>ワークスペースを開けません</value>
+  </data>
+  <data name="Error_OpenFailed_SchemaTooNew" xml:space="preserve">
+    <value>ワークスペースデータベースはより新しいバージョンの YKanBan で作成されています（schema バージョン {1}、このバージョンは {2} まで対応）：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Database" xml:space="preserve">
+    <value>ワークスペースデータベースを開けないか、破損しています：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_DatabaseMissing" xml:space="preserve">
+    <value>ワークスペースデータベース（.ykanban/ykanban.db）が見つかりません。-wal、-shm ファイルと一緒にバックアップから復元するか、.ykanban フォルダーを削除してワークスペースを再初期化してください：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_AccessDenied" xml:space="preserve">
+    <value>ワークスペースへのアクセスが拒否されました：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Io" xml:space="preserve">
+    <value>ワークスペースを開くときにファイルシステムエラーが発生しました：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Generic" xml:space="preserve">
+    <value>ワークスペースを開くときに予期しないエラーが発生しました：{0}</value>
+  </data>
+  <data name="Error_OpenFailed_Details" xml:space="preserve">
+    <value>詳細</value>
+  </data>
+</root>

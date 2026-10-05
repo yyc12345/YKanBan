@@ -26,6 +26,7 @@ public sealed partial class SettingsDialogViewModel : ViewModelBase {
         [
             new OptionItem(AppConfig.DefaultLanguage, Resources.Settings_LanguageEnglish),
             new OptionItem("zh-Hans", Resources.Settings_LanguageChinese),
+            new OptionItem("ja", Resources.Settings_LanguageJapanese),
         ];
         selectedLanguage = Languages.FirstOrDefault(option => (string)option.Value == _config.Language)
             ?? Languages[0];

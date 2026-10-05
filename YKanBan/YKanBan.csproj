@@ -35,6 +35,9 @@
     <EmbeddedResource Update="Assets/Locales/Resources.zh-Hans.resx">
       <LogicalName>YKanBan.Resources.zh-Hans.resources</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Update="Assets/Locales/Resources.ja.resx">
+      <LogicalName>YKanBan.Resources.ja.resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
