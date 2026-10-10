@@ -5,9 +5,9 @@
 #
 # win-x64   -> YKanBan-<version>-win-x64-setup.exe  (Inno Setup installer)
 # linux-x64 -> YKanBan-<version>-linux-x64.tar.gz (folder YKanBan-<version>-linux-x64/)
-# osx-*     -> YKanBan-<version>-<rid>.tar.gz     (YKanBan.app bundle, ad-hoc signed when possible)
+# osx-*     -> YKanBan-<version>-<rid>.dmg        (YKanBan.app in a drag-to-Applications disk image, ad-hoc signed when possible)
 #
-# tar.gz keeps the executable bit, which a plain zip artifact upload would lose.
+# tar.gz/dmg keep the executable bit, which a plain zip artifact upload would lose.
 set -euo pipefail
 
 if [ "$#" -ne 4 ]; then
@@ -56,7 +56,8 @@ case "$rid" in
         echo "warning: ad-hoc signing of YKanBan.app failed; packing it unsigned" >&2
       fi
     fi
-    tar -C "$staging" -czf "$output_dir/$name.tar.gz" YKanBan.app
+    ln -s /Applications "$staging/Applications"
+    hdiutil create -volname "YKanBan" -srcfolder "$staging" -format UDZO -ov "$output_dir/$name.dmg"
     ;;
   *)
     echo "unsupported RID: $rid" >&2

@@ -4,17 +4,17 @@ YKanBan is a local, offline kanban board. Like Git, it keeps its data in a `.yka
 
 ## Installing
 
-Each release build is a self-contained archive; no .NET runtime is needed.
+Each release build is self-contained; no .NET runtime is needed.
 
-| Platform | Archive | Executable |
+| Platform | Package | Executable |
 |---|---|---|
-| Windows x64 | `YKanBan-<version>-win-x64.zip` | `YKanBan.exe` |
+| Windows x64 | `YKanBan-<version>-win-x64-setup.exe` | `YKanBan.exe` |
 | Linux x64 | `YKanBan-<version>-linux-x64.tar.gz` | `YKanBan` |
-| macOS Apple silicon | `YKanBan-<version>-osx-arm64.tar.gz` | `YKanBan.app` (see [macOS](#macos)) |
+| macOS Apple silicon | `YKanBan-<version>-osx-arm64.dmg` | `YKanBan.app` (see [macOS](#macos)) |
 
 Only Apple silicon macOS is a release target; there is no Intel Mac build.
 
-Extract the archive anywhere. To type `ykanban <path>` as shown below, put the executable on your `PATH` under that name, for example:
+On Windows, run the installer. On Linux, extract the archive anywhere. On macOS, open the disk image and drag `YKanBan.app` into `Applications` (or any other folder). To type `ykanban <path>` as shown below, put the executable on your `PATH` under that name, for example:
 
 ```sh
 # Linux
@@ -23,7 +23,7 @@ ln -s /opt/YKanBan-<version>-linux-x64/YKanBan ~/.local/bin/ykanban
 ln -s /Applications/YKanBan.app/Contents/MacOS/YKanBan /usr/local/bin/ykanban
 ```
 
-On Windows, add the extracted folder to `PATH`; `ykanban` then finds `YKanBan.exe` because Windows ignores case.
+On Windows, add the installed folder to `PATH` (the default is `C:\Program Files\YKanBan`); `ykanban` then finds `YKanBan.exe` because Windows ignores case.
 
 ## Starting YKanBan
 
@@ -50,7 +50,7 @@ The window title is `<workspace name> - YKanBan` while a workspace is open and j
 
 ## macOS
 
-The app is not notarized. After extracting, remove the download quarantine once, or macOS refuses to open it:
+The app is not notarized. After dragging it out of the disk image, remove the download quarantine once, or macOS refuses to open it:
 
 ```sh
 xattr -dr com.apple.quarantine YKanBan.app
