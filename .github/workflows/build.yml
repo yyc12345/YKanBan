@@ -1,7 +1,9 @@
 # Manual-only release build (PLAN §7.2): no push or pull_request trigger.
 # Each RID job runs build -> test -> publish/pack -> upload; a failing step
 # skips the rest of that job, so a RID whose tests fail produces no artifact.
-# win-x64 packs an Inno Setup installer; the other RIDs keep zip/tar.gz archives.
+# win-x64 packs an Inno Setup installer; the other RIDs keep tar.gz archives.
+# Artifacts are uploaded unzipped (upload-artifact archive: false): each RID's
+# dist/ holds exactly one file, and its name becomes the artifact name.
 # No GitHub Release is created.
 name: Build
 
@@ -54,15 +56,15 @@ jobs:
           --self-contained -o publish/${{ matrix.rid }}
 
       - name: Pack
-        id: pack
         run: |
           version="$(dotnet msbuild YKanBan/YKanBan.csproj -getProperty:Version)"
           bash packaging/package.sh ${{ matrix.rid }} publish/${{ matrix.rid }} dist "$version"
-          echo "name=YKanBan-$version-${{ matrix.rid }}" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.pack.outputs.name }}
+          # archive: false uploads the single matched file as-is (no zip
+          # wrapper); the file name doubles as the artifact name.
           path: dist/*
+          archive: false
           if-no-files-found: error
